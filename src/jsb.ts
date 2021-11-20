@@ -249,7 +249,7 @@ namespace JSB {
 
         private loadPart(string: string, part: string) {
             if (string) {
-                const split = string.split(/[[|\]]/).slice(1, -1).map(bar => bar.split(" "));
+                const split = string.split(/[[|\]]/).filter(bar => bar).map(bar => bar.split(" ").filter(note => note));
                 let n = Note.parse("C4");
                 for (let bar = 0; bar < split.length; ++bar) {
                     this.in[bar] ??= []

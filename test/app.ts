@@ -4,7 +4,7 @@ const HTHAS = new JSB.Piece().load("G major", "[D G G. F#/|G@ B B A@|D D C_|B A 
 
 const M1 = new JSB.Piece().load("C major", "[C5|A F G C|C B C@ D|E C D B|C_.@]").harmonise(JSB.DICT_FULL);
 
-const MELODY_1_SIMPLE = new JSB.Piece().load("C major", "[C5|A F G C|C B C@ D|E C D B|C_.@]").harmonise(JSB.DICT_PRIMARY_a_b);
+const M1_SIMPLE = new JSB.Piece().load("C major", "[C5|A F G C|C B C@ D|E C D B|C_.@]").harmonise(JSB.DICT_PRIMARY_a_b);
 
 const KMSR = new JSB.Piece().load("D major", "[A4|F# F# G|A D A|G E5 A4|F#_@ A|D C# B|A. G/ F#|E D C#|D_@]").harmonise(JSB.DICT_FULL);
 
