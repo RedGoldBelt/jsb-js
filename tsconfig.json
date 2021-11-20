@@ -8,5 +8,5 @@
       "noImplicitThis": true,
       "suppressImplicitAnyIndexErrors": true
     },
-    "include": ["./src/**/*"]
+    "include": ["./src/**/*", "./test/**/*"]
   }

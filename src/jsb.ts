@@ -1,7 +1,7 @@
 declare const Tone: any;
 const T = Tone;
 
-namespace J {
+namespace JSB {
     class Numeral {
         static NUM = ["i", "ii", "iii", "iv", "v", "vi", "vii"];
 
@@ -83,7 +83,7 @@ namespace J {
         string() { return this.tone.string() + this.oct; }
     }
 
-    export class Key {
+    class Key {
         tone;
         ton;
 
@@ -107,7 +107,7 @@ namespace J {
 
     type Alteration = "" | "7" | "o7";
 
-    export class Chord {
+    class Chord {
         private static INV = ["a", "b", "c", "d"];
 
         base;
@@ -231,14 +231,12 @@ namespace J {
         out: Bar[] = [];
 
         private t: Time;
-        private title: string;
         private key: Key;
         private cad: Time[];
         private _x: Index;
         private res: Resolution;
 
-        load(title: string, key: string, s: string, a?: string, t?: string, b?: string) {
-            this.title = title;
+        load(key: string, s: string, a?: string, t?: string, b?: string) {
             this.key = Key.parse(key);
             this.in = [];
             this.cad = [];
@@ -301,7 +299,7 @@ namespace J {
         private x() { return this.out[this.t.bar][this.t.i]; }
 
         harmonise(dict: any) {
-            console.groupCollapsed(this.title);
+            console.groupCollapsed();
             console.time("Harmonisation");
 
             for (this.t = { bar: 0, i: 0 }; !(this.t.bar === this.in.length && this.t.i === 0);) {
