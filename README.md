@@ -1,5 +1,6 @@
 # JChord
 JChord is a JavaScript application for harmonising music in the style of Bach Chorales.
+
 It will take a soprano part (and other parts if given), and assign chords to each note. Simultaneously, it creates a realisation of the chords.
 JChord follows common principles of good harmonisation and part writing:
 
