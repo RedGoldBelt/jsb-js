@@ -218,7 +218,7 @@ namespace JSB {
     }
 
     interface Bar extends Array<Index> {
-        at?(position: number): Index;
+        at(position: number): Index;
     }
 
     interface Time {
