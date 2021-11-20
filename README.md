@@ -12,4 +12,6 @@ JChord follows common principles of good harmonisation and part writing:
 * Parts must not cross.
 * The notes must not exceed the tessitura of the part.
 
-Importantly, JChord employs a heuristic algotrithm, which is not based on machine learning.
+Importantly, JChord employs a heuristic algotrithm, which is not based on machine learning. The database that determines which chord to try is manually calculated and compiled.
+
+Author: Jeremy Chen
