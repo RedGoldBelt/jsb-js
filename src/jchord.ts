@@ -594,10 +594,10 @@ namespace J {
             "viio7d": []
         },
         COM_MIN: {
-            null: ["i/i", "V/i"],
+            null: ["i", "iv", "V"],
 
-            "i": [],
-            "ib": [],
+            "i": ["VI", Chord. all("V7"), Chord.all("V"), "#viib"],
+            "ib": ["i"],
             "ic": [],
 
             "bII": [],
@@ -613,15 +613,15 @@ namespace J {
             "ii7c": [],
             "ii7d": [],
 
-            "III": [],
+            "III": ["VI"],
             "IIIb": [],
             "IIIc": [],
 
-            "iv": [],
+            "iv": ["III", "iv"],
             "ivb": [],
             "ivc": [],
 
-            "V": ["i"],
+            "V": ["bIIb", "i"],
             "Vb": ["i"],
             "Vc": ["ib", "i"],
 
@@ -630,7 +630,7 @@ namespace J {
             "V7c": ["ib", "i"],
             "V7d": ["ib"],
 
-            "VI": [],
+            "VI": [""],
             "VIb": [],
             "VIc": [],
 
@@ -639,7 +639,7 @@ namespace J {
             "VIIc": [],
 
             "#vii": [],
-            "#viib": [],
+            "#viib": ["ib", "i"],
             "#viic": [],
 
             "#viio7": ["i"],
