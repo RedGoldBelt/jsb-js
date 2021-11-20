@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+      "outDir": "./dist",
+      "allowJs": true,
+      "target": "ESNext",
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "suppressImplicitAnyIndexErrors": true
+    },
+    "include": ["./src/**/*"]
+  }

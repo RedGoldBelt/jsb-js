@@ -1,0 +1,23 @@
+{
+  "name": "beta",
+  "version": "1.0.0",
+  "description": "Harmoniser",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IntGrah/beta.git"
+  },
+  "author": "Jeremy Chen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IntGrah/beta/issues"
+  },
+  "homepage": "https://github.com/IntGrah/beta#readme",
+  "dependencies": {
+    "tone": "^14.8.32",
+    "typescript": "^4.4.4"
+  }
+}
