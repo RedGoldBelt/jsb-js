@@ -1,5 +1,3 @@
-// import * as T from "tone";
-let T: any;
 import Chord from "./chord.js";
 import Key from "./key.js";
 import Note from "./note.js";
@@ -403,23 +401,6 @@ export class Piece {
         this.outSlice().t = undefined;
         this.outSlice().b = undefined;
         this.outSlice().chord = undefined;
-    }
-
-    play(tempo: number) {
-        const s = new T.Synth().toDestination();
-        const a = new T.Synth().toDestination();
-        const t = new T.Synth().toDestination();
-        const b = new T.Synth().toDestination();
-        let total = 0;
-        for (this.time = { bar: 0, index: 0 }; !(this.time.bar === this.in.length && this.time.index === 0);) {
-            const x = this.outSlice();
-            if (x.s !== undefined) s.triggerAttackRelease(x.s.string(), 0.95 * tempo * x.duration, total);
-            if (x.a !== undefined) a.triggerAttackRelease(x.a.string(), 0.95 * tempo * x.duration, total);
-            if (x.t !== undefined) t.triggerAttackRelease(x.t.string(), 0.95 * tempo * x.duration, total);
-            if (x.b !== undefined) b.triggerAttackRelease(x.b.string(), 0.95 * tempo * x.duration, total);
-            total += tempo * x.duration;
-            this.incrementInIndex();
-        }
     }
 
     private string(part: Part | "chord") {

@@ -22,9 +22,6 @@
     "url": "https://github.com/IntGrah/jsb-js/issues"
   },
   "homepage": "https://github.com/IntGrah/jsb-js#readme",
-  "dependencies": {
-    "tone": "^14.8.32"
-  },
   "devDependencies": {
     "@types/node": "^16.11.9",
     "typescript": "^4.5.2"
