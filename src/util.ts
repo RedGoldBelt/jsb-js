@@ -260,7 +260,7 @@ export const DICTIONARY_FULL: any = {
 
 export const DICTIONARY_PRIMARY_a_b: any = {
     COMMON_MAJOR: {
-        null: ["Ib", "I", "IVb", "IV", "Vb", "V"],
+        null: ["I", "Ib", "IVb", "IV", "Vb", "V"],
 
         "I": ["IVb", "IV", "Vb", "V", "Ib", "I"],
         "Ib": ["IV", "V", "I"],
@@ -270,17 +270,5 @@ export const DICTIONARY_PRIMARY_a_b: any = {
 
         "V": ["I", "Ib", "IV", "Vb"],
         "Vb": ["I", "V"]
-    },
-    SPECIFIC_I: {
-        null: [],
-
-        "I": [],
-        "Ib": [],
-
-        "IV": [],
-        "IVb": [],
-
-        "V": [],
-        "Vb": [],
     }
 }

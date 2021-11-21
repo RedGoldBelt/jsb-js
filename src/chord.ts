@@ -81,14 +81,15 @@ export default class Chord {
             throw new Error("Cannot calculate progressions of a chord with no relative key");
         }
         const SPECIFIC = dictionary["SPECIFIC_" + this.relativeKey.string()];
-        const SPECIFIC_OPTIONS = SPECIFIC[this.string()].flat().map(Chord.parse) as Chord[];
+        const SPECIFIC_OPTIONS = SPECIFIC?.[this.string()].flat().map(Chord.parse) as Chord[];
         const COMMON = this.relativeKey.tonality ? dictionary.COMMON_MAJOR : dictionary.COMMON_MINOR;
         const COMMON_OPTIONS = COMMON[this.string()].flat().map((string: string) => {
             const chord = Chord.parse(string);
             chord.relativeKey = this.relativeKey;
             return chord;
         }) as Chord[];
-        return SPECIFIC_OPTIONS.concat(COMMON_OPTIONS);
+
+        return SPECIFIC_OPTIONS === undefined ? COMMON_OPTIONS : SPECIFIC_OPTIONS.concat(COMMON_OPTIONS);
     }
 
     string() {

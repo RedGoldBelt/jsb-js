@@ -263,7 +263,7 @@ export class Piece {
                 this.inSlice().chord = chord;
                 this.incrementInIndex();
                 if (debug) {
-                    console.info(`%cAccepted '${chord.stringFull()}' (Bar ${this.time.bar}, Chord ${this.time.index})`, "color: #00e000;");
+                    console.info(`%cAccepted '${chord.stringFull()}' (Bar ${this.time.bar + 1}, Chord ${this.time.index + 1})`, "color: #00e000;");
                 }
                 return;
             }
