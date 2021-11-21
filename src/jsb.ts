@@ -1,7 +1,6 @@
-declare const Tone: any;
-const T = Tone;
+import * as T from "tone";
 
-namespace JSB {
+export namespace JSB {
     class Numeral {
         static NUM = ["i", "ii", "iii", "iv", "v", "vi", "vii"];
 

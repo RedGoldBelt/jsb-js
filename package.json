@@ -2,6 +2,7 @@
   "name": "jsb-js",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "jsb",
   "scripts": {
     "test": "node dist/test/test.js"
