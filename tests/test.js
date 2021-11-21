@@ -9,4 +9,3 @@ const C2 = new JSB.Piece("A major", "[C#5|A B C# F#|E C# B_@|D D C# C#|B B A_@]"
 const H_3 = new JSB.Piece("D major", "[A4_ F# G|F# E D_@|F#_ A A|B_ A_@|A_ B C#|D_ A_@|D. C#/ B C#|B_ A_@|D_ A B|A G F#_@|G. F#/ G A|G F# E_@|A_ D4 G|F#_ E_|D__@]").harmonise(JSB.DICTIONARY_FULL);
 const H_8 = new JSB.Piece("Ab major", "[Eb4|Ab G F Eb|Ab_ Bb.@ Bb/|Eb C Ab G|F_. Ab|Eb5 C Ab Ab|Bb_ Eb4@ Ab|F Db Eb G|Ab_.@]").harmonise(JSB.DICTIONARY_FULL);
 const H_10 = new JSB.Piece("Eb major", "[G4_ G F|Eb_ Bb4_|C Bb Bb Ab|G__@|G_ Ab Bb|C_ Bb_|Ab F G Ab|Bb__@|G_ G F|Eb_ Bb4_|Bb Ab Ab G|F__@|F_ G Ab|G F Eb Ab|G_ F_|Eb__@]").harmonise(JSB.DICTIONARY_FULL);
-const MHALL = new JSB.Piece("G major", "[B4 A G A|B B B_@|A A A_@|B D D_@|B A G A|B B B G|A A B A|G__@]").harmonise({});
