@@ -3,8 +3,15 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",
+  "files": [
+    "README.md",
+    "LICENSE.md",
+    "dist"
+  ],
   "scripts": {
-    "test": "node dist/test/test.js"
+    "test": "node dist/test/test.js",
+    "build": "npm run ts:build",
+    "ts:build": "tsc --project tsconfig.json"
   },
   "repository": {
     "type": "git",

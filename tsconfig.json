@@ -1,15 +1,18 @@
 {
+  "compileOnSave": true,
   "compilerOptions": {
+    "strict": true,
+		"importHelpers": true,
+		"noUnusedLocals": false,
+    "removeComments": true,
+    "module": "ES6",
     "outDir": "./dist",
     "target": "ES2020",
-    "allowJs": false,
+    "baseUrl": ".",
     "paths": {
-      "jsb-js": ["./node_modules/dist/index.js"]
+      "jsb-js": ["node_modules/dist/index.js"]
     },
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "suppressImplicitAnyIndexErrors": true
+    "lib": ["ES2015", "ES2019.Array"]
   },
   "include": ["./src/**/*", "./test/**/*"]
 }

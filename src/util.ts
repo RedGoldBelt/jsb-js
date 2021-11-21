@@ -5,13 +5,23 @@ export type Alteration = "" | "7" | "o7";
 
 export type Bar = Slice[];
 
+export type Part = "s" | "a" | "t" | "b";
+
+export type Inversion = 0 | 1 | 2 | 3;
+
+export interface Permutation {
+    altoInversion: Inversion;
+    tenorInversion: Inversion;
+    score: number;
+}
+
 export interface Time {
     bar: number;
-    i: number;
+    index: number;
 }
 
 export const DICT_FULL: any = {
-    COM_MAJ: {
+    COMMON_MAJOR: {
         null: ["I", "V", "IV", "ii", "vi", "iii"],
 
         "I": [Chord.all("iii7"), Chord.all("iii"), Chord.all("vi7"), Chord.all("vi"), Chord.all("ii7"), Chord.all("ii"), Chord.all("IV"), "viib", Chord.all("V"), Chord.all("I")],
@@ -36,8 +46,8 @@ export const DICT_FULL: any = {
         "iii7c": [],
         "iii7d": [],
 
-        "IV": ["viio", "iii", "I", "V", "ii"],
-        "IVb": ["viio", "Ic", "I"],
+        "IV": ["vii", "iii", "I", "V", "ii"],
+        "IVb": ["vii", "Ic", "I"],
         "IVc": [],
 
         "V": [Chord.all("iii"), "vi", Chord.all("ii"), "IV", Chord.all("I"), Chord.all("V")],
@@ -72,7 +82,7 @@ export const DICT_FULL: any = {
         "viio7c": [],
         "viio7d": []
     },
-    COM_MIN: {
+    COMMON_MINOR: {
         null: ["i", "iv", "V"],
 
         "i": ["VI", Chord.all("V7"), Chord.all("V"), "#viib"],
@@ -126,7 +136,7 @@ export const DICT_FULL: any = {
         "#viio7c": ["ib"],
         "#viio7d": ["ic"]
     },
-    SPEC_I: {
+    SPECIFIC_I: {
         null: [],
 
         "I": [],
@@ -187,7 +197,7 @@ export const DICT_FULL: any = {
         "viio7c": [],
         "viio7d": []
     },
-    SPEC_V: {
+    SPECIFIC_V: {
         "I": [],
         "Ib": [],
         "Ic": [],
@@ -249,7 +259,7 @@ export const DICT_FULL: any = {
 }
 
 export const DICT_PRIMARY_a_b: any = {
-    COM_MAJ: {
+    COMMON_MAJOR: {
         null: ["Ib", "I", "IVb", "IV", "Vb", "V"],
 
         "I": ["IVb", "IV", "Vb", "V", "Ib", "I"],
@@ -261,7 +271,7 @@ export const DICT_PRIMARY_a_b: any = {
         "V": ["I", "Ib", "IV", "Vb"],
         "Vb": ["I", "V"]
     },
-    SPEC_I: {
+    SPECIFIC_I: {
         null: [],
 
         "I": [],
