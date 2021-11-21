@@ -3,11 +3,13 @@
     "outDir": "./dist",
     "target": "ES2020",
     "allowJs": false,
+    "paths": {
+      "jsb-js": ["./node_modules/dist/index.js"]
+    },
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "moduleResolution": "node"
+    "suppressImplicitAnyIndexErrors": true
   },
   "include": ["./src/**/*", "./test/**/*"]
 }
