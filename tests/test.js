@@ -1,4 +1,4 @@
-import * as JSB from "../src/index.js";
+import * as JSB from "../dist/index.js";
 
 const GSTQ = new JSB.Piece("G major", "[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]").harmonise(JSB.DICTIONARY_FULL);
 const HTHAS = new JSB.Piece("G major", "[D G G. F#/|G@ B B A@|D D C_|B A B_@]").harmonise(JSB.DICTIONARY_FULL);

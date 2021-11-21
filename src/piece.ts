@@ -121,7 +121,7 @@ export class Piece {
 
     private outSlice() { return this.out[this.time.bar][this.time.index]; }
 
-    harmonise({ dictionary = DICTIONARY_FULL, debug = false }: { dictionary: any; debug: boolean }) {
+    harmonise({ dictionary = DICTIONARY_FULL, debug = false }: { dictionary?: any; debug?: boolean }) {
         console.groupCollapsed();
         console.time("Harmonisation");
 

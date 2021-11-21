@@ -4,15 +4,14 @@
     "strict": true,
 		"importHelpers": true,
 		"noUnusedLocals": false,
+    "noImplicitReturns": true,
     "removeComments": true,
+    "declaration": true,
     "module": "ES6",
     "outDir": "./dist",
     "target": "ES2020",
-    "baseUrl": ".",
-    "paths": {
-      "jsb-js": ["node_modules/dist/index.js"]
-    },
-    "lib": ["ES2015", "ES2019.Array"]
+    "baseUrl": "jsb-js",
+    "lib": ["ES2015"]
   },
-  "include": ["./src/**/*", "./test/**/*"]
+  "include": ["./src/**/*"]
 }
