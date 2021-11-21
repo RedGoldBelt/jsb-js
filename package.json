@@ -1,9 +1,8 @@
 {
   "name": "jsb-js",
   "version": "1.0.0",
-  "description": "",
   "type": "module",
-  "main": "jsb",
+  "main": "index.js",
   "scripts": {
     "test": "node dist/test/test.js"
   },
@@ -18,10 +17,10 @@
   },
   "homepage": "https://github.com/IntGrah/jsb-js#readme",
   "dependencies": {
-    "tone": "^14.8.32",
-    "typescript": "^4.4.4"
+    "tone": "^14.8.32"
   },
   "devDependencies": {
-    "@types/node": "^16.11.9"
+    "@types/node": "^16.11.9",
+    "typescript": "^4.5.2"
   }
 }

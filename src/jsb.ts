@@ -1,6 +1,6 @@
 import * as T from "tone";
 
-export namespace JSB {
+namespace JSB {
     class Numeral {
         static NUM = ["i", "ii", "iii", "iv", "v", "vi", "vii"];
 
@@ -593,7 +593,7 @@ export namespace JSB {
         COM_MIN: {
             null: ["i", "iv", "V"],
 
-            "i": ["VI", Chord. all("V7"), Chord.all("V"), "#viib"],
+            "i": ["VI", Chord.all("V7"), Chord.all("V"), "#viib"],
             "ib": ["i"],
             "ic": [],
 
@@ -793,3 +793,5 @@ export namespace JSB {
         }
     }
 }
+
+export default JSB;

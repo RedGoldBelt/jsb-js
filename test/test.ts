@@ -1,4 +1,4 @@
-import { JSB } from "../dist/src/jsb";
+import JSB from "../src/jsb.js";
 
 const GSTQ = new JSB.Piece().load("G major", "[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]").harmonise(JSB.DICT_FULL);
 
