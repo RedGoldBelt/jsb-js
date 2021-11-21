@@ -1,5 +1,3 @@
-import Chord from "./chord.js";
-import Key from "./key.js";
 import Tone from "./tone.js";
 import { Inversion } from "./util.js";
 

@@ -374,7 +374,7 @@ export class Piece {
         if (a > s) return Infinity;
         if (t > a) return Infinity;
         if (b > t) return Infinity;
-        return aChange + tChange + Math.min(s - a, a - t, t - b);
+        return aChange + tChange;
     }
 
     private parallel(upper: Part, lower: Part) {
