@@ -15,4 +15,10 @@ JSB.js follows common principles of good harmonisation and part writing:
 
 Importantly, JSB.js employs a heuristic algotrithm, which is not based on machine learning. The database that determines which chord to try is manually calculated and compiled.
 
+## Installation
+
+`npm install jsb-js`
+
+Run this command in your terminal to install jsb-js.
+
 Author: Jeremy Chen
