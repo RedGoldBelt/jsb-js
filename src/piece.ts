@@ -7,7 +7,7 @@ import Numeral from "./numeral.js";
 import Resolution from "./resolution.js";
 import Slice from "./slice.js";
 import Tone from "./tone.js";
-import { Bar, Inversion, Part, Permutation, Time } from "./util.js";
+import { Bar, DICTIONARY_FULL as DICTIONARY_FULL, Inversion, Part, Permutation, Time } from "./util.js";
 
 export class Piece {
     in: Bar[] = [];
@@ -121,7 +121,7 @@ export class Piece {
 
     private outSlice() { return this.out[this.time.bar][this.time.index]; }
 
-    harmonise(dictionary: any) {
+    harmonise({ dictionary = DICTIONARY_FULL, debug = false }: { dictionary: any; debug: boolean }) {
         console.groupCollapsed();
         console.time("Harmonisation");
 
@@ -130,7 +130,7 @@ export class Piece {
                 console.info("%cFailed!", "background-color: #ff0000;");
                 return this;
             }
-            this.step(dictionary);
+            this.step(dictionary, debug);
         }
         console.info("%cSuccess!", "background-color: #00e000;");
         console.timeEnd("Harmonisation");
@@ -141,7 +141,7 @@ export class Piece {
         return this;
     }
 
-    private step(dict: any) {
+    private step(dict: any, debug: boolean) {
         const previousChord = this.previousInSlice()?.chord ?? new Chord(null, "", 0, new Numeral(0, true));
         const chordOptions = previousChord.progression(dict);
 
@@ -151,25 +151,33 @@ export class Piece {
 
             // REJECT: INVALID CADENCE
             if (this.cadences.some(time => this.time.bar === time.bar && this.time.index === time.index && !["I", "i", "V"].includes(chord.string()))) {
-                console.info(`%cRejected '${chord.stringFull()}': Invalid cadence`, "color: #9c7c00;");
+                if (debug) {
+                    console.info(`%cRejected '${chord.stringFull()}': Invalid cadence`, "color: #9c7c00;");
+                }
                 continue;
             }
 
             // REJECT: PARTS DO NOT FIT
             if (this.partsUnfit()) {
-                // console.info(`%cRejected '${chord.stringFull()}': Parts do not fit`, "color: #9c7c00;");
+                if (debug) {
+                    console.info(`%cRejected '${chord.stringFull()}': Parts do not fit`, "color: #9c7c00;");
+                }
                 continue;
             }
 
             // REJECT: WRONG INVERSION
             if (this.inSlice().b?.tone.equals(this.resolution.at(this.resolution.inversion))) {
-                console.info(`%cRejected '${chord.stringFull()}': Wrong inversion`, "color: #9c7c00;");
+                if (debug) {
+                    console.info(`%cRejected '${chord.stringFull()}': Wrong inversion`, "color: #9c7c00;");
+                }
                 continue;
             }
 
             // REJECT: Invalid second inversion chord
             if (previousChord.inversion === 2 && this.previousPreviousInSlice()?.chord?.stringFull() === chord.stringFull()) {
-                console.info(`%cRejected '${chord.stringFull()}': Invalid second inversion chord`, "color: #9c7c00;");
+                if (debug) {
+                    console.info(`%cRejected '${chord.stringFull()}': Invalid second inversion chord`, "color: #9c7c00;");
+                }
                 continue;
             }
 
@@ -194,35 +202,45 @@ export class Piece {
             // REJECT: TOO MANY ROOTS
             if (quotas[0] < 0) {
                 this.clear();
-                console.info(`%cRejected '${chord.stringFull()}': Too many roots`, "color: #9c7c00;");
+                if (debug) {
+                    console.info(`%cRejected '${chord.stringFull()}': Too many roots`, "color: #9c7c00;");
+                }
                 continue;
             }
 
             // REJECT: TOO MANY THIRDS
             if (quotas[1] < 0) {
                 this.clear();
-                console.info(`%cRejected '${chord.stringFull()}': Too many thirds`, "color: #9c7c00;");
+                if (debug) {
+                    console.info(`%cRejected '${chord.stringFull()}': Too many thirds`, "color: #9c7c00;");
+                }
                 continue;
             }
 
             // REJECT: TOO MANY FIFTHS
             if (quotas[2] < 0) {
                 this.clear();
-                console.info(`%cRejected '${chord.stringFull()}': Too many fifths`, "color: #9c7c00;");
+                if (debug) {
+                    console.info(`%cRejected '${chord.stringFull()}': Too many fifths`, "color: #9c7c00;");
+                }
                 continue;
             }
 
             // REJECT: TOO MANY SEVENTHS
             if (quotas[1] < 0) {
                 this.clear();
-                console.info(`%cRejected '${chord.stringFull()}': Too many sevenths`, "color: #9c7c00;");
+                if (debug) {
+                    console.info(`%cRejected '${chord.stringFull()}': Too many sevenths`, "color: #9c7c00;");
+                }
                 continue;
             }
 
             // REJECT: S-B PARALLEL
             if (!(this.time.bar === 0 && this.time.index === 0) && this.parallel("s", "b")) {
                 this.clear();
-                console.info(`%cRejected '${chord.stringFull()}': Soprano and bass in parallel`, "color: #9c7c00;");
+                if (debug) {
+                    console.info(`%cRejected '${chord.stringFull()}': Soprano and bass in parallel`, "color: #9c7c00;");
+                }
                 continue;
             }
 
@@ -235,26 +253,37 @@ export class Piece {
                 this.outSlice().a = (this.previousOutSlice()?.a ?? Note.parse("D4")).near(this.resolution.at(perm.altoInversion))[0];
                 this.outSlice().t = (this.previousOutSlice()?.t ?? Note.parse("B3")).near(this.resolution.at(perm.tenorInversion)).filter((note: Note) => note.pitch() >= (this.outSlice().b as Note).pitch())[0];
 
-                // REJECT: PARALLEL
+                // REJECT: PARALLEL PARTS
                 if (!(this.time.bar === 0 && this.time.index === 0) && (this.parallel("s", "a") || this.parallel("s", "t") || this.parallel("a", "t") || this.parallel("a", "b") || this.parallel("t", "b"))) {
+                    if (debug) {
+                        console.info(`%cRejected '${chord.stringFull()}': Parallel parts`, "color: #9c7c00;");
+                    }
                     continue;
                 }
 
                 // ACCEPT
                 this.inSlice().chord = chord;
                 this.incrementInIndex();
-                console.info(`%cAccepted '${chord.stringFull()}' (Bar ${this.time.bar}, Chord ${this.time.index})`, "color: #00e000;");
+                if (debug) {
+                    console.info(`%cAccepted '${chord.stringFull()}' (Bar ${this.time.bar}, Chord ${this.time.index})`, "color: #00e000;");
+                }
                 return;
             }
 
             // REJECT: NO GOOD REALISATION
             this.clear();
-            console.info(`%cRejected '${chord.stringFull()}': No good realisation`, "color: #9c7c00;");
+            if (debug) {
+                console.info(`%cRejected '${chord.stringFull()}': No good realisation`, "color: #9c7c00;");
+            }
             continue;
         }
 
         this.revert();
-        console.info(`%cReverted '${previousChord?.stringFull()}': No good progressions available`, "color: #ff0000;");
+        if (debug) {
+            if (debug) {
+                console.info(`%cReverted '${previousChord?.stringFull()}': No good progressions available`, "color: #ff0000;");
+            }
+        }
         return;
     }
 

@@ -20,7 +20,7 @@ export interface Time {
     index: number;
 }
 
-export const DICT_FULL: any = {
+export const DICTIONARY_FULL: any = {
     COMMON_MAJOR: {
         null: ["I", "V", "IV", "ii", "vi", "iii"],
 
@@ -258,7 +258,7 @@ export const DICT_FULL: any = {
     }
 }
 
-export const DICT_PRIMARY_a_b: any = {
+export const DICTIONARY_PRIMARY_a_b: any = {
     COMMON_MAJOR: {
         null: ["Ib", "I", "IVb", "IV", "Vb", "V"],
 
