@@ -1,6 +1,11 @@
 import Chord from "./chord.js";
 import Slice from "./slice";
 
+export interface Config {
+    dictionary: any;
+    debug: boolean;
+}
+
 export type Alteration = "" | "7" | "o7";
 
 export type Bar = Slice[];
@@ -30,7 +35,7 @@ export const DICTIONARY_FULL: any = {
 
         "ii": ["Ic", "V", "vi", "iii", "IV"],
         "iib": ["Ic", "V"],
-        "iic": [],
+        "iic": ["iiib"],
 
         "ii7": ["Ic", "V"],
         "ii7b": ["Ic", "V"],
@@ -46,7 +51,7 @@ export const DICTIONARY_FULL: any = {
         "iii7c": [],
         "iii7d": [],
 
-        "IV": ["vii", "iii", "I", "V", "ii"],
+        "IV": ["vii", "iii", "Ic", "I", "V", "ii"],
         "IVb": ["vii", "Ic", "I"],
         "IVc": [],
 
@@ -165,7 +170,7 @@ export const DICTIONARY_FULL: any = {
         "IVb": [],
         "IVc": [],
 
-        "V": ["V7c/V"],
+        "V": [Chord.all("V7c/V")],
         "Vb": [],
         "Vc": [],
 
@@ -229,7 +234,7 @@ export const DICTIONARY_FULL: any = {
         "Vc": [],
 
         "V7": [],
-        "V7b": [],
+        "V7b": ["Ic/I", "V/I"],
         "V7c": ["Vb/I"],
         "V7d": [],
 

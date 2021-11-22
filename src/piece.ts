@@ -5,7 +5,7 @@ import Numeral from "./numeral.js";
 import Resolution from "./resolution.js";
 import Slice from "./slice.js";
 import Tone from "./tone.js";
-import { Bar, DICTIONARY_FULL as DICTIONARY_FULL, Inversion, Part, Permutation, Time } from "./util.js";
+import { Bar, Config as Config, DICTIONARY_FULL as DICTIONARY_FULL, Inversion, Part, Permutation, Time } from "./util.js";
 
 export class Piece {
     in: Bar[] = [];
@@ -15,6 +15,10 @@ export class Piece {
     private key: Key;
     private cadences: Time[];
     private resolution: Resolution = new Resolution(Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), 0); // Dummy resolution
+    private config: Config = {
+        dictionary: DICTIONARY_FULL,
+        debug: false
+    }
 
     constructor(key: string, s: string, a?: string, t?: string, b?: string) {
         this.key = Key.parse(key);
@@ -119,18 +123,23 @@ export class Piece {
 
     private outSlice() { return this.out[this.time.bar][this.time.index]; }
 
-    harmonise({ dictionary = DICTIONARY_FULL, debug = false }: { dictionary?: any; debug?: boolean }) {
+    harmonise(config: Config) {
+        this.config = {
+            dictionary: config.dictionary ?? this.config.dictionary,
+            debug: config.debug ?? this.config.debug
+        }
+
         console.groupCollapsed();
         console.time("Harmonisation");
 
         for (this.time = { bar: 0, index: 0 }; !(this.time.bar === this.in.length && this.time.index === 0);) {
             if (this.time.bar < 0) {
-                console.info("%cFailed!", "background-color: #ff0000;");
+                console.info("Failed!");
                 return this;
             }
-            this.step(dictionary, debug);
+            this.step();
         }
-        console.info("%cSuccess!", "background-color: #00e000;");
+        console.info("Success!");
         console.timeEnd("Harmonisation");
         for (const part of ["s", "a", "t", "b", "chord"] as (Part | "chord")[]) {
             console.info(this.string(part));
@@ -139,42 +148,34 @@ export class Piece {
         return this;
     }
 
-    private step(dict: any, debug: boolean) {
+    private step() {
         const previousChord = this.previousInSlice()?.chord ?? new Chord(null, "", 0, new Numeral(0, true));
-        const chordOptions = previousChord.progression(dict);
+        const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.cadential() || ["I", "i", "V"].includes(chord.string()));
 
         for (; this.inSlice().map < chordOptions.length; ++this.inSlice().map) {
             const chord = chordOptions[this.inSlice().map];
             this.resolution = chord.resolve(this.key);
 
-            // REJECT: INVALID CADENCE
-            if (this.cadences.some(time => this.time.bar === time.bar && this.time.index === time.index && !["I", "i", "V"].includes(chord.string()))) {
-                if (debug) {
-                    console.info(`%cRejected '${chord.stringFull()}': Invalid cadence`, "color: #9c7c00;");
-                }
-                continue;
-            }
-
             // REJECT: PARTS DO NOT FIT
             if (this.partsUnfit()) {
-                if (debug) {
-                    console.info(`%cRejected '${chord.stringFull()}': Parts do not fit`, "color: #9c7c00;");
+                if (this.config.debug) {
+                    //console.info(`Rejected '${chord.stringFull()}': Parts do not fit`);
                 }
                 continue;
             }
 
             // REJECT: WRONG INVERSION
             if (this.inSlice().b?.tone.equals(this.resolution.at(this.resolution.inversion))) {
-                if (debug) {
-                    console.info(`%cRejected '${chord.stringFull()}': Wrong inversion`, "color: #9c7c00;");
+                if (this.config.debug) {
+                    console.info(`Rejected '${chord.stringFull()}': Wrong inversion`);
                 }
                 continue;
             }
 
             // REJECT: Invalid second inversion chord
             if (previousChord.inversion === 2 && this.previousPreviousInSlice()?.chord?.stringFull() === chord.stringFull()) {
-                if (debug) {
-                    console.info(`%cRejected '${chord.stringFull()}': Invalid second inversion chord`, "color: #9c7c00;");
+                if (this.config.debug) {
+                    console.info(`Rejected '${chord.stringFull()}': Invalid second inversion chord`);
                 }
                 continue;
             }
@@ -183,7 +184,7 @@ export class Piece {
             this.outSlice().s = this.inSlice().s;
             this.outSlice().a = this.inSlice().a;
             this.outSlice().t = this.inSlice().t;
-            this.outSlice().b = this.inSlice().b ?? (this.previousOutSlice()?.b ?? Note.parse("G3")).near(this.resolution.at(this.resolution.inversion)).filter((note: Note) => note.pitch() >= 28 && note.pitch() <= 48 && note.pitch() <= (this.outSlice().s as Note).pitch() - 7)[0];
+            this.outSlice().b = this.inSlice().b ?? (this.previousOutSlice()?.b ?? Note.parse("Eb3")).near(this.resolution.at(this.resolution.inversion)).filter((note: Note) => note.pitch() >= 28 && note.pitch() <= 48 && note.pitch() <= (this.outSlice().s as Note).pitch() - 10)[0];
             this.outSlice().chord = chord;
 
             const quotas = this.resolution[3] !== null ? [1, 1, 1, 1] : [2, 1, 2, 0];
@@ -200,8 +201,8 @@ export class Piece {
             // REJECT: TOO MANY ROOTS
             if (quotas[0] < 0) {
                 this.clear();
-                if (debug) {
-                    console.info(`%cRejected '${chord.stringFull()}': Too many roots`, "color: #9c7c00;");
+                if (this.config.debug) {
+                    console.info(`Rejected '${chord.stringFull()}': Too many roots`);
                 }
                 continue;
             }
@@ -209,8 +210,8 @@ export class Piece {
             // REJECT: TOO MANY THIRDS
             if (quotas[1] < 0) {
                 this.clear();
-                if (debug) {
-                    console.info(`%cRejected '${chord.stringFull()}': Too many thirds`, "color: #9c7c00;");
+                if (this.config.debug) {
+                    console.info(`Rejected '${chord.stringFull()}': Too many thirds`);
                 }
                 continue;
             }
@@ -218,8 +219,8 @@ export class Piece {
             // REJECT: TOO MANY FIFTHS
             if (quotas[2] < 0) {
                 this.clear();
-                if (debug) {
-                    console.info(`%cRejected '${chord.stringFull()}': Too many fifths`, "color: #9c7c00;");
+                if (this.config.debug) {
+                    console.info(`Rejected '${chord.stringFull()}': Too many fifths`);
                 }
                 continue;
             }
@@ -227,8 +228,8 @@ export class Piece {
             // REJECT: TOO MANY SEVENTHS
             if (quotas[1] < 0) {
                 this.clear();
-                if (debug) {
-                    console.info(`%cRejected '${chord.stringFull()}': Too many sevenths`, "color: #9c7c00;");
+                if (this.config.debug) {
+                    console.info(`Rejected '${chord.stringFull()}': Too many sevenths`);
                 }
                 continue;
             }
@@ -236,53 +237,64 @@ export class Piece {
             // REJECT: S-B PARALLEL
             if (!(this.time.bar === 0 && this.time.index === 0) && this.parallel("s", "b")) {
                 this.clear();
-                if (debug) {
-                    console.info(`%cRejected '${chord.stringFull()}': Soprano and bass in parallel`, "color: #9c7c00;");
+                if (this.config.debug) {
+                    console.info(`Rejected '${chord.stringFull()}': Soprano and bass in parallel`);
                 }
                 continue;
             }
 
+            console.info(`Trying '${chord.stringFull()}'`);
+
             const ones = quotas.map((quota, i) => quota === 1 ? i : null).filter(i => i !== null) as Inversion[];
             const two = quotas.findIndex(quota => quota === 2) as Inversion | -1;
 
-            const perms = this.permutation(ones, two);
+            const permutations = this.permutation(ones, two);
 
-            for (const perm of perms) {
-                this.outSlice().a = (this.previousOutSlice()?.a ?? Note.parse("D4")).near(this.resolution.at(perm.altoInversion))[0];
-                this.outSlice().t = (this.previousOutSlice()?.t ?? Note.parse("B3")).near(this.resolution.at(perm.tenorInversion)).filter((note: Note) => note.pitch() >= (this.outSlice().b as Note).pitch())[0];
+            for (const permutation of permutations) {
+
+                // REJECT: BAD REALISATION
+                if (permutation.score === Infinity) {
+                    continue;
+                }
+
+                this.outSlice().a = (this.previousOutSlice()?.a ?? Note.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0];
+                this.outSlice().t = (this.previousOutSlice()?.t ?? Note.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((note: Note) => note.pitch() >= (this.outSlice().b as Note).pitch())[0];
 
                 // REJECT: PARALLEL PARTS
                 if (!(this.time.bar === 0 && this.time.index === 0) && (this.parallel("s", "a") || this.parallel("s", "t") || this.parallel("a", "t") || this.parallel("a", "b") || this.parallel("t", "b"))) {
-                    if (debug) {
-                        console.info(`%cRejected '${chord.stringFull()}': Parallel parts`, "color: #9c7c00;");
+                    if (this.config.debug) {
+                        console.info(`|   Rejected permutation '${(this.outSlice().s as Note).string()} ${(this.outSlice().a as Note).string()} ${(this.outSlice().t as Note).string()} ${(this.outSlice().b as Note).string()}': Parallel parts`);
                     }
                     continue;
                 }
 
                 // ACCEPT
                 this.inSlice().chord = chord;
-                this.incrementInIndex();
-                if (debug) {
-                    console.info(`%cAccepted '${chord.stringFull()}' (Bar ${this.time.bar + 1}, Chord ${this.time.index + 1})`, "color: #00e000;");
+                if (this.config.debug) {
+                    console.info(`|   Accepted permutation '${this.outSlice().s?.string()} ${this.outSlice().a?.string()} ${this.outSlice().t?.string()} ${this.outSlice().b?.string()}'`);
+                    console.info(`Accepted '${chord.stringFull()}' (Bar ${this.time.bar + 1}, Chord ${this.time.index + 1})`);
                 }
+                this.incrementInIndex();
                 return;
             }
 
             // REJECT: NO GOOD REALISATION
             this.clear();
-            if (debug) {
-                console.info(`%cRejected '${chord.stringFull()}': No good realisation`, "color: #9c7c00;");
+            if (this.config.debug) {
+                console.info(`Rejected '${chord.stringFull()}': No good realisation`);
             }
             continue;
         }
 
         this.revert();
-        if (debug) {
-            if (debug) {
-                console.info(`%cReverted '${previousChord?.stringFull()}': No good progressions available`, "color: #ff0000;");
-            }
+        if (this.config.debug) {
+            console.info(`Reverted '${previousChord?.stringFull()}': No good progressions available`);
         }
         return;
+    }
+
+    private cadential() {
+        return this.cadences.some(time => this.time.bar === time.bar && this.time.index === time.index);
     }
 
     private partsUnfit() {
@@ -320,7 +332,7 @@ export class Piece {
                     tenorInversion: two,
                     score: this.score(two, two)
                 };
-                return [permutation1, permutation2, permutation3].filter(permutation => permutation.score !== Infinity).sort((l, r) => l.score - r.score);
+                return [permutation1, permutation2, permutation3].sort((l, r) => l.score - r.score);
             case 2:
                 const permutation4: Permutation = {
                     altoInversion: ones[0],
@@ -332,7 +344,7 @@ export class Piece {
                     tenorInversion: ones[0],
                     score: this.score(ones[1], ones[0])
                 };
-                return [permutation4, permutation5].filter(permutation => permutation.score !== Infinity).sort((l, r) => l.score - r.score);
+                return [permutation4, permutation5].sort((l, r) => l.score - r.score);
             case 3:
                 const permutation6: Permutation = {
                     altoInversion: ones[0],
@@ -354,7 +366,7 @@ export class Piece {
                     tenorInversion: ones[1],
                     score: this.score(ones[2], ones[1])
                 };
-                return [permutation6, permutation7, permutation8, permutation9].filter(permutation => permutation.score !== Infinity).sort((l, r) => l.score - r.score);
+                return [permutation6, permutation7, permutation8, permutation9].sort((l, r) => l.score - r.score);
         }
     }
 
@@ -363,15 +375,36 @@ export class Piece {
         const previousT = this.previousOutSlice()?.t ?? Note.parse("B3");
         const s = (this.outSlice().s as Note).pitch();
         const b = (this.outSlice().b as Note).pitch();
-        const a = previousA.near(this.resolution.at(altoInversion))[0].pitch();
-        const t = previousT.near(this.resolution.at(tenorInversion)).filter((note: Note) => note.pitch() >= b)[0].pitch();
+        const aNote = previousA.near(this.resolution.at(altoInversion))[0];
+        const a = aNote.pitch();
+        const tNote = previousT.near(this.resolution.at(tenorInversion)).filter((note: Note) => note.pitch() >= b)[0];
+        const t = tNote.pitch();
         const aChange = Math.abs(a - previousA.pitch());
         const tChange = Math.abs(t - previousT.pitch());
-        if (aChange > 7) return Infinity;
-        if (tChange > 7) return Infinity;
-        if (a > s) return Infinity;
-        if (t > a) return Infinity;
-        if (b > t) return Infinity;
+
+        let reason = "";
+
+        if (aChange > 7) {
+            reason = "Alto too disjunct";
+        } else if (tChange > 7) {
+            reason = "Tenor too disjunct";
+        } else if (a > s) {
+            reason = "Alto above soprano";
+        } else if (t > a) {
+            reason = "Tenor above alto";
+        } else if (b > t) {
+            reason = "Base above tenor";
+        }
+
+        if (reason !== "") {
+            if (this.config.debug) {
+                console.info(`|   Rejected permutation '${(this.outSlice().s as Note).string()} ${aNote.string()} ${tNote.string()} ${(this.outSlice().b as Note).string()}': ${reason}`);
+            }
+            return Infinity;
+        }
+        if (this.config.debug) {
+            console.info(`|   Provisionally accepted permutation '${(this.outSlice().s as Note).string()} ${aNote.string()} ${tNote.string()} ${(this.outSlice().b as Note).string()}' with score ${aChange + tChange}`)
+        }
         return aChange + tChange;
     }
 
