@@ -123,7 +123,7 @@ export class Piece {
 
     private outSlice() { return this.out[this.time.bar][this.time.index]; }
 
-    harmonise(config: Config) {
+    harmonise(config: Config = {}) {
         this.config = {
             dictionary: config.dictionary ?? this.config.dictionary,
             debug: config.debug ?? this.config.debug
@@ -243,8 +243,10 @@ export class Piece {
                 continue;
             }
 
-            console.info(`Trying '${chord.stringFull()}'`);
-
+            if (this.config.debug) {
+                console.info(`Trying '${chord.stringFull()}'`);
+            }
+            
             const ones = quotas.map((quota, i) => quota === 1 ? i : null).filter(i => i !== null) as Inversion[];
             const two = quotas.findIndex(quota => quota === 2) as Inversion | -1;
 

@@ -2,8 +2,8 @@ import Chord from "./chord.js";
 import Slice from "./slice";
 
 export interface Config {
-    dictionary: any;
-    debug: boolean;
+    dictionary?: any;
+    debug?: boolean;
 }
 
 export type Alteration = "" | "7" | "o7";
