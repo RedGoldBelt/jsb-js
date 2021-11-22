@@ -1,5 +1,4 @@
 import Key from "./key.js";
-import BaseNumeral from "./baseNumeral.js";
 import Numeral from "./numeral.js";
 import Tone from "./tone.js";
 import { Alteration, Inversion } from "./util.js";
@@ -13,7 +12,7 @@ export default class Chord {
     inversion;
     relativeKey;
 
-    constructor(base: BaseNumeral | null, alteration: Alteration, inversion: Inversion, relativeKey: Numeral | null) {
+    constructor(base: Numeral | null, alteration: Alteration, inversion: Inversion, relativeKey: Numeral | null) {
         this.base = base;
         this.alteration = alteration;
         this.inversion = inversion;
@@ -21,12 +20,12 @@ export default class Chord {
     }
 
     static parse(string: string) {
-        const result = string.match(/^((b|#|)(III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v))(o7|7|)([a-d])?(\/((III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v)))?$/);
+        const result = string.match(/^((b|#|)(III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v))(o7|7|)([a-d])?(\/((b|#|)(III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v)))?$/);
         if (result === null) {
             throw new Error(`Could not parse chord '${string}'`);
         }
         return new Chord(
-            BaseNumeral.parse(result[1]),
+            Numeral.parse(result[1]),
             result[4] as Alteration,
             (result[5] ? Chord.INVERSIONS.indexOf(result[5]) : 0) as Inversion,
             result[6] ? Numeral.parse(result[7]) : null
@@ -68,7 +67,7 @@ export default class Chord {
                 seventh = key.degree(this.base.degree + 6, rootPitch + 9);
                 break;
             case "7":
-                fifth = key.degree(this.base.degree + 4, rootPitch + 7);
+                fifth = key.degree(this.base.degree + 4);
                 seventh = key.degree(this.base.degree + 6);
                 break;
         }
@@ -97,6 +96,6 @@ export default class Chord {
     }
 
     stringFull() {
-        return this.string() + (this.relativeKey ? "/" + this.relativeKey.string() : "")
+        return this.string() + (this.relativeKey ? "/" + this.relativeKey.string() : "");
     }
 }

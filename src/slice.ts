@@ -9,8 +9,10 @@ export default class Slice {
     duration: number;
     chord: Chord | undefined;
     map: number = 0;
+    cadence: boolean;
 
-    constructor(duration: number) {
+    constructor(duration: number, cadence: boolean) {
         this.duration = duration;
+        this.cadence = cadence;
     }
 }

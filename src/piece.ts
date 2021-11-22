@@ -11,9 +11,8 @@ export class Piece {
     in: Bar[] = [];
     out: Bar[] = [];
 
-    private time: Time = { bar: 0, index: 0 };
+    private time: Time = { bar: 0, slice: 0 };
     private key: Key;
-    private cadences: Time[];
     private resolution: Resolution = new Resolution(Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), 0); // Dummy resolution
     private config: Config = {
         dictionary: DICTIONARY_FULL,
@@ -23,7 +22,6 @@ export class Piece {
     constructor(key: string, s: string, a?: string, t?: string, b?: string) {
         this.key = Key.parse(key);
         this.in = [];
-        this.cadences = [];
         this.load(s, "s");
         if (a) this.load(a, "a");
         if (t) this.load(t, "t");
@@ -40,9 +38,9 @@ export class Piece {
             this.in[bar] ??= []
             this.out[bar] = [];
 
-            for (let index = 0; index < split[bar].length; ++index) {
-                const result = split[bar][index].match(/^([A-G](bb|b|#|x|)([1-6]?))([_\/\.]*)(@?)$/);
-                if (result === null) throw new Error(`Could not parse annotated note '${split[bar][index]}'`);
+            for (let slice = 0; slice < split[bar].length; ++slice) {
+                const result = split[bar][slice].match(/^([A-G](bb|b|#|x|)([1-6]?))([_\/\.]*)(@?)$/);
+                if (result === null) throw new Error(`Could not parse annotated note '${split[bar][slice]}'`);
 
                 note = result[3] ? Note.parse(result[1]) : note.near(Tone.parse(result[1]))[0];
 
@@ -55,14 +53,10 @@ export class Piece {
                     }
                 }
 
-                this.in[bar][index] ??= new Slice(duration);
-                this.in[bar][index][part] = note;
+                this.in[bar][slice] ??= new Slice(duration, result[5] === "@");
+                this.in[bar][slice][part] = note;
 
-                this.out[bar][index] ??= new Slice(duration);
-
-                if (result[5]) {
-                    this.cadences.push({ bar: bar, index: index });
-                }
+                this.out[bar][slice] ??= new Slice(duration, result[5] === "@");
             }
         }
     }
@@ -72,56 +66,56 @@ export class Piece {
     }
 
     private previousPreviousInSlice() {
-        let { index, bar } = this.time;
-        if (--index < 0) {
+        let { slice, bar } = this.time;
+        if (--slice < 0) {
             if (--bar < 0) {
                 return undefined;
             }
-            index = this.in[bar].length - 1;
+            slice = this.in[bar].length - 1;
         }
-        if (--index < 0) {
+        if (--slice < 0) {
             if (--bar < 0) {
                 return undefined;
             }
-            index = this.in[bar].length - 1;
+            slice = this.in[bar].length - 1;
         }
-        return this.in[bar][index];
+        return this.in[bar][slice];
     }
 
     private previousInSlice() {
-        let { index, bar } = this.time;
-        if (--index < 0) {
+        let { slice, bar } = this.time;
+        if (--slice < 0) {
             if (--bar < 0) {
                 return undefined;
             }
-            index = this.in[bar].length - 1;
+            slice = this.in[bar].length - 1;
         }
-        return this.in[bar][index];
+        return this.in[bar][slice];
     }
 
     private inSlice() {
-        return this.bar()[this.time.index];
+        return this.bar()[this.time.slice];
     }
 
-    private incrementInIndex() {
-        if (++this.time.index === this.bar().length) {
-            this.time.index = 0;
+    private incrementInSlice() {
+        if (++this.time.slice === this.bar().length) {
+            this.time.slice = 0;
             ++this.time.bar;
         }
     }
 
     private previousOutSlice() {
-        let { index, bar } = this.time;
-        if (--index < 0) {
+        let { slice, bar } = this.time;
+        if (--slice < 0) {
             if (--bar < 0) {
                 return undefined;
             }
-            index = this.out[bar].length - 1;
+            slice = this.out[bar].length - 1;
         }
-        return this.out[bar][index];
+        return this.out[bar][slice];
     }
 
-    private outSlice() { return this.out[this.time.bar][this.time.index]; }
+    private outSlice() { return this.out[this.time.bar][this.time.slice]; }
 
     harmonise(config: Config = {}) {
         this.config = {
@@ -130,17 +124,18 @@ export class Piece {
         }
 
         console.groupCollapsed();
-        console.time("Harmonisation");
+        console.time("Time");
 
-        for (this.time = { bar: 0, index: 0 }; !(this.time.bar === this.in.length && this.time.index === 0);) {
+        for (this.time = { bar: 0, slice: 0 }; !(this.time.bar === this.in.length && this.time.slice === 0);) {
             if (this.time.bar < 0) {
-                console.info("Failed!");
+                console.timeEnd("Time");
+                console.info("Failed to harmonise");
                 return this;
             }
             this.step();
         }
-        console.info("Success!");
-        console.timeEnd("Harmonisation");
+
+        console.timeEnd("Time");
         for (const part of ["s", "a", "t", "b", "chord"] as (Part | "chord")[]) {
             console.info(this.string(part));
         }
@@ -149,8 +144,8 @@ export class Piece {
     }
 
     private step() {
-        const previousChord = this.previousInSlice()?.chord ?? new Chord(null, "", 0, new Numeral(0, true));
-        const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.cadential() || ["I", "i", "V"].includes(chord.string()));
+        const previousChord = this.previousInSlice()?.chord ?? new Chord(null, "", 0, new Numeral(0, 0, true));
+        const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.inSlice().cadence || ["I", "i", "V"].includes(chord.string()));
 
         for (; this.inSlice().map < chordOptions.length; ++this.inSlice().map) {
             const chord = chordOptions[this.inSlice().map];
@@ -235,7 +230,7 @@ export class Piece {
             }
 
             // REJECT: S-B PARALLEL
-            if (!(this.time.bar === 0 && this.time.index === 0) && this.parallel("s", "b")) {
+            if (!(this.time.bar === 0 && this.time.slice === 0) && this.parallel("s", "b")) {
                 this.clear();
                 if (this.config.debug) {
                     console.info(`Rejected '${chord.stringFull()}': Soprano and bass in parallel`);
@@ -246,8 +241,8 @@ export class Piece {
             if (this.config.debug) {
                 console.info(`Trying '${chord.stringFull()}'`);
             }
-            
-            const ones = quotas.map((quota, i) => quota === 1 ? i : null).filter(i => i !== null) as Inversion[];
+
+            const ones = quotas.map((quota, inversion) => quota === 1 ? inversion : null).filter(inversion => inversion !== null) as Inversion[];
             const two = quotas.findIndex(quota => quota === 2) as Inversion | -1;
 
             const permutations = this.permutation(ones, two);
@@ -263,7 +258,7 @@ export class Piece {
                 this.outSlice().t = (this.previousOutSlice()?.t ?? Note.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((note: Note) => note.pitch() >= (this.outSlice().b as Note).pitch())[0];
 
                 // REJECT: PARALLEL PARTS
-                if (!(this.time.bar === 0 && this.time.index === 0) && (this.parallel("s", "a") || this.parallel("s", "t") || this.parallel("a", "t") || this.parallel("a", "b") || this.parallel("t", "b"))) {
+                if (!(this.time.bar === 0 && this.time.slice === 0) && (this.parallel("s", "a") || this.parallel("s", "t") || this.parallel("a", "t") || this.parallel("a", "b") || this.parallel("t", "b"))) {
                     if (this.config.debug) {
                         console.info(`|   Rejected permutation '${(this.outSlice().s as Note).string()} ${(this.outSlice().a as Note).string()} ${(this.outSlice().t as Note).string()} ${(this.outSlice().b as Note).string()}': Parallel parts`);
                     }
@@ -274,9 +269,9 @@ export class Piece {
                 this.inSlice().chord = chord;
                 if (this.config.debug) {
                     console.info(`|   Accepted permutation '${this.outSlice().s?.string()} ${this.outSlice().a?.string()} ${this.outSlice().t?.string()} ${this.outSlice().b?.string()}'`);
-                    console.info(`Accepted '${chord.stringFull()}' (Bar ${this.time.bar + 1}, Chord ${this.time.index + 1})`);
+                    console.info(`Accepted '${chord.stringFull()}' (Bar ${this.time.bar + 1}, Chord ${this.time.slice + 1})`);
                 }
-                this.incrementInIndex();
+                this.incrementInSlice();
                 return;
             }
 
@@ -293,10 +288,6 @@ export class Piece {
             console.info(`Reverted '${previousChord?.stringFull()}': No good progressions available`);
         }
         return;
-    }
-
-    private cadential() {
-        return this.cadences.some(time => this.time.bar === time.bar && this.time.index === time.index);
     }
 
     private partsUnfit() {
@@ -396,6 +387,14 @@ export class Piece {
             reason = "Tenor above alto";
         } else if (b > t) {
             reason = "Base above tenor";
+        } else if (a > 64) {
+            reason = "Alto too high";
+        } else if (a < 43) {
+            reason = "Alto too low";
+        } else if (t < 36) {
+            reason = "Tenor too low";
+        } else if (t > 47) {
+            reason = "Tenor too high";
         }
 
         if (reason !== "") {
@@ -405,7 +404,7 @@ export class Piece {
             return Infinity;
         }
         if (this.config.debug) {
-            console.info(`|   Provisionally accepted permutation '${(this.outSlice().s as Note).string()} ${aNote.string()} ${tNote.string()} ${(this.outSlice().b as Note).string()}' with score ${aChange + tChange}`)
+            console.info(`|   Permutation '${(this.outSlice().s as Note).string()} ${aNote.string()} ${tNote.string()} ${(this.outSlice().b as Note).string()}' scores ${aChange + tChange}`)
         }
         return aChange + tChange;
     }
@@ -420,9 +419,9 @@ export class Piece {
 
     private revert() {
         this.inSlice().map = 0;
-        if (--this.time.index < 0) {
+        if (--this.time.slice < 0) {
             if (--this.time.bar >= 0) {
-                this.time.index = this.bar().length - 1;
+                this.time.slice = this.bar().length - 1;
             }
         }
         if (this.time.bar >= 0) {
@@ -439,6 +438,6 @@ export class Piece {
     }
 
     private string(part: Part | "chord") {
-        return "[" + this.out.map(bar => bar.map(index => index[part]?.string().padEnd(6)).join(" ")).join("|") + "]";
+        return "[" + this.out.map(bar => bar.map(slice => slice[part]?.string().padEnd(6)).join(" ")).join("|") + "]";
     }
 }

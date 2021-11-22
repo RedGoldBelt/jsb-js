@@ -22,7 +22,7 @@ export interface Permutation {
 
 export interface Time {
     bar: number;
-    index: number;
+    slice: number;
 }
 
 export const DICTIONARY_FULL: any = {
@@ -144,7 +144,7 @@ export const DICTIONARY_FULL: any = {
     SPECIFIC_I: {
         null: [],
 
-        "I": [],
+        "I": ["vii7/V"],
         "Ib": [],
         "Ic": [],
 
@@ -251,7 +251,7 @@ export const DICTIONARY_FULL: any = {
         "viib": [],
         "viic": [],
 
-        "vii7": [],
+        "vii7": ["Ic/I", "V/I"],
         "vii7b": [],
         "vii7c": [],
         "vii7d": [],
