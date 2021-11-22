@@ -64,10 +64,8 @@ Finally, you can annotate a note as being the final chord of a cadence (often si
 
 To harmonise the piece, call the harmonise() method on it. You can optionally specify parameters in the argument:
 
-`const myPiece = new JSB.Piece(...).harmonise({
-    dictionary: <JSB.DICTIONARY_FULL|JSB.DICTIONARY_PRIMARY_a_b>, // Default JSB.DICTIONARY_FULL
-    debug: <true|false> // Default false
-});`
+`const myPiece = new JSB.Piece(...).harmonise({ dictionary: JSB.DICTIONARY_PRIMARY_a_b, debug: true });`
+`// Default JSB.DICTIONARY_FULL, false`
 
 Note: JSB.DICTIONARY_FULL is incomplete at the moment.
 
