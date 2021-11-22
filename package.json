@@ -6,7 +6,8 @@
   "files": [
     "README.md",
     "LICENSE.md",
-    "dist"
+    "dist",
+    "tsconfig.json"
   ],
   "scripts": {
     "build": "npm run ts:build",
