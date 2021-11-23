@@ -97,7 +97,7 @@ export class Piece {
     }
 
     private step() {
-        const previousChord = this.inSlice.previous?.chord ?? new Chord(null, "", 0, new Numeral(0, 0, true));
+        const previousChord = this.inSlice.previous?.chord ?? new Chord(null, "", 0, new Numeral(0, 0, this.key.tonality));
         const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.inSlice.cadence || ["I", "i", "V"].includes(chord.string));
         for (; this.inSlice.map < chordOptions.length; ++this.inSlice.map) {
             const chord = chordOptions[this.inSlice.map];

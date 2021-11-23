@@ -156,7 +156,7 @@ export const DICTIONARY_FULL: any = {
         "IVb": [],
         "IVc": [],
 
-        "V": [Chord.all("V7c/V")],
+        "V": ["vii/V", Chord.all("V7c/V")],
         "Vb": [],
         "Vc": [],
 
@@ -234,7 +234,7 @@ export const DICTIONARY_FULL: any = {
     }
 }
 
-export const DICTIONARY_PRIMARY_a_b: any = {
+export const DICTIONARY_PRIMARY_AB: any = {
     COMMON_MAJOR: {
         null: ["I", "Ib", "IVb", "IV", "Vb", "V"],
 
@@ -246,5 +246,38 @@ export const DICTIONARY_PRIMARY_a_b: any = {
 
         "V": ["I", "Ib", "IV", "Vb"],
         "Vb": ["I", "V"]
+    },
+    COMMON_MINOR: {
+        null: ["I", "Ib", "IVb", "IV", "Vb", "V"],
+
+        "I": ["IVb", "IV", "Vb", "V", "Ib", "I"],
+        "Ib": ["IV", "V", "I"],
+
+        "IV": ["V", "Ib", "I", "IVb"],
+        "IVb": ["V", "I", "IV"],
+
+        "V": ["I", "Ib", "IV", "Vb"],
+        "Vb": ["I", "V"]
+    },
+}
+
+export const DICTIONARY_PRIMARY_A: any = {
+    COMMON_MAJOR: {
+        null: ["I", "IV", "V"],
+
+        "I": ["IV", "V", "I"],
+
+        "IV": ["V", "I", "IV"],
+
+        "V": ["I", "IV", "V"]
+    },
+    COMMON_MINOR: {
+        null: ["i", "iv", "V"],
+
+        "i": ["iv", "V", "i"],
+
+        "iv": ["V", "i", "iv"],
+
+        "V": ["i", "iv", "V"]
     }
 }
