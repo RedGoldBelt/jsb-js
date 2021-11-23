@@ -32,13 +32,6 @@ export default class Chord {
         );
     }
 
-    static all(string: string) {
-        const chord = Chord.parse(string);
-        const all = [(chord.inversion = 2, chord.stringFull), (chord.inversion = 1, chord.stringFull), (chord.inversion = 0, chord.stringFull)];
-        if (chord.alteration) all.unshift((chord.inversion = 3, chord.stringFull));
-        return all;
-    }
-
     resolve(key: Key) {
         if (this.base === null) {
             throw new Error("Cannot resolve chord with base 'null'");
@@ -75,15 +68,15 @@ export default class Chord {
             throw new Error("Cannot calculate progressions of a chord with no relative key");
         }
         const SPECIFIC = dictionary["SPECIFIC_" + this.relativeKey.string];
-        const SPECIFIC_OPTIONS = SPECIFIC?.[this.string].flat().map(Chord.parse) as Chord[];
+        const SPECIFIC_OPTIONS = SPECIFIC?.[this.string].map(Chord.parse) as Chord[];
         const COMMON = this.relativeKey.tonality ? dictionary.COMMON_MAJOR : dictionary.COMMON_MINOR;
-        const COMMON_OPTIONS = COMMON[this.string].flat().map((string: string) => {
+        const COMMON_OPTIONS = COMMON[this.string].map((string: string) => {
             const chord = Chord.parse(string);
             chord.relativeKey = this.relativeKey;
             return chord;
         }) as Chord[];
 
-        return SPECIFIC_OPTIONS === undefined ? COMMON_OPTIONS : SPECIFIC_OPTIONS.concat(COMMON_OPTIONS);
+        return SPECIFIC_OPTIONS ? SPECIFIC_OPTIONS.concat(COMMON_OPTIONS) : COMMON_OPTIONS;
     }
 
     get string() {
