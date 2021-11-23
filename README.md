@@ -17,13 +17,17 @@ Importantly, JSB.js employs a heuristic algotrithm, which is not based on machin
 
 ## Installation
 
+### node.js
+
 `npm install jsb-js`
 
-Run this command in your terminal to install jsb-js.
+`import * as JSB from "jsb";`
 
-`import * as JSB from "../node_modules/jsb-js/dist/index.js";`
+### Browser
 
-JSB.js uses ES6 modules; do not use `const JSB = require("jsb-js");`
+`<script type="module" src="https://unpkg.com/jsb-js"></script>`
+
+`import * as JSB from "jsb";`
 
 ## Usage
 
@@ -31,12 +35,11 @@ Example usage:
 
 `const gstq = new JSB.Piece("G major", "[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]").harmonise();`
 
-The constructor `JSB.Piece` requires is of the form:
+The constructor `JSB.Piece` is of the form:
 
 `constructor(homeKey, s, a?, t?, b?)`
 
-The key is written in the format `"<tone> <major|minor>"`, which is CASE-SENSITIVE.
-Accidentals are notated as such: `"Eb major"` or `"F# major"`.
+The key is written in the format `"<A|B|C|D|E|F|G><|#|b> <major|minor>"`, which is CASE-SENSITIVE.
 
 The soprano part is required. Other parts are optional. If you specify other parts, ensure that the rhythm matches that of the soprano. Only completely homophonic inputs are allowed (for the moment).
 
@@ -62,12 +65,22 @@ Finally, you can annotate a note as being the final chord of a cadence (often si
 
 `"[...|D5. C#/ B E|A4_.@ G#|A B C# C#|..."`
 
-To harmonise the piece, call the harmonise() method on it. You can optionally specify parameters in the argument:
+To harmonise the piece, call the harmonise() method on it. You can optionally specify configuration options:
 
 `const myPiece = new JSB.Piece(...).harmonise({ dictionary: JSB.DICTIONARY_PRIMARY_a_b, debug: true });`
 
-Options default to JSB.DICTIONARY_FULL, false.
+Configuration options default to JSB.DICTIONARY_FULL, false.
 
-Note: JSB.DICTIONARY_FULL is incomplete.
+Sample output:
 
-Author: Jeremy Chen
+
+`new JSB.Piece("G major", "[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]").harmonise();`
+```
+Time: 6.286865234375 ms
+[G4     G4     A4    |F#4    G4     A4    |B4     B4     C5    |B4     A4     G4    |A4     G4     F#4   |G4    ]
+[D4     E4     E4    |F#4    E4     D4    |D4     E4     E4    |G4     D4     D4    |E4     B3     C4    |D4    ]
+[B3     B3     C4    |B3     B3     A3    |G3     B3     A3    |G3     F#3    G3    |G3     G3     A3    |B3    ]
+[G3     E3     E3    |D3     E3     F#3   |G3     G3     A3    |D3     C3     B2    |C3     D3     D3    |G3    ]
+[I      vi     iic   |iiib   vi     Vb    |I      vib    ii    |Ic     V7d    Ib    |ii7b   Ic     V7    |I     ]
+```
+Copyright Jeremy Chen
