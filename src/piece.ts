@@ -77,7 +77,7 @@ export class Piece {
             debug: config.debug ?? this.config.debug
         }
 
-        console.groupCollapsed();
+        console.groupCollapsed("Harmonisation");
         console.time("Time");
 
         for (this.time = { bar: 0, slice: 0 }; !(this.time.bar === this.in.length && this.time.slice === 0); this.step()) {
