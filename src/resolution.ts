@@ -30,14 +30,14 @@ export default class Resolution {
         if (testTone === undefined) {
             return false;
         }
-        return this.array().every(tone => !tone?.equals(testTone));
+        return this.array.every(tone => !tone?.equals(testTone));
     }
 
-    array() {
+    get array() {
         return Array.from(this).filter(tone => tone !== null) as Tone[]
     }
 
-    string() {
-        return (Array.from(this).filter(tone => tone !== null) as Tone[]).map((tone, inversion) => inversion === this.inversion ? `(${tone.string()})` : tone.string()).join(" ");
+    get string() {
+        return (Array.from(this).filter(tone => tone !== null) as Tone[]).map((tone, inversion) => inversion === this.inversion ? `(${tone.string})` : tone.string).join(" ");
     }
 }

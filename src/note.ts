@@ -16,18 +16,18 @@ export default class Note {
         return new Note(Tone.parse(result[1] + result[2]), Number(result[3]));
     }
 
-    pitch() {
-        return this.tone.pitch() + 12 * this.octave;
+    get pitch() {
+        return this.tone.pitch + 12 * this.octave;
     }
 
     near(tone: Tone) {
         const note1 = new Note(tone, this.octave - 1);
         const note2 = new Note(tone, this.octave);
         const note3 = new Note(tone, this.octave + 1);
-        return [note1, note2, note3].sort((l, r) => Math.abs(this.pitch() - l.pitch()) - Math.abs(this.pitch() - r.pitch()));
+        return [note1, note2, note3].sort((l, r) => Math.abs(this.pitch - l.pitch) - Math.abs(this.pitch - r.pitch));
     }
 
-    string() {
-        return this.tone.string() + this.octave;
+    get string() {
+        return this.tone.string + this.octave;
     }
 }

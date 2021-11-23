@@ -1,4 +1,5 @@
 import Chord from "./chord.js";
+import Note from "./note.js";
 import Slice from "./slice";
 
 export interface Config {
@@ -30,7 +31,7 @@ export const DICTIONARY_FULL: any = {
         null: ["I", "V", "IV", "ii", "vi", "iii"],
 
         "I": [Chord.all("iii7"), Chord.all("iii"), Chord.all("vi7"), Chord.all("vi"), Chord.all("ii7"), Chord.all("ii"), Chord.all("IV"), "viib", Chord.all("V"), Chord.all("I")],
-        "Ib": ["IV", "ii", "V7d", "Vc", "vi", "Ic", "I"],
+        "Ib": ["IV", "ii7b", "ii", "V7d", "Vc", "vi", "Ic", "I"],
         "Ic": ["V7d", "V7", "V"],
 
         "ii": ["Ic", "V", "vi", "iii", "IV"],
@@ -42,7 +43,7 @@ export const DICTIONARY_FULL: any = {
         "ii7c": [],
         "ii7d": ["Vb"],
 
-        "iii": ["vi", "IV", "ii", "vi"],
+        "iii": ["viib", "vi", "IV", "ii", "vi"],
         "iiib": ["vi"],
         "iiic": [],
 
@@ -51,7 +52,7 @@ export const DICTIONARY_FULL: any = {
         "iii7c": [],
         "iii7d": [],
 
-        "IV": ["vii", "iii", "Ic", "I", "V", "ii"],
+        "IV": ["vi", "vii", "iii", "Ic", "I", "V", "ii"],
         "IVb": ["vii", "Ic", "I"],
         "IVc": [],
 
@@ -74,7 +75,7 @@ export const DICTIONARY_FULL: any = {
         "vi7d": [],
 
         "vii": ["V/vi", "iii", "ii", "V"],
-        "viib": ["V/vi", "iii"],
+        "viib": ["V/vi", "I", "iii"],
         "viic": [],
 
         "vii7": [],
@@ -124,7 +125,7 @@ export const DICTIONARY_FULL: any = {
         "V7c": ["ib", "i"],
         "V7d": ["ib"],
 
-        "VI": [""],
+        "VI": [],
         "VIb": [],
         "VIc": [],
 
@@ -179,7 +180,7 @@ export const DICTIONARY_FULL: any = {
         "V7c": [],
         "V7d": [],
 
-        "vi": [],
+        "vi": ["Vb/V"],
         "vib": [],
         "vic": [],
 
@@ -203,7 +204,7 @@ export const DICTIONARY_FULL: any = {
         "viio7d": []
     },
     SPECIFIC_V: {
-        "I": [],
+        "I": ["V/I"],
         "Ib": [],
         "Ic": [],
 

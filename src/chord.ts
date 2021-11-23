@@ -34,14 +34,9 @@ export default class Chord {
 
     static all(string: string) {
         const chord = Chord.parse(string);
-        const all = [(chord.inversion = 2, chord.stringFull()), (chord.inversion = 1, chord.stringFull()), (chord.inversion = 0, chord.stringFull())];
-        if (chord.alteration) all.unshift((chord.inversion = 3, chord.stringFull()));
+        const all = [(chord.inversion = 2, chord.stringFull), (chord.inversion = 1, chord.stringFull), (chord.inversion = 0, chord.stringFull)];
+        if (chord.alteration) all.unshift((chord.inversion = 3, chord.stringFull));
         return all;
-    }
-
-    setInversion(inversion: Inversion) {
-        this.inversion = inversion;
-        return this;
     }
 
     resolve(key: Key) {
@@ -53,7 +48,7 @@ export default class Chord {
             key = new Key(key.degree(this.relativeKey.degree), this.relativeKey.tonality);
         }
 
-        const rootPitch = key.degree(this.base.degree).alter(this.base.accidental).pitch() - key.degree(0).pitch();
+        const rootPitch = key.degree(this.base.degree).alter(this.base.accidental).pitch - key.degree(0).pitch;
         const third = key.degree(this.base.degree + 2, rootPitch + (this.base.tonality ? 4 : 3));
         let fifth: Tone;
         let seventh: Tone | null = null;
@@ -79,10 +74,10 @@ export default class Chord {
         if (this.relativeKey === null) {
             throw new Error("Cannot calculate progressions of a chord with no relative key");
         }
-        const SPECIFIC = dictionary["SPECIFIC_" + this.relativeKey.string()];
-        const SPECIFIC_OPTIONS = SPECIFIC?.[this.string()].flat().map(Chord.parse) as Chord[];
+        const SPECIFIC = dictionary["SPECIFIC_" + this.relativeKey.string];
+        const SPECIFIC_OPTIONS = SPECIFIC?.[this.string].flat().map(Chord.parse) as Chord[];
         const COMMON = this.relativeKey.tonality ? dictionary.COMMON_MAJOR : dictionary.COMMON_MINOR;
-        const COMMON_OPTIONS = COMMON[this.string()].flat().map((string: string) => {
+        const COMMON_OPTIONS = COMMON[this.string].flat().map((string: string) => {
             const chord = Chord.parse(string);
             chord.relativeKey = this.relativeKey;
             return chord;
@@ -91,11 +86,11 @@ export default class Chord {
         return SPECIFIC_OPTIONS === undefined ? COMMON_OPTIONS : SPECIFIC_OPTIONS.concat(COMMON_OPTIONS);
     }
 
-    string() {
-        return this.base ? this.base.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "null";
+    get string() {
+        return this.base ? this.base.string + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "null";
     }
 
-    stringFull() {
-        return this.string() + (this.relativeKey ? "/" + this.relativeKey.string() : "");
+    get stringFull() {
+        return this.string + (this.relativeKey ? "/" + this.relativeKey.string : "");
     }
 }

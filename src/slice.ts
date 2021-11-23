@@ -2,6 +2,7 @@ import Chord from "./chord.js";
 import Note from "./note";
 
 export default class Slice {
+    previous;
     s: Note | undefined;
     a: Note | undefined;
     t: Note | undefined;
@@ -11,7 +12,8 @@ export default class Slice {
     map: number = 0;
     cadence: boolean;
 
-    constructor(duration: number, cadence: boolean) {
+    constructor(previous: Slice | undefined, duration: number, cadence: boolean) {
+        this.previous = previous;
         this.duration = duration;
         this.cadence = cadence;
     }
