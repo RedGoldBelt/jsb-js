@@ -80,13 +80,12 @@ export class Piece {
         console.groupCollapsed();
         console.time("Time");
 
-        for (this.time = { bar: 0, slice: 0 }; !(this.time.bar === this.in.length && this.time.slice === 0);) {
+        for (this.time = { bar: 0, slice: 0 }; !(this.time.bar === this.in.length && this.time.slice === 0); this.step()) {
             if (this.time.bar < 0) {
                 console.timeEnd("Time");
                 console.info("Failed to harmonise");
                 return this;
             }
-            this.step();
         }
 
         console.timeEnd("Time");
