@@ -30,7 +30,7 @@ export const DICTIONARY_FULL: any = {
     COMMON_MAJOR: {
         null: ["I", "V", "IV", "ii", "vi", "iii"],
 
-        "I": [Chord.all("iii7"), Chord.all("iii"), Chord.all("vi7"), Chord.all("vi"), Chord.all("ii7"), Chord.all("ii"), Chord.all("IV"), "viib", Chord.all("V"), Chord.all("I")],
+        "I": [Chord.all("iii"), Chord.all("vi"), Chord.all("ii7"), Chord.all("ii"), Chord.all("IV"), "viib", Chord.all("V"), Chord.all("I")],
         "Ib": ["IV", "ii7b", "ii", "V7d", "Vc", "vi", "Ic", "I"],
         "Ic": ["V7d", "V7", "V"],
 
@@ -47,16 +47,11 @@ export const DICTIONARY_FULL: any = {
         "iiib": ["vi"],
         "iiic": [],
 
-        "iii7": [],
-        "iii7b": [],
-        "iii7c": [],
-        "iii7d": [],
-
         "IV": ["vi", "vii", "iii", "Ic", "I", "V", "ii"],
         "IVb": ["vii", "Ic", "I"],
         "IVc": [],
 
-        "V": [Chord.all("iii"), "vi", Chord.all("ii"), "IV", Chord.all("I"), Chord.all("V")],
+        "V": [Chord.all("iii"), "vi", Chord.all("ii"), "IV", Chord.all("I"), "Vb"],
         "Vb": ["iiib", "iii", "vi", "I"],
         "Vc": ["Ib", "I"],
 
@@ -68,11 +63,6 @@ export const DICTIONARY_FULL: any = {
         "vi": [Chord.all("ii7"), Chord.all("ii"), Chord.all("iii"), "Vb", "V", "IVb", "IV", "Ib"],
         "vib": ["ii"],
         "vic": [],
-
-        "vi7": [Chord.all("ii7"), Chord.all("ii"), Chord.all("iii"), "Vb", "V", "IVb", "IV"],
-        "vi7b": ["ii"],
-        "vi7c": [],
-        "vi7d": [],
 
         "vii": ["V/vi", "iii", "ii", "V"],
         "viib": ["V/vi", "I", "iii"],
@@ -162,11 +152,6 @@ export const DICTIONARY_FULL: any = {
         "iiib": [],
         "iiic": [],
 
-        "iii7": [],
-        "iii7b": [],
-        "iii7c": [],
-        "iii7d": [],
-
         "IV": [],
         "IVb": [],
         "IVc": [],
@@ -183,11 +168,6 @@ export const DICTIONARY_FULL: any = {
         "vi": ["Vb/V"],
         "vib": [],
         "vic": [],
-
-        "vi7": [],
-        "vi7b": [],
-        "vi7c": [],
-        "vi7d": [],
 
         "vii": [],
         "viib": [],
@@ -221,11 +201,6 @@ export const DICTIONARY_FULL: any = {
         "iiib": [],
         "iiic": [],
 
-        "iii7": [],
-        "iii7b": [],
-        "iii7c": [],
-        "iii7d": [],
-
         "IV": [],
         "IVb": [],
         "IVc": [],
@@ -242,11 +217,6 @@ export const DICTIONARY_FULL: any = {
         "vi": [],
         "vib": [],
         "vic": [],
-
-        "vi7": [],
-        "vi7b": [],
-        "vi7c": [],
-        "vi7d": [],
 
         "vii": [],
         "viib": [],

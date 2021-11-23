@@ -99,7 +99,6 @@ export class Piece {
     private step() {
         const previousChord = this.inSlice.previous?.chord ?? new Chord(null, "", 0, new Numeral(0, 0, true));
         const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.inSlice.cadence || ["I", "i", "V"].includes(chord.string));
-
         for (; this.inSlice.map < chordOptions.length; ++this.inSlice.map) {
             const chord = chordOptions[this.inSlice.map];
             this.resolution = chord.resolve(this.key);
@@ -110,7 +109,7 @@ export class Piece {
             }
 
             // REJECT: WRONG INVERSION
-            if (!this.inSlice.b?.tone.equals(this.resolution.at(this.resolution.inversion))) {
+            if (this.inSlice.b && !this.inSlice.b?.tone.equals(this.resolution.at(this.resolution.inversion))) {
                 continue;
             }
 
@@ -193,7 +192,7 @@ export class Piece {
             const ones = quotas.map((quota, inversion) => quota === 1 ? inversion : null).filter(inversion => inversion !== null) as Inversion[];
             const two = quotas.findIndex(quota => quota === 2) as Inversion | -1;
 
-            const permutations = this.permutation(ones, two);
+            const permutations = this.permute(ones, two);
 
             for (const permutation of permutations) {
 
@@ -266,7 +265,7 @@ export class Piece {
         return false;
     }
 
-    private permutation(ones: Inversion[], two: Inversion | -1) {
+    private permute(ones: Inversion[], two: Inversion | -1) {
         switch (ones.length as 1 | 2 | 3) {
             case 1:
                 two = two as Inversion;
