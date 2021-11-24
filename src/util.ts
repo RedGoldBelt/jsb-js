@@ -29,16 +29,24 @@ export const DICTIONARY_FULL: any = {
         null: ["I", "V", "IV", "ii", "vi", "iii"],
 
         "I": [
+            "viib",
             "iiic", "iiib", "iii",
             "vic", "vib", "vi",
             "ii7d", "ii7c", "ii7b", "ii7", "iic", "iib", "ii",
             "IVc", "IVb", "IV",
-            "viib",
             "V7d", "V7c", "V7b", "V7", "Vc", "Vb", "V",
             "Ic", "Ib", "I"
         ],
-        "Ib": ["IV", "ii7b", "ii", "V7d", "Vc", "vi", "Ic", "I"],
-        "Ic": ["V7d", "V7", "V"],
+        "Ib": [
+            "IV",
+            "ii7b", "ii7", "iib", "ii",
+            "V7d", "V7c", "Vc",
+            "vi",
+            "Ic", "I"
+        ],
+        "Ic": [
+            "V7", "V"
+        ],
 
         "ii": ["Ic", "V", "vi", "iii", "IV"],
         "iib": ["Ic", "V"],
@@ -64,7 +72,7 @@ export const DICTIONARY_FULL: any = {
             "Ic", "Ib", "I",
             "Vb"
         ],
-        "Vb": ["iiib", "iii", "vi", "I"],
+        "Vb": ["vi", "I"],
         "Vc": ["Ib", "I"],
         "V7": ["vi", "I"],
         "V7b": ["iiib", "iii", "vi", "I"],
@@ -256,6 +264,50 @@ export const DICTIONARY_FULL: any = {
     }
 }
 
+export const DICTIONARY_PRIMARY_A: any = {
+    COMMON_MAJOR: {
+        null: [
+            "I",
+            "IV",
+            "V"
+        ],
+        "I": [
+            "IV",
+            "V",
+            "I"
+        ],
+        "IV": [
+            "V",
+            "I",
+            "IV"
+        ],
+        "V": [
+            "I",
+            "IV",
+            "V"
+        ]
+    },
+    COMMON_MINOR: {
+        null: ["i",
+            "iv",
+            "V"],
+        "i": [
+            "iv",
+            "V",
+            "i"],
+        "iv": [
+            "V",
+            "i",
+            "iv"
+        ],
+        "V": [
+            "i",
+            "iv",
+            "V"
+        ]
+    }
+}
+
 export const DICTIONARY_PRIMARY_AB: any = {
     COMMON_MAJOR: {
         null: [
@@ -286,7 +338,9 @@ export const DICTIONARY_PRIMARY_AB: any = {
         "V": [
             "Ib", "I",
             "IVb", "IV",
-            "Vb", "V"],
+            "Vb", "V"
+        ]
+        ,
         "Vb": [
             "I", "Ib",
             "IV", "IVb",
@@ -332,46 +386,82 @@ export const DICTIONARY_PRIMARY_AB: any = {
     },
 }
 
-export const DICTIONARY_PRIMARY_A: any = {
+export const DICTIONARY_PRIMARY_ABC: any = {
     COMMON_MAJOR: {
         null: [
-            "I",
-            "IV",
-            "V"
+            "I", "Ib", "Ic",
+            "IVc", "IVb", "IV",
+            "V", "Vb", "Vc"
         ],
         "I": [
-            "IV",
-            "V",
-            "I"
+            "IVb", "IV",
+            "Vb", "V",
+            "Ib", "I"
+        ],
+        "Ib": [
+            "IV", "IVb",
+            "V", "Vb",
+            "I", "Ib"
         ],
         "IV": [
-            "V",
-            "I",
-            "IV"
+            "Vb", "V",
+            "Ib", "I",
+            "IVb", "IV"
+        ],
+        "IVb": [
+            "V", "Vb",
+            "I", "Ib",
+            "IV", "IVb"
         ],
         "V": [
-            "I",
-            "IV",
-            "V"
+            "Ib", "I",
+            "IVb", "IV",
+            "Vb", "V"]
+        ,
+        "Vb": [
+            "I", "Ib",
+            "IV", "IVb",
+            "V", "Vb"
+        ],
+        "Vc": [
+
         ]
     },
     COMMON_MINOR: {
-        null: ["i",
-            "iv",
-            "V"],
+        null: [
+            "i", "ib",
+            "ivb", "iv",
+            "V", "Vb"
+        ],
         "i": [
-            "iv",
-            "V",
-            "i"],
+            "ivb", "iv",
+            "Vb", "V",
+            "ib", "i"
+        ],
+        "ib": [
+            "iv", "ivb",
+            "V", "Vb",
+            "i", "ib"
+        ],
         "iv": [
-            "V",
-            "i",
-            "iv"
+            "Vb", "V",
+            "ib", "i",
+            "ivb", "iv"
+        ],
+        "ivb": [
+            "V", "Vb",
+            "i", "ib",
+            "iv", "ivb"
         ],
         "V": [
-            "i",
-            "iv",
-            "V"
+            "ib", "i",
+            "ivb", "iv",
+            "Vb", "V"
+        ],
+        "Vb": [
+            "i", "ib",
+            "iv", "ivb",
+            "V", "Vb"
         ]
-    }
+    },
 }
