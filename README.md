@@ -67,7 +67,7 @@ Finally, you can annotate a note as being the final chord of a cadence (often si
 
 To harmonise the piece, call the harmonise() method on it. You can optionally specify configuration options:
 
-`const myPiece = new JSB.Piece(...).harmonise({ dictionary: JSB.PRIMARY_AB, debug: true });`
+`const myPiece = new JSB.Piece(...).harmonise({ dictionary: JSB.DICT.PRIMARY_AB, debug: true });`
 
 Configuration options default to JSB.FULL, false.
 
@@ -76,7 +76,6 @@ Sample output:
 
 `new JSB.Piece("G major", "[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]").harmonise();`
 ```
-Time: 6.286865234375 ms
 [G4     G4     A4    |F#4    G4     A4    |B4     B4     C5    |B4     A4     G4    |A4     G4     F#4   |G4    ]
 [D4     E4     E4    |F#4    E4     D4    |D4     E4     E4    |G4     D4     D4    |E4     B3     C4    |D4    ]
 [B3     B3     C4    |B3     B3     A3    |G3     B3     A3    |G3     F#3    G3    |G3     G3     A3    |B3    ]

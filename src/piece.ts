@@ -8,7 +8,7 @@ import Slice from "./slice.js";
 import Tone from "./tone.js";
 import { Bar, Config, Inversion, Part, Permutation, Time } from "./util.js";
 
-export class Piece {
+export default class Piece {
     in: Bar[] = [];
     out: Bar[] = [];
 

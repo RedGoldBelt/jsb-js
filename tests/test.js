@@ -4,7 +4,7 @@ const GSTQ = new JSB.Piece("G major", "[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_
 const HTHAS = new JSB.Piece("G major", "[D G G. F#/|G@ B B A@|D D C_|B A B_@]").harmonise();
 const M1 = new JSB.Piece("C major", "[C5|A F G C|C B C@ D|E C D B|C_.@]").harmonise();
 const M1_SIMPLE = new JSB.Piece("C major", "[C5|A F G C|C B C@ D|E C D B|C_.@]").harmonise({
-    dictionary: JSB.DICTIONARY_PRIMARY_AB
+    dictionary: JSB.DICT.PRIMARY_AB
 });
 const KMSR = new JSB.Piece("D major", "[A4|F# F# G|A D A|G E5 A4|F#_@ A|D C# B|A. G/ F#|E D C#|D_@]").harmonise();
 const C2 = new JSB.Piece("A major", "[C#5|A B C# F#|E C# B_@|D D C# C#|B B A_@]").harmonise();
@@ -20,7 +20,7 @@ const BWV_3_6 = new JSB.Piece(
 ).harmonise();
 
 const MINOR_TEST = new JSB.Piece("F# minor", "[F#4 F# F# G#|A G# F#_|D F# F# E#|F#__]").harmonise({
-    dictionary: JSB.DICTIONARY_PRIMARY_A
+    dictionary: JSB.DICT.PRIMARY_A
 });
 
 const CHOPIN = new JSB.Piece("Bb major", "[Bb4 Bb/. C// D Bb|G C/ Bb/ A_]").harmonise();
