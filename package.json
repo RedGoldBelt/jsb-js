@@ -17,7 +17,7 @@
     "url": "git+https://github.com/IntGrah/jsb-js.git"
   },
   "author": "Jeremy Chen",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/IntGrah/jsb-js/issues"
   },

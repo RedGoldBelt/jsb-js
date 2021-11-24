@@ -13,7 +13,7 @@ JSB.js follows common principles of good harmonisation and part writing:
 * Parts must not cross.
 * The notes must not exceed the tessitura of the part.
 
-Importantly, JSB.js employs a heuristic algotrithm, which is not based on machine learning. The database that determines which chord to try is manually calculated and compiled.
+Importantly, JSB.js employs a heuristic algorithm, which is not based on machine learning. The database that determines which chord to try is manually calculated and compiled.
 
 ## Installation
 
@@ -67,9 +67,9 @@ Finally, you can annotate a note as being the final chord of a cadence (often si
 
 To harmonise the piece, call the harmonise() method on it. You can optionally specify configuration options:
 
-`const myPiece = new JSB.Piece(...).harmonise({ dictionary: JSB.DICTIONARY_PRIMARY_a_b, debug: true });`
+`const myPiece = new JSB.Piece(...).harmonise({ dictionary: JSB.PRIMARY_AB, debug: true });`
 
-Configuration options default to JSB.DICTIONARY_FULL, false.
+Configuration options default to JSB.FULL, false.
 
 Sample output:
 
