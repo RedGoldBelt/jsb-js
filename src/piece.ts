@@ -1,11 +1,12 @@
 import Chord from "./chord.js";
+import * as DICTIONARY from "./dictionary.js";
 import Key from "./key.js";
 import Note from "./note.js";
 import Numeral from "./numeral.js";
 import Resolution from "./resolution.js";
 import Slice from "./slice.js";
 import Tone from "./tone.js";
-import { Bar, Config as Config, DICTIONARY_FULL as DICTIONARY_FULL, Inversion, Part, Permutation, Time } from "./util.js";
+import { Bar, Config, Inversion, Part, Permutation, Time } from "./util.js";
 
 export class Piece {
     in: Bar[] = [];
@@ -15,7 +16,7 @@ export class Piece {
     private key: Key;
     private resolution: Resolution = new Resolution(Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), 0); // Dummy resolution
     private config: Config = {
-        dictionary: DICTIONARY_FULL,
+        dictionary: DICTIONARY.FULL,
         debug: false
     }
 
