@@ -1,8 +1,8 @@
-import Slice from "./slice";
+import Event from "./event";
 
 export type Alteration = "" | "7" | "o7";
 
-export type Bar = Slice[];
+export type Bar = Event[];
 
 export interface Config {
     dictionary?: any;
@@ -21,5 +21,5 @@ export interface Permutation {
 
 export interface Time {
     bar: number;
-    slice: number;
+    event: number;
 }

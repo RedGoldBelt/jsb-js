@@ -4,7 +4,7 @@ import Key from "./key.js";
 import Note from "./note.js";
 import Numeral from "./numeral.js";
 import Resolution from "./resolution.js";
-import Slice from "./slice.js";
+import Event from "./event.js";
 import Tone from "./tone.js";
 import { Bar, Config, Inversion, Part, Permutation, Time } from "./util.js";
 
@@ -12,7 +12,7 @@ export default class Piece {
     in: Bar[] = [];
     out: Bar[] = [];
 
-    private time: Time = { bar: 0, slice: 0 };
+    private time: Time = { bar: 0, event: 0 };
     private key: Key;
     private resolution: Resolution = new Resolution(Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), 0); // Dummy resolution
     private config: Config = {
@@ -34,16 +34,16 @@ export default class Piece {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(note => note !== ""));
 
         let previousNote = Note.parse("C4");
-        let previousInSlice: Slice | undefined = undefined;
-        let previousOutSlice: Slice | undefined;
+        let previousInEvent: Event | undefined = undefined;
+        let previousOutEvent: Event | undefined;
 
         for (let bar = 0; bar < split.length; ++bar) {
             this.in[bar] ??= []
             this.out[bar] = [];
 
-            for (let slice = 0; slice < split[bar].length; ++slice) {
-                const result = split[bar][slice].match(/^([A-G](bb|b|#|x|)([1-6]?))([_\/\.]*)(@?)$/);
-                if (result === null) throw new Error(`Could not parse annotated note '${split[bar][slice]}'`);
+            for (let event = 0; event < split[bar].length; ++event) {
+                const result = split[bar][event].match(/^([A-G](bb|b|#|x|)([1-6]?))([_\/\.]*)(@?)$/);
+                if (result === null) throw new Error(`Could not parse annotated note '${split[bar][event]}'`);
 
                 previousNote = result[3] ? Note.parse(result[1]) : previousNote.near(Tone.parse(result[1]))[0];
 
@@ -56,20 +56,20 @@ export default class Piece {
                     }
                 }
 
-                previousInSlice = this.in[bar][slice] ??= new Slice(previousInSlice, duration, result[5] === "@");
-                this.in[bar][slice][part] = previousNote;
+                previousInEvent = this.in[bar][event] ??= new Event(previousInEvent, duration, result[5] === "@");
+                this.in[bar][event][part] = previousNote;
 
-                previousOutSlice = this.out[bar][slice] ??= new Slice(previousOutSlice, duration, result[5] === "@");
+                previousOutEvent = this.out[bar][event] ??= new Event(previousOutEvent, duration, result[5] === "@");
             }
         }
     }
 
-    private get inSlice() {
-        return this.in[this.time.bar][this.time.slice];
+    private get inEvent() {
+        return this.in[this.time.bar][this.time.event];
     }
 
-    private get outSlice() {
-        return this.out[this.time.bar][this.time.slice];
+    private get outEvent() {
+        return this.out[this.time.bar][this.time.event];
     }
 
     harmonise(config: Config = {}) {
@@ -81,7 +81,7 @@ export default class Piece {
         console.groupCollapsed("Harmonisation");
         console.time("Time");
 
-        for (this.time = { bar: 0, slice: 0 }; !(this.time.bar === this.in.length && this.time.slice === 0); this.step()) {
+        for (this.time = { bar: 0, event: 0 }; !(this.time.bar === this.in.length && this.time.event === 0); this.step()) {
             if (this.time.bar < 0) {
                 console.timeEnd("Time");
                 console.info("Failed to harmonise");
@@ -98,10 +98,10 @@ export default class Piece {
     }
 
     private step() {
-        const previousChord = this.inSlice.previous?.chord ?? new Chord(null, "", 0, new Numeral(0, 0, this.key.tonality));
-        const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.inSlice.cadence || ["I", "i", "V"].includes(chord.string));
-        for (; this.inSlice.map < chordOptions.length; ++this.inSlice.map) {
-            const chord = chordOptions[this.inSlice.map];
+        const previousChord = this.inEvent.previous?.chord ?? new Chord(null, "", 0, new Numeral(0, 0, this.key.tonality));
+        const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.inEvent.cadence || ["I", "i", "V"].includes(chord.string));
+        for (; this.inEvent.map < chordOptions.length; ++this.inEvent.map) {
+            const chord = chordOptions[this.inEvent.map];
             this.resolution = chord.resolve(this.key);
 
             // REJECT: PARTS DO NOT FIT
@@ -110,12 +110,12 @@ export default class Piece {
             }
 
             // REJECT: WRONG INVERSION
-            if (this.inSlice.b && !this.inSlice.b?.tone.equals(this.resolution.at(this.resolution.inversion))) {
+            if (this.inEvent.b && !this.inEvent.b?.tone.equals(this.resolution.at(this.resolution.inversion))) {
                 continue;
             }
 
             // REJECT: Invalid second inversion chord
-            if (previousChord.inversion === 2 && this.inSlice.previous?.previous?.chord?.stringFull === chord.stringFull) {
+            if (previousChord.inversion === 2 && this.inEvent.previous?.previous?.chord?.stringFull === chord.stringFull) {
                 if (this.config.debug) {
                     console.info(`Rejected '${chord.stringFull}': Invalid second inversion chord`);
                 }
@@ -123,16 +123,16 @@ export default class Piece {
             }
 
             // TEST VIABILITY
-            this.outSlice.s = this.inSlice.s;
-            this.outSlice.a = this.inSlice.a;
-            this.outSlice.t = this.inSlice.t;
-            this.outSlice.b = this.inSlice.b ?? (this.outSlice.previous?.b ?? Note.parse("Eb3")).near(this.resolution.at(this.resolution.inversion)).filter((note: Note) => note.pitch >= 28 && note.pitch <= 48 && note.pitch <= (this.outSlice.s as Note).pitch - 10)[0];
-            this.outSlice.chord = chord;
+            this.outEvent.s = this.inEvent.s;
+            this.outEvent.a = this.inEvent.a;
+            this.outEvent.t = this.inEvent.t;
+            this.outEvent.b = this.inEvent.b ?? (this.outEvent.previous?.b ?? Note.parse("Eb3")).near(this.resolution.at(this.resolution.inversion)).filter((note: Note) => note.pitch >= 28 && note.pitch <= 48 && note.pitch <= (this.outEvent.s as Note).pitch - 10)[0];
+            this.outEvent.chord = chord;
 
             const quotas = this.resolution[3] !== null ? [1, 1, 1, 1] : [2, 1, 2, 0];
 
             for (const part of ["s", "a", "t", "b"] as Part[]) {
-                const inversion = this.resolution.array.findIndex((tone: Tone) => tone.equals(this.outSlice[part]?.tone));
+                const inversion = this.resolution.array.findIndex((tone: Tone) => tone.equals(this.outEvent[part]?.tone));
                 --quotas[inversion];
             }
 
@@ -178,7 +178,7 @@ export default class Piece {
             }
 
             // REJECT: S-B PARALLEL
-            if (!(this.time.bar === 0 && this.time.slice === 0) && this.parallel("s", "b")) {
+            if (!(this.time.bar === 0 && this.time.event === 0) && this.parallel("s", "b")) {
                 this.clear();
                 if (this.config.debug) {
                     console.info(`Rejected '${chord.stringFull}': Soprano and bass in parallel`);
@@ -202,25 +202,25 @@ export default class Piece {
                     continue;
                 }
 
-                this.outSlice.a = (this.outSlice.previous?.a ?? Note.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0];
-                this.outSlice.t = (this.outSlice.previous?.t ?? Note.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((note: Note) => note.pitch >= (this.outSlice.b as Note).pitch)[0];
+                this.outEvent.a = (this.outEvent.previous?.a ?? Note.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0];
+                this.outEvent.t = (this.outEvent.previous?.t ?? Note.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((note: Note) => note.pitch >= (this.outEvent.b as Note).pitch)[0];
 
                 // REJECT: PARALLEL PARTS
-                if (!(this.time.bar === 0 && this.time.slice === 0) && (this.parallel("s", "a") || this.parallel("s", "t") || this.parallel("a", "t") || this.parallel("a", "b") || this.parallel("t", "b"))) {
+                if (!(this.time.bar === 0 && this.time.event === 0) && (this.parallel("s", "a") || this.parallel("s", "t") || this.parallel("a", "t") || this.parallel("a", "b") || this.parallel("t", "b"))) {
                     if (this.config.debug) {
-                        console.info(`|   Rejected permutation '${(this.outSlice.s as Note).string} ${(this.outSlice.a as Note).string} ${(this.outSlice.t as Note).string} ${(this.outSlice.b as Note).string}': Parallel parts`);
+                        console.info(`|   Rejected permutation '${(this.outEvent.s as Note).string} ${(this.outEvent.a as Note).string} ${(this.outEvent.t as Note).string} ${(this.outEvent.b as Note).string}': Parallel parts`);
                     }
                     continue;
                 }
 
                 // ACCEPT
-                this.inSlice.chord = chord;
+                this.inEvent.chord = chord;
                 if (this.config.debug) {
-                    console.info(`|   Accepted permutation '${this.outSlice.s?.string} ${this.outSlice.a?.string} ${this.outSlice.t?.string} ${this.outSlice.b?.string}'`);
-                    console.info(`Accepted '${chord.stringFull}' (Bar ${this.time.bar + 1}, Chord ${this.time.slice + 1})`);
+                    console.info(`|   Accepted permutation '${this.outEvent.s?.string} ${this.outEvent.a?.string} ${this.outEvent.t?.string} ${this.outEvent.b?.string}'`);
+                    console.info(`Accepted '${chord.stringFull}' (Bar ${this.time.bar + 1}, Chord ${this.time.event + 1})`);
                 }
-                if (++this.time.slice === this.in[this.time.bar].length) {
-                    this.time.slice = 0;
+                if (++this.time.event === this.in[this.time.bar].length) {
+                    this.time.event = 0;
                     ++this.time.bar;
                 }
                 return;
@@ -235,14 +235,14 @@ export default class Piece {
         }
 
         // REVERT: NO GOOD PROGRESSIONS
-        this.inSlice.map = 0;
-        if (--this.time.slice < 0) {
+        this.inEvent.map = 0;
+        if (--this.time.event < 0) {
             if (--this.time.bar >= 0) {
-                this.time.slice = this.in[this.time.bar].length - 1;
+                this.time.event = this.in[this.time.bar].length - 1;
             }
         }
         if (this.time.bar >= 0) {
-            ++this.inSlice.map;
+            ++this.inEvent.map;
         }
         if (this.config.debug) {
             console.info(`Reverted '${previousChord?.stringFull}': No good progressions available`);
@@ -251,16 +251,16 @@ export default class Piece {
     }
 
     private partsUnfit() {
-        if (this.resolution.excludes(this.inSlice.s?.tone)) {
+        if (this.resolution.excludes(this.inEvent.s?.tone)) {
             return true;
         }
-        if (this.resolution.excludes(this.inSlice.a?.tone)) {
+        if (this.resolution.excludes(this.inEvent.a?.tone)) {
             return true;
         }
-        if (this.resolution.excludes(this.inSlice.t?.tone)) {
+        if (this.resolution.excludes(this.inEvent.t?.tone)) {
             return true;
         }
-        if (this.resolution.excludes(this.inSlice.b?.tone)) {
+        if (this.resolution.excludes(this.inEvent.b?.tone)) {
             return true;
         }
         return false;
@@ -324,10 +324,10 @@ export default class Piece {
     }
 
     private score(altoInversion: Inversion, tenorInversion: Inversion) {
-        const previousA = this.outSlice.previous?.a ?? Note.parse("D4");
-        const previousT = this.outSlice.previous?.t ?? Note.parse("B3");
-        const s = (this.outSlice.s as Note).pitch;
-        const b = (this.outSlice.b as Note).pitch;
+        const previousA = this.outEvent.previous?.a ?? Note.parse("D4");
+        const previousT = this.outEvent.previous?.t ?? Note.parse("B3");
+        const s = (this.outEvent.s as Note).pitch;
+        const b = (this.outEvent.b as Note).pitch;
         const aNote = previousA.near(this.resolution.at(altoInversion))[0];
         const a = aNote.pitch
         const tNote = previousT.near(this.resolution.at(tenorInversion)).filter((note: Note) => note.pitch >= b)[0];
@@ -359,7 +359,7 @@ export default class Piece {
 
         if (reason !== "") {
             if (this.config.debug) {
-                console.info(`|   Rejected permutation '${(this.outSlice.s as Note).string} ${aNote.string} ${tNote.string} ${(this.outSlice.b as Note).string}': ${reason}`);
+                console.info(`|   Rejected permutation '${(this.outEvent.s as Note).string} ${aNote.string} ${tNote.string} ${(this.outEvent.b as Note).string}': ${reason}`);
             }
             return Infinity;
         }
@@ -368,28 +368,28 @@ export default class Piece {
         const stdDev = Math.sqrt((sa * sa + at * at) / 2 - (sa + at) ** 2 / 4);
         const score = aChange + tChange + stdDev;
         if (this.config.debug) {
-            console.info(`|   Permutation '${(this.outSlice.s as Note).string} ${aNote.string} ${tNote.string} ${(this.outSlice.b as Note).string}' scores ${score}`);
+            console.info(`|   Permutation '${(this.outEvent.s as Note).string} ${aNote.string} ${tNote.string} ${(this.outEvent.b as Note).string}' scores ${score}`);
         }
         return score;
     }
 
     private parallel(upper: Part, lower: Part) {
-        const previousSlice = this.outSlice.previous as Slice;
-        const slice = this.outSlice as Slice;
-        const previousInterval = ((previousSlice[upper] as Note).pitch - (previousSlice[lower] as Note).pitch) % 12;
-        const interval = ((slice[upper] as Note).pitch - (slice[lower] as Note).pitch) % 12;
-        return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && (previousSlice[upper] as Note).pitch !== (slice[upper] as Note).pitch;
+        const previousEvent = this.outEvent.previous as Event;
+        const event = this.outEvent as Event;
+        const previousInterval = ((previousEvent[upper] as Note).pitch - (previousEvent[lower] as Note).pitch) % 12;
+        const interval = ((event[upper] as Note).pitch - (event[lower] as Note).pitch) % 12;
+        return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && (previousEvent[upper] as Note).pitch !== (event[upper] as Note).pitch;
     }
 
     private clear() {
-        this.outSlice.s = undefined;
-        this.outSlice.a = undefined;
-        this.outSlice.t = undefined;
-        this.outSlice.b = undefined;
-        this.outSlice.chord = undefined;
+        this.outEvent.s = undefined;
+        this.outEvent.a = undefined;
+        this.outEvent.t = undefined;
+        this.outEvent.b = undefined;
+        this.outEvent.chord = undefined;
     }
 
     private string(part: Part | "chord") {
-        return "[" + this.out.map(bar => bar.map(slice => slice[part]?.string.padEnd(6)).join(" ")).join("|") + "]";
+        return "[" + this.out.map(bar => bar.map(event => event[part]?.string.padEnd(6)).join(" ")).join("|") + "]";
     }
 }

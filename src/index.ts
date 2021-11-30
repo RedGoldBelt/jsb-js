@@ -5,7 +5,7 @@ import Note from "./note.js";
 import Numeral from "./numeral.js";
 import Piece from "./piece.js";
 import Resolution from "./resolution.js";
-import Slice from "./slice.js";
+import Event from "./event.js";
 import Tone from "./tone.js";
 import * as UTIL from "./util.js";
 
@@ -17,7 +17,7 @@ export {
     Numeral,
     Piece,
     Resolution,
-    Slice,
+    Event,
     Tone,
     UTIL
 }
