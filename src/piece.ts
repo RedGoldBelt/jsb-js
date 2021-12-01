@@ -1,75 +1,60 @@
 import Chord from "./chord.js";
 import * as DICTIONARY from "./dictionary.js";
 import Key from "./key.js";
-import Note from "./note.js";
+import Tone from "./tone.js";
 import Numeral from "./numeral.js";
 import Resolution from "./resolution.js";
 import Event from "./event.js";
-import Tone from "./tone.js";
+import BasicTone from "./basictone.js";
 import { Bar, Config, Inversion, Part, Permutation, Time } from "./util.js";
+import Group from "./group.js";
 
 export default class Piece {
-    in: Bar[] = [];
-    out: Bar[] = [];
+    cache: Bar[];
+    bars: Bar[] = [];
 
     private time: Time = { bar: 0, event: 0 };
     private key: Key;
-    private resolution: Resolution = new Resolution(Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), 0); // Dummy resolution
+    private resolution: Resolution = new Resolution(BasicTone.parse("C"), BasicTone.parse("C"), BasicTone.parse("C"), BasicTone.parse("C"), 0); // Dummy resolution
     private config: Config = {
         dictionary: DICTIONARY.FULL,
         debug: false
     }
 
-    constructor(key: string, s: string, a?: string, t?: string, b?: string) {
+    constructor(key: string, soprano: string) {
         this.key = Key.parse(key);
-        this.in = [];
-        this.load(s, "s");
-        if (a) this.load(a, "a");
-        if (t) this.load(t, "t");
-        if (b) this.load(b, "b");
+        this.cache = [];
+        this.load(soprano, "soprano");
         return this;
     }
 
-    private load(string: string, part: Part) {
-        const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(note => note !== ""));
+    private load(string: string, part: "soprano" | "alto" | "tenor" | "bass") {
+        const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
 
-        let previousNote = Note.parse("C4");
-        let previousInEvent: Event | undefined = undefined;
-        let previousOutEvent: Event | undefined;
+        let previousCacheEvent: Event | undefined;
+        let previousEvent: Event | undefined;
 
         for (let bar = 0; bar < split.length; ++bar) {
-            this.in[bar] ??= []
-            this.out[bar] = [];
+            this.cache[bar] ??= []
+            this.bars[bar] = [];
 
             for (let event = 0; event < split[bar].length; ++event) {
-                const result = split[bar][event].match(/^([A-G](bb|b|#|x|)([1-6]?))([_\/\.]*)(@?)$/);
-                if (result === null) throw new Error(`Could not parse annotated note '${split[bar][event]}'`);
+                const group = Group.parse(split[bar][event]);
+                previousCacheEvent = this.cache[bar][event] ??= new Event(previousCacheEvent, group, new Group([], 0), new Group([], 0), new Group([], 0));
+                this.cache[bar][event][part] = group;
 
-                previousNote = result[3] ? Note.parse(result[1]) : previousNote.near(Tone.parse(result[1]))[0];
-
-                let duration = 1;
-                for (const modifier of result[4]) {
-                    switch (modifier) {
-                        case "/": duration /= 2; break;
-                        case ".": duration *= 1.5; break;
-                        case "_": duration *= 2; break;
-                    }
-                }
-
-                previousInEvent = this.in[bar][event] ??= new Event(previousInEvent, duration, result[5] === "@");
-                this.in[bar][event][part] = previousNote;
-
-                previousOutEvent = this.out[bar][event] ??= new Event(previousOutEvent, duration, result[5] === "@");
+                previousEvent = this.bars[bar][event] ??= new Event(previousEvent, group, new Group([], 0), new Group([], 0), new Group([], 0));
             }
         }
+        return this;
     }
 
-    private get inEvent() {
-        return this.in[this.time.bar][this.time.event];
+    private get cacheEvent() {
+        return this.cache[this.time.bar][this.time.event];
     }
 
-    private get outEvent() {
-        return this.out[this.time.bar][this.time.event];
+    private get event() {
+        return this.bars[this.time.bar][this.time.event];
     }
 
     harmonise(config: Config = {}) {
@@ -81,7 +66,7 @@ export default class Piece {
         console.groupCollapsed("Harmonisation");
         console.time("Time");
 
-        for (this.time = { bar: 0, event: 0 }; !(this.time.bar === this.in.length && this.time.event === 0); this.step()) {
+        for (this.time = { bar: 0, event: 0 }; !(this.time.bar === this.cache.length && this.time.event === 0); this.step()) {
             if (this.time.bar < 0) {
                 console.timeEnd("Time");
                 console.info("Failed to harmonise");
@@ -98,10 +83,10 @@ export default class Piece {
     }
 
     private step() {
-        const previousChord = this.inEvent.previous?.chord ?? new Chord(null, "", 0, new Numeral(0, 0, this.key.tonality));
-        const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.inEvent.cadence || ["I", "i", "V"].includes(chord.string));
-        for (; this.inEvent.map < chordOptions.length; ++this.inEvent.map) {
-            const chord = chordOptions[this.inEvent.map];
+        const previousChord = this.event.previous?.chord ?? new Chord(null, "", 0, new Numeral(0, 0, this.key.tonality));
+        const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.event.cadence || ["I", "i", "V"].includes(chord.string));
+        for (; this.event.map < chordOptions.length; ++this.event.map) {
+            const chord = chordOptions[this.event.map];
             this.resolution = chord.resolve(this.key);
 
             // REJECT: PARTS DO NOT FIT
@@ -110,12 +95,12 @@ export default class Piece {
             }
 
             // REJECT: WRONG INVERSION
-            if (this.inEvent.b && !this.inEvent.b?.tone.equals(this.resolution.at(this.resolution.inversion))) {
+            if (this.cacheEvent.b && !this.cacheEvent.b?.equals(this.resolution.at(this.resolution.inversion))) {
                 continue;
             }
 
             // REJECT: Invalid second inversion chord
-            if (previousChord.inversion === 2 && this.inEvent.previous?.previous?.chord?.stringFull === chord.stringFull) {
+            if (previousChord.inversion === 2 && this.event.previous?.previous?.chord?.stringFull === chord.stringFull) {
                 if (this.config.debug) {
                     console.info(`Rejected '${chord.stringFull}': Invalid second inversion chord`);
                 }
@@ -123,16 +108,20 @@ export default class Piece {
             }
 
             // TEST VIABILITY
-            this.outEvent.s = this.inEvent.s;
-            this.outEvent.a = this.inEvent.a;
-            this.outEvent.t = this.inEvent.t;
-            this.outEvent.b = this.inEvent.b ?? (this.outEvent.previous?.b ?? Note.parse("Eb3")).near(this.resolution.at(this.resolution.inversion)).filter((note: Note) => note.pitch >= 28 && note.pitch <= 48 && note.pitch <= (this.outEvent.s as Note).pitch - 10)[0];
-            this.outEvent.chord = chord;
+            this.event.soprano = this.cacheEvent.soprano;
+            this.event.alto = this.cacheEvent.alto;
+            this.event.tenor = this.cacheEvent.tenor;
+            if (this.cacheEvent.b) {
+                this.event.bass = this.cacheEvent.bass;
+            } else {
+                this.event.b = (this.event.previous?.b ?? Tone.parse("Eb3")).near(this.resolution.at(this.resolution.inversion)).filter((tone: Tone) => tone.pitch >= 28 && tone.pitch <= 48 && tone.pitch <= (this.event.s as Tone).pitch - 10)[0];
+            }
+            this.event.chord = chord;
 
             const quotas = this.resolution[3] !== null ? [1, 1, 1, 1] : [2, 1, 2, 0];
 
             for (const part of ["s", "a", "t", "b"] as Part[]) {
-                const inversion = this.resolution.array.findIndex((tone: Tone) => tone.equals(this.outEvent[part]?.tone));
+                const inversion = this.resolution.array.findIndex((tone: BasicTone) => tone.equals(this.event[part]));
                 --quotas[inversion];
             }
 
@@ -202,24 +191,29 @@ export default class Piece {
                     continue;
                 }
 
-                this.outEvent.a = (this.outEvent.previous?.a ?? Note.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0];
-                this.outEvent.t = (this.outEvent.previous?.t ?? Note.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((note: Note) => note.pitch >= (this.outEvent.b as Note).pitch)[0];
+                this.event.a = (this.event.previous?.a ?? Tone.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0];
+                this.event.t = (this.event.previous?.t ?? Tone.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((tone: Tone) => tone.pitch >= this.event.b.pitch)[0];
 
                 // REJECT: PARALLEL PARTS
-                if (!(this.time.bar === 0 && this.time.event === 0) && (this.parallel("s", "a") || this.parallel("s", "t") || this.parallel("a", "t") || this.parallel("a", "b") || this.parallel("t", "b"))) {
+                if (!(this.time.bar === 0 && this.time.event === 0) && (
+                    this.parallel("s", "a") ||
+                    this.parallel("s", "t") ||
+                    this.parallel("a", "t") ||
+                    this.parallel("a", "b") ||
+                    this.parallel("t", "b"))) {
                     if (this.config.debug) {
-                        console.info(`|   Rejected permutation '${(this.outEvent.s as Note).string} ${(this.outEvent.a as Note).string} ${(this.outEvent.t as Note).string} ${(this.outEvent.b as Note).string}': Parallel parts`);
+                        console.info(`|   Rejected permutation '${this.event.s.string} ${this.event.a.string} ${this.event.t.string} ${this.event.b.string}': Parallel parts`);
                     }
                     continue;
                 }
 
                 // ACCEPT
-                this.inEvent.chord = chord;
+                this.event.chord = chord;
                 if (this.config.debug) {
-                    console.info(`|   Accepted permutation '${this.outEvent.s?.string} ${this.outEvent.a?.string} ${this.outEvent.t?.string} ${this.outEvent.b?.string}'`);
+                    console.info(`|   Accepted permutation '${this.event.s.string} ${this.event.a.string} ${this.event.t.string} ${this.event.b.string}'`);
                     console.info(`Accepted '${chord.stringFull}' (Bar ${this.time.bar + 1}, Chord ${this.time.event + 1})`);
                 }
-                if (++this.time.event === this.in[this.time.bar].length) {
+                if (++this.time.event === this.cache[this.time.bar].length) {
                     this.time.event = 0;
                     ++this.time.bar;
                 }
@@ -235,14 +229,14 @@ export default class Piece {
         }
 
         // REVERT: NO GOOD PROGRESSIONS
-        this.inEvent.map = 0;
+        this.event.map = 0;
         if (--this.time.event < 0) {
             if (--this.time.bar >= 0) {
-                this.time.event = this.in[this.time.bar].length - 1;
+                this.time.event = this.cache[this.time.bar].length - 1;
             }
         }
         if (this.time.bar >= 0) {
-            ++this.inEvent.map;
+            ++this.event.map;
         }
         if (this.config.debug) {
             console.info(`Reverted '${previousChord?.stringFull}': No good progressions available`);
@@ -251,16 +245,16 @@ export default class Piece {
     }
 
     private partsUnfit() {
-        if (this.resolution.excludes(this.inEvent.s?.tone)) {
+        if (this.resolution.excludes(this.cacheEvent.s)) {
             return true;
         }
-        if (this.resolution.excludes(this.inEvent.a?.tone)) {
+        if (this.resolution.excludes(this.cacheEvent.a)) {
             return true;
         }
-        if (this.resolution.excludes(this.inEvent.t?.tone)) {
+        if (this.resolution.excludes(this.cacheEvent.t)) {
             return true;
         }
-        if (this.resolution.excludes(this.inEvent.b?.tone)) {
+        if (this.resolution.excludes(this.cacheEvent.b)) {
             return true;
         }
         return false;
@@ -324,14 +318,14 @@ export default class Piece {
     }
 
     private score(altoInversion: Inversion, tenorInversion: Inversion) {
-        const previousA = this.outEvent.previous?.a ?? Note.parse("D4");
-        const previousT = this.outEvent.previous?.t ?? Note.parse("B3");
-        const s = (this.outEvent.s as Note).pitch;
-        const b = (this.outEvent.b as Note).pitch;
-        const aNote = previousA.near(this.resolution.at(altoInversion))[0];
-        const a = aNote.pitch
-        const tNote = previousT.near(this.resolution.at(tenorInversion)).filter((note: Note) => note.pitch >= b)[0];
-        const t = tNote.pitch;
+        const previousA = this.event.previous?.a ?? Tone.parse("D4");
+        const previousT = this.event.previous?.t ?? Tone.parse("B3");
+        const s = this.event.s.pitch;
+        const b = this.event.b.pitch;
+        const aTone = previousA.near(this.resolution.at(altoInversion))[0];
+        const a = aTone.pitch;
+        const tTone = previousT.near(this.resolution.at(tenorInversion))[0];
+        const t = tTone.pitch;
         const aChange = Math.abs(a - previousA.pitch);
         const tChange = Math.abs(t - previousT.pitch);
 
@@ -359,7 +353,7 @@ export default class Piece {
 
         if (reason !== "") {
             if (this.config.debug) {
-                console.info(`|   Rejected permutation '${(this.outEvent.s as Note).string} ${aNote.string} ${tNote.string} ${(this.outEvent.b as Note).string}': ${reason}`);
+                console.info(`|   Rejected permutation '${this.event.s.string} ${aTone.string} ${tTone.string} ${this.event.b.string}': ${reason}`);
             }
             return Infinity;
         }
@@ -368,28 +362,27 @@ export default class Piece {
         const stdDev = Math.sqrt((sa * sa + at * at) / 2 - (sa + at) ** 2 / 4);
         const score = aChange + tChange + stdDev;
         if (this.config.debug) {
-            console.info(`|   Permutation '${(this.outEvent.s as Note).string} ${aNote.string} ${tNote.string} ${(this.outEvent.b as Note).string}' scores ${score}`);
+            console.info(`|   Permutation '${this.event.s.string} ${aTone.string} ${tTone.string} ${this.event.b.string}' scores ${score}`);
         }
         return score;
     }
 
     private parallel(upper: Part, lower: Part) {
-        const previousEvent = this.outEvent.previous as Event;
-        const event = this.outEvent as Event;
-        const previousInterval = ((previousEvent[upper] as Note).pitch - (previousEvent[lower] as Note).pitch) % 12;
-        const interval = ((event[upper] as Note).pitch - (event[lower] as Note).pitch) % 12;
-        return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && (previousEvent[upper] as Note).pitch !== (event[upper] as Note).pitch;
+        const previousEvent = this.event.previous as Event;
+        const previousInterval = (previousEvent[upper].pitch - previousEvent[lower].pitch) % 12;
+        const interval = (this.event[upper].pitch - this.event[lower].pitch) % 12;
+        return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && previousEvent[upper].pitch !== this.event[upper].pitch;
     }
 
     private clear() {
-        this.outEvent.s = undefined;
-        this.outEvent.a = undefined;
-        this.outEvent.t = undefined;
-        this.outEvent.b = undefined;
-        this.outEvent.chord = undefined;
+        this.event.soprano = new Group([], 0);
+        this.event.alto = new Group([], 0);
+        this.event.tenor = new Group([], 0);
+        this.event.bass = new Group([], 0);
+        this.event.chord = undefined;
     }
 
     private string(part: Part | "chord") {
-        return "[" + this.out.map(bar => bar.map(event => event[part]?.string.padEnd(6)).join(" ")).join("|") + "]";
+        return "[" + this.bars.map(bar => bar.map(event => event[part]?.string.padEnd(6)).join(" ")).join("|") + "]";
     }
 }

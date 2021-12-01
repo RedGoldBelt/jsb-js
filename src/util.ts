@@ -1,8 +1,8 @@
-import Event from "./event";
+import EventGroup from "./event";
 
 export type Alteration = "" | "7" | "o7";
 
-export type Bar = Event[];
+export type Bar = EventGroup[];
 
 export interface Config {
     dictionary?: any;

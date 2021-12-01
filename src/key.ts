@@ -1,10 +1,10 @@
-import Tone from "./tone.js";
+import BasicTone from "./basictone.js";
 
 export default class Key {
     tone;
     tonality;
 
-    constructor(tone: Tone, tonality: boolean) {
+    constructor(tone: BasicTone, tonality: boolean) {
         this.tone = tone; this.tonality = tonality;
     }
 
@@ -13,13 +13,13 @@ export default class Key {
         if (result === null) {
             throw new Error(`Could not parse key '${string}'`);
         }
-        return new Key(Tone.parse(result[1] + result[2]), result[3] === "major");
+        return new Key(BasicTone.parse(result[1] + result[2]), result[3] === "major");
     }
 
     degree(degree: number, relativePitch?: number) {
         degree %= 7;
         relativePitch ??= (this.tonality ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10])[degree];
-        const top = new Tone((this.tone.letter + degree) % 7, 0);
+        const top = new BasicTone((this.tone.letter + degree) % 7, 0);
         top.accidental = (relativePitch - top.pitch + this.tone.pitch + 18) % 12 - 6;
         return top;
     }

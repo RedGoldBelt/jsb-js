@@ -1,4 +1,4 @@
-import Tone from "./tone.js";
+import BasicTone from "./basictone.js";
 import { Inversion } from "./util.js";
 
 export default class Resolution {
@@ -8,7 +8,7 @@ export default class Resolution {
     "3";
     inversion: Inversion;
 
-    constructor(root: Tone, third: Tone, fifth: Tone, seventh: Tone | null, inversion: Inversion) {
+    constructor(root: BasicTone, third: BasicTone, fifth: BasicTone, seventh: BasicTone | null, inversion: Inversion) {
         this[0] = root;
         this[1] = third;
         this[2] = fifth;
@@ -23,10 +23,10 @@ export default class Resolution {
     }
 
     at(inversion: Inversion) {
-        return this[inversion] as Tone;
+        return this[inversion] as BasicTone;
     }
 
-    excludes(testTone: Tone | undefined) {
+    excludes(testTone: BasicTone | undefined) {
         if (testTone === undefined) {
             return false;
         }
@@ -34,10 +34,10 @@ export default class Resolution {
     }
 
     get array() {
-        return Array.from(this).filter(tone => tone !== null) as Tone[]
+        return Array.from(this).filter(tone => tone !== null) as BasicTone[]
     }
 
     get string() {
-        return (Array.from(this).filter(tone => tone !== null) as Tone[]).map((tone, inversion) => inversion === this.inversion ? `(${tone.string})` : tone.string).join(" ");
+        return (Array.from(this).filter(tone => tone !== null) as BasicTone[]).map((tone, inversion) => inversion === this.inversion ? `(${tone.string})` : tone.string).join(" ");
     }
 }
