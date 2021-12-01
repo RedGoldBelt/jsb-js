@@ -2,7 +2,7 @@ import * as JSB from "../dist/index.js";
 
 const GSTQ = new JSB.Piece("G major", "[G4/ F#/ G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]").harmonise();
 const HTHAS = new JSB.Piece("G major", "[D G G. F#/|G@ B B A@|D D C_|B A B_@]").harmonise();
-const M1 = new JSB.Piece("C major", "[C5|A F G C|C B C@ D|E C D B|C_.@]").harmonise({debug: true});
+const M1 = new JSB.Piece("C major", "[C5|A F G C|C B C@ D|E C D B|C_.@]").harmonise();
 const M1_SIMPLE = new JSB.Piece("C major", "[C5|A F G C|C B C@ D|E C D B|C_.@]").harmonise({
     dictionary: JSB.DICT.PRIMARY_AB
 });
