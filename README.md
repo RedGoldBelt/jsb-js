@@ -35,41 +35,30 @@ Example usage:
 
 `const gstq = new JSB.Piece("G major", "[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]").harmonise();`
 
-The constructor `JSB.Piece` is of the form:
-
-`constructor(homeKey, s, a?, t?, b?)`
-
 The key is written in the format `"<A|B|C|D|E|F|G><|#|b> <major|minor>"`, which is CASE-SENSITIVE.
 
-The soprano part is required. Other parts are optional. If you specify other parts, ensure that the rhythm matches that of the soprano. Only completely homophonic inputs are allowed (for the moment).
-
-The string for a part follows a structure:
-
-`"[...|...|...]"`
-
-The first and last characters are brackets, and bars are delimited by the character "|". Bars can be of any length, hence anacruses are supported.
-
+The string for a part follows a syntax. Bars are delimited by the "|" character, and can be of any length.
 The notes within a bar are delimited by spaces:
 
 `"...|G A B|..."`
 
-The first note in the piece must have an octave number attached. Other notes do not require. The closest note to the previous note determines the octave of those notes. However, if the interval between two notes is greater than 6 semitones, you should specify an octave number:
+The first note must have an octave number attached. Subsequent notes do not require one, as the closest note to the previous note is the determining factor. However, if the interval between two notes is greater than 6 semitones, you should specify an octave number:
 
 `"[C5 Ab Eb5|..."`
 
-The duration of a note is appended after its pitch. You can use any combination of the characters "/", "." or "\_" which multiply the default duration of one crotchet by 0.5, 1.5, and 2 respectively:
+The duration of a note is appended after its pitch. Use a combination of the characters "\_", "/" or "." which multiply the default duration of one crotchet by 2, 0.5, and 1.5 respectively:
 
 `"[G#4. F#/ E|A_.|..."`
 
-Finally, you can annotate a note as being the final chord of a cadence (often signified with a fermata) by appending the character "@" after the duration.
+Finally, you can annotate a note as being the final chord of a cadence (like a fermata) by appending the character "@" after the duration.
 
 `"[...|D5. C#/ B E|A4_.@ G#|A B C# C#|..."`
 
 To harmonise the piece, call the harmonise() method on it. You can optionally specify configuration options:
 
-`const myPiece = new JSB.Piece(...).harmonise({ dictionary: JSB.DICT.PRIMARY_AB, debug: true });`
+`const myPiece = new JSB.Piece(...).harmonise({ dictionary: JSB.Dict.PRIMARY_AB, debug: true });`
 
-Configuration options default to JSB.FULL, false.
+Configuration options default to JSB.Dict.FULL, false.
 
 Sample output:
 

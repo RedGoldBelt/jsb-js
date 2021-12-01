@@ -1,5 +1,5 @@
 import Chord from "./chord.js";
-import * as DICT from "./dictionary.js";
+import * as Dict from "./dictionary.js";
 import Key from "./key.js";
 import Tone from "./tone.js";
 import Numeral from "./numeral.js";
@@ -7,11 +7,11 @@ import Piece from "./piece.js";
 import Resolution from "./resolution.js";
 import EventGroup from "./event.js";
 import BasicTone from "./basictone.js";
-import * as UTIL from "./util.js";
+import * as Util from "./util.js";
 
 export {
     Chord,
-    DICT,
+    Dict,
     Key,
     Tone,
     Numeral,
@@ -19,5 +19,5 @@ export {
     Resolution,
     EventGroup,
     BasicTone,
-    UTIL
+    Util
 }

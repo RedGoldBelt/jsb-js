@@ -10,9 +10,8 @@ import { Bar, Config, Inversion, Part, Permutation, Time } from "./util.js";
 import Group from "./group.js";
 
 export default class Piece {
-    cache: Bar[];
-    bars: Bar[] = [];
-
+    private cache: Bar[];
+    private bars: Bar[] = [];
     private time: Time = { bar: 0, event: 0 };
     private key: Key;
     private resolution: Resolution = new Resolution(BasicTone.parse("C"), BasicTone.parse("C"), BasicTone.parse("C"), BasicTone.parse("C"), 0); // Dummy resolution
@@ -24,11 +23,10 @@ export default class Piece {
     constructor(key: string, soprano: string) {
         this.key = Key.parse(key);
         this.cache = [];
-        this.load(soprano, "soprano");
-        return this;
+        return this.load(soprano, "s");
     }
 
-    private load(string: string, part: "soprano" | "alto" | "tenor" | "bass") {
+    private load(string: string, part: Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
 
         let previousCacheEvent: Event | undefined;
@@ -95,7 +93,7 @@ export default class Piece {
             }
 
             // REJECT: WRONG INVERSION
-            if (this.cacheEvent.b && !this.cacheEvent.b?.equals(this.resolution.at(this.resolution.inversion))) {
+            if (this.cacheEvent.b.main && !this.cacheEvent.b.main.equals(this.resolution.at(this.resolution.inversion))) {
                 continue;
             }
 
@@ -108,20 +106,21 @@ export default class Piece {
             }
 
             // TEST VIABILITY
-            this.event.soprano = this.cacheEvent.soprano;
-            this.event.alto = this.cacheEvent.alto;
-            this.event.tenor = this.cacheEvent.tenor;
-            if (this.cacheEvent.b) {
-                this.event.bass = this.cacheEvent.bass;
+            this.event.s = this.cacheEvent.s;
+            this.event.a = this.cacheEvent.a;
+            this.event.t = this.cacheEvent.t;
+            if (this.cacheEvent.b.main) {
+                this.event.b = this.cacheEvent.b;
             } else {
-                this.event.b = (this.event.previous?.b ?? Tone.parse("Eb3")).near(this.resolution.at(this.resolution.inversion)).filter((tone: Tone) => tone.pitch >= 28 && tone.pitch <= 48 && tone.pitch <= (this.event.s as Tone).pitch - 10)[0];
+                const options = (this.event.previous?.b.main ?? Tone.parse("Eb3")).near(this.resolution.at(this.resolution.inversion));
+                this.event.bass = options.filter((tone: Tone) => tone.pitch >= 28 && tone.pitch <= 48 && tone.pitch <= this.event.s.main.pitch - 10)[0];
             }
             this.event.chord = chord;
 
             const quotas = this.resolution[3] !== null ? [1, 1, 1, 1] : [2, 1, 2, 0];
 
             for (const part of ["s", "a", "t", "b"] as Part[]) {
-                const inversion = this.resolution.array.findIndex((tone: BasicTone) => tone.equals(this.event[part]));
+                const inversion = this.resolution.array.findIndex((tone: BasicTone) => tone.equals(this.event[part].main));
                 --quotas[inversion];
             }
 
@@ -191,8 +190,8 @@ export default class Piece {
                     continue;
                 }
 
-                this.event.a = (this.event.previous?.a ?? Tone.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0];
-                this.event.t = (this.event.previous?.t ?? Tone.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((tone: Tone) => tone.pitch >= this.event.b.pitch)[0];
+                this.event.alto = (this.event.previous?.a.main ?? Tone.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0];
+                this.event.tenor = (this.event.previous?.t.main ?? Tone.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((tone: Tone) => tone.pitch >= this.event.b.main.pitch)[0];
 
                 // REJECT: PARALLEL PARTS
                 if (!(this.time.bar === 0 && this.time.event === 0) && (
@@ -245,16 +244,16 @@ export default class Piece {
     }
 
     private partsUnfit() {
-        if (this.resolution.excludes(this.cacheEvent.s)) {
+        if (this.resolution.excludes(this.cacheEvent.s.main)) {
             return true;
         }
-        if (this.resolution.excludes(this.cacheEvent.a)) {
+        if (this.resolution.excludes(this.cacheEvent.a.main)) {
             return true;
         }
-        if (this.resolution.excludes(this.cacheEvent.t)) {
+        if (this.resolution.excludes(this.cacheEvent.t.main)) {
             return true;
         }
-        if (this.resolution.excludes(this.cacheEvent.b)) {
+        if (this.resolution.excludes(this.cacheEvent.b.main)) {
             return true;
         }
         return false;
@@ -318,10 +317,10 @@ export default class Piece {
     }
 
     private score(altoInversion: Inversion, tenorInversion: Inversion) {
-        const previousA = this.event.previous?.a ?? Tone.parse("D4");
-        const previousT = this.event.previous?.t ?? Tone.parse("B3");
-        const s = this.event.s.pitch;
-        const b = this.event.b.pitch;
+        const previousA = this.event.previous?.a.at(-1) ?? Tone.parse("D4");
+        const previousT = this.event.previous?.t.at(-1) ?? Tone.parse("B3");
+        const s = this.event.s.main.pitch;
+        const b = this.event.b.main.pitch;
         const aTone = previousA.near(this.resolution.at(altoInversion))[0];
         const a = aTone.pitch;
         const tTone = previousT.near(this.resolution.at(tenorInversion))[0];
@@ -329,31 +328,19 @@ export default class Piece {
         const aChange = Math.abs(a - previousA.pitch);
         const tChange = Math.abs(t - previousT.pitch);
 
-        let reason = "";
-
-        if (aChange > 7) {
-            reason = "Alto too disjunct";
-        } else if (tChange > 7) {
-            reason = "Tenor too disjunct";
-        } else if (a > s) {
-            reason = "Alto above soprano";
-        } else if (t > a) {
-            reason = "Tenor above alto";
-        } else if (b > t) {
-            reason = "Base above tenor";
-        } else if (a > 64) {
-            reason = "Alto too high";
-        } else if (a < 43) {
-            reason = "Alto too low";
-        } else if (t < 40) {
-            reason = "Tenor too low";
-        } else if (t > 52) {
-            reason = "Tenor too high";
-        }
-
-        if (reason !== "") {
+        if (
+            aChange > 7 ||
+            tChange > 7 ||
+            a > s ||
+            t > a ||
+            b > t ||
+            a > 64 ||
+            a < 43 ||
+            t < 40 ||
+            t > 52
+        ) {
             if (this.config.debug) {
-                console.info(`|   Rejected permutation '${this.event.s.string} ${aTone.string} ${tTone.string} ${this.event.b.string}': ${reason}`);
+                console.info(`|   Rejected permutation '${this.event.s.string} ${aTone.string} ${tTone.string} ${this.event.b.string}'}`);
             }
             return Infinity;
         }
@@ -369,16 +356,16 @@ export default class Piece {
 
     private parallel(upper: Part, lower: Part) {
         const previousEvent = this.event.previous as Event;
-        const previousInterval = (previousEvent[upper].pitch - previousEvent[lower].pitch) % 12;
-        const interval = (this.event[upper].pitch - this.event[lower].pitch) % 12;
-        return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && previousEvent[upper].pitch !== this.event[upper].pitch;
+        const previousInterval = (previousEvent[upper].at(-1).pitch - previousEvent[lower].at(-1).pitch) % 12;
+        const interval = (this.event[upper].at(0).pitch - this.event[lower].at(0).pitch) % 12;
+        return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && previousEvent[upper].at(-1).pitch !== this.event[upper].at(0).pitch;
     }
 
     private clear() {
-        this.event.soprano = new Group([], 0);
-        this.event.alto = new Group([], 0);
-        this.event.tenor = new Group([], 0);
-        this.event.bass = new Group([], 0);
+        this.event.s = new Group([], 0);
+        this.event.a = new Group([], 0);
+        this.event.t = new Group([], 0);
+        this.event.b = new Group([], 0);
         this.event.chord = undefined;
     }
 

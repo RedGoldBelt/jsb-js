@@ -38,6 +38,6 @@ export default class Resolution {
     }
 
     get string() {
-        return (Array.from(this).filter(tone => tone !== null) as BasicTone[]).map((tone, inversion) => inversion === this.inversion ? `(${tone.string})` : tone.string).join(" ");
+        return `{${(Array.from(this).filter(tone => tone !== null) as BasicTone[]).map((tone, inversion) => inversion === this.inversion ? `(${tone.string})` : tone.string).join(" ")}}`;
     }
 }
