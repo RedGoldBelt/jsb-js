@@ -38,9 +38,6 @@ export default class Group {
     }
 
     get string() {
-        if (this.notes.length > 1) {
-            return `(${this.notes.map(note => note.string).join(" ")})`;
-        }
-        return this.notes[0].string;
+        return this.notes.map(note => note.string).join(" ");
     }
 }
