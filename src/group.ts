@@ -33,10 +33,6 @@ export default class Group {
         return this.notes.map(note => note.duration).reduce((l, r) => l + r);
     }
 
-    get cadence() {
-        return this.notes.some(note => note.cadence);
-    }
-
     get string() {
         return this.notes.map(note => note.string).join(" ");
     }

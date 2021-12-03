@@ -14,29 +14,29 @@ export default class Event {
     cadence: boolean;
     map: number = 0;
 
-    constructor(previous: Event | undefined, s: Group, a: Group, t: Group, b: Group) {
+    constructor(previous: Event | undefined, s: Group, a: Group, t: Group, b: Group, cadence: boolean) {
         this.previous = previous;
         this.s = s;
         this.a = a;
         this.t = t;
         this.b = b;
         this.duration = s.duration;
-        this.cadence = [s, a, t, b].some(group => group.cadence);
+        this.cadence = cadence;
     }
     
     set soprano(tone: Tone) {
-        this.s = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false, false)], 0);
+        this.s = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false)], 0);
     }
 
     set alto(tone: Tone) {
-        this.a = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false, false)], 0);
+        this.a = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false)], 0);
     }
 
     set tenor(tone: Tone) {
-        this.t = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false, false)], 0);
+        this.t = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false)], 0);
     }
 
     set bass(tone: Tone) {
-        this.b = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false, false)], 0);
+        this.b = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false)], 0);
     }
 }

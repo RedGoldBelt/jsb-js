@@ -1,6 +1,6 @@
 import * as JSB from "../dist/index.js";
 
-new JSB.Piece("G major").parse("[(G4/,F#/) G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]", "s").harmonise();
+new JSB.Piece("G major").parse("[(G4/,F#/) G A|F#. G/ A|B B C|B. A/ G|A G F#|G_.]", "s").harmonise();
 new JSB.Piece("G major").parse("[D G G. F#/|G@ B B A@|D D C_|B A B_@]", "s").harmonise();
 new JSB.Piece("C major").parse("[C5|A F G C|C B C@ D|E C D B|C_.@]", "s").harmonise();
 new JSB.Piece("C major", "[C5|A F G C|C B C@ D|E C D B|C_.@]", "s").harmonise({

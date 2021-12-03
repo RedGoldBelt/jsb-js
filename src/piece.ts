@@ -19,13 +19,14 @@ export default class Piece {
         dictionary: DICTIONARY.FULL,
         debug: false
     }
+    private success: boolean = false;
 
     constructor(key: string) {
         this.key = Key.parse(key);
     }
 
     load(bars: Bar[]) {
-        this.bars = bars;
+        this.cache = bars;
         return this;
     }
 
@@ -40,11 +41,15 @@ export default class Piece {
             this.bars[bar] = [];
 
             for (let event = 0; event < split[bar].length; ++event) {
+                const cadence = split[bar][event].endsWith("@");
+                if (cadence) {
+                    split[bar][event] = split[bar][event].slice(0, -1);
+                }
                 const group = Group.parse(split[bar][event]);
-                previousCacheEvent = this.cache[bar][event] ??= new Event(previousCacheEvent, group, new Group([], 0), new Group([], 0), new Group([], 0));
+                previousCacheEvent = this.cache[bar][event] ??= new Event(previousCacheEvent, group, new Group([], 0), new Group([], 0), new Group([], 0), cadence);
                 this.cache[bar][event][part] = group;
 
-                previousEvent = this.bars[bar][event] ??= new Event(previousEvent, group, new Group([], 0), new Group([], 0), new Group([], 0));
+                previousEvent = this.bars[bar][event] ??= new Event(previousEvent, group, new Group([], 0), new Group([], 0), new Group([], 0), cadence);
             }
         }
         return this;
@@ -71,6 +76,7 @@ export default class Piece {
             if (this.time.bar < 0) {
                 console.timeEnd("Time");
                 console.info("Failed to harmonise");
+                this.success = false;
                 return this;
             }
         }
@@ -80,11 +86,12 @@ export default class Piece {
             console.info(this.string(part));
         }
         console.groupEnd();
+        this.success = true;
         return this;
     }
 
     private step() {
-        if (this.event.s.main === undefined) {
+        if (this.cacheEvent.s.main === undefined) {
             throw new Error("Soprano line not defined");
         }
         const previousChord = this.event.previous?.chord ?? new Chord(null, "", 0, new Numeral(0, 0, this.key.tonality));
