@@ -26,6 +26,7 @@ export default class Piece {
 
     load(bars: Bar[]) {
         this.bars = bars;
+        return this;
     }
 
     parse(string: string, part: Part) {
