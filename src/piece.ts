@@ -10,7 +10,7 @@ import { Bar, Config, Inversion, Part, Permutation, Time } from "./util.js";
 import Group from "./group.js";
 
 export default class Piece {
-    private cache: Bar[];
+    private cache: Bar[] = [];
     private bars: Bar[] = [];
     private time: Time = { bar: 0, event: 0 };
     private key: Key;
@@ -20,13 +20,15 @@ export default class Piece {
         debug: false
     }
 
-    constructor(key: string, soprano: string) {
+    constructor(key: string) {
         this.key = Key.parse(key);
-        this.cache = [];
-        return this.load(soprano, "s");
     }
 
-    private load(string: string, part: Part) {
+    load(bars: Bar[]) {
+        this.bars = bars;
+    }
+
+    parse(string: string, part: Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
 
         let previousCacheEvent: Event | undefined;
@@ -81,6 +83,9 @@ export default class Piece {
     }
 
     private step() {
+        if (this.event.s.main === undefined) {
+            throw new Error("Soprano line not defined");
+        }
         const previousChord = this.event.previous?.chord ?? new Chord(null, "", 0, new Numeral(0, 0, this.key.tonality));
         const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.event.cadence || ["I", "i", "V"].includes(chord.string));
         for (; this.event.map < chordOptions.length; ++this.event.map) {

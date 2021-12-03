@@ -33,7 +33,7 @@ Importantly, JSB.js employs a heuristic algorithm, which is not based on machine
 
 Example usage:
 
-`const gstq = new JSB.Piece("G major", "[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]").harmonise();`
+`const gstq = new JSB.Piece("G major").load("[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]", "s").harmonise();`
 
 The key is written in the format `"<A|B|C|D|E|F|G><|#|b> <major|minor>"`, which is CASE-SENSITIVE.
 
@@ -56,14 +56,14 @@ Finally, you can annotate a note as being the final chord of a cadence (like a f
 
 To harmonise the piece, call the harmonise() method on it. You can optionally specify configuration options:
 
-`const myPiece = new JSB.Piece(...).harmonise({ dictionary: JSB.Dict.PRIMARY_AB, debug: true });`
+`const myPiece = new JSB.Piece(...).load(...).harmonise({ dictionary: JSB.Dict.PRIMARY_AB, debug: true });`
 
 Configuration options default to JSB.Dict.FULL, false.
 
 Sample output:
 
 
-`new JSB.Piece("G major", "[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]").harmonise();`
+`new JSB.Piece("G major").load("[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]", "s").harmonise();`
 ```
 [G4     G4     A4    |F#4    G4     A4    |B4     B4     C5    |B4     A4     G4    |A4     G4     F#4   |G4    ]
 [D4     E4     E4    |F#4    E4     D4    |D4     E4     E4    |G4     D4     D4    |E4     B3     C4    |D4    ]
