@@ -17,7 +17,7 @@ export default class Group {
         return new Group([Note.parse(string)], 0);
     }
 
-    get main() {
+    main() {
         return this.notes[this.index];
     }
 
@@ -28,11 +28,11 @@ export default class Group {
         return this.notes[index] as Note;
     }
 
-    get duration() {
-        return this.notes.map(note => note.duration).reduce((l, r) => l + r);
+    getDuration() {
+        return this.notes.map(note => note.getDuration()).reduce((l, r) => l + r);
     }
 
-    get string() {
-        return this.notes.map(note => note.string).join(" ");
+    toString() {
+        return this.notes.map(note => note.toString()).join(" ");
     }
 }

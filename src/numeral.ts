@@ -21,7 +21,7 @@ export default class Numeral {
         return new Numeral(Tone.ACCIDENTALS.indexOf(result[1]), Numeral.NUMERALS.indexOf(result[2].toLowerCase()), result[2] === result[2].toUpperCase());
     }
 
-    get string() {
+    toString() {
         return Tone.ACCIDENTALS[this.accidental] + Numeral.NUMERALS[this.degree][this.tonality ? "toUpperCase" : "toLowerCase"]();
     }
 }

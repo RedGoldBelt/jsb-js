@@ -23,7 +23,7 @@ export default class Tone {
         return new Tone(Tone.LETTERS.indexOf(result[1]), Tone.ACCIDENTALS.indexOf(result[2]));
     }
 
-    get semitones() {
+    semitones() {
         return Tone.PITCHES[this.letter] + this.accidental;
     }
 
@@ -38,7 +38,7 @@ export default class Tone {
         this.accidental += accidental; return this;
     }
 
-    get string() {
+    toString() {
         return Tone.LETTERS[this.letter] + Tone.ACCIDENTALS[this.accidental];
     }
 }

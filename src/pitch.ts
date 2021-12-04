@@ -1,3 +1,5 @@
+import Group from "./group.js";
+import Note from "./note.js";
 import Tone from "./tone.js";
 
 export default class Pitch {
@@ -17,18 +19,22 @@ export default class Pitch {
         return new Pitch(Tone.parse(result[1]), Number(result[3]));
     }
 
-    get semitones() {
-        return this.tone.semitones + 12 * this.octave;
+    semitones() {
+        return this.tone.semitones() + 12 * this.octave;
     }
 
     near(tone: Tone) {
         const tone1 = new Pitch(tone, this.octave - 1);
         const tone2 = new Pitch(tone, this.octave);
         const tone3 = new Pitch(tone, this.octave + 1);
-        return [tone1, tone2, tone3].sort((l, r) => Math.abs(this.semitones - l.semitones) - Math.abs(this.semitones - r.semitones));
+        return [tone1, tone2, tone3].sort((l, r) => Math.abs(this.semitones() - l.semitones()) - Math.abs(this.semitones() - r.semitones()));
     }
 
-    get string() {
-        return this.tone.string + this.octave;
+    toString() {
+        return this.tone.toString() + this.octave;
+    }
+
+    toGroup(duration: number) {
+        return new Group([new Note(this, duration, false)], 0);
     }
 }

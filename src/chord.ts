@@ -1,18 +1,18 @@
 import Key from "./key.js";
 import Numeral from "./numeral.js";
-import Tone from "./tone.js";
-import { Alteration, Inversion } from "./util.js";
 import Resolution from "./resolution.js";
+import Tone from "./tone.js";
+import { Printable, Alteration, Inversion } from "./util.js";
 
-export default class Chord {
+export default class Chord implements Printable {
     private static INVERSIONS = ["a", "b", "c", "d"];
 
-    base;
-    alteration;
-    inversion;
-    relativeKey;
+    private base;
+    private alteration;
+    private inversion;
+    private relativeKey;
 
-    constructor(base: Numeral | null, alteration: Alteration, inversion: Inversion, relativeKey: Numeral | null) {
+    constructor(base: Numeral | null, alteration: Alteration, inversion: Inversion, relativeKey: Numeral) {
         this.base = base;
         this.alteration = alteration;
         this.inversion = inversion;
@@ -28,7 +28,7 @@ export default class Chord {
             Numeral.parse(result[1]),
             result[4] as Alteration,
             (result[5] ? Chord.INVERSIONS.indexOf(result[5]) : 0) as Inversion,
-            result[6] ? Numeral.parse(result[7]) : null
+            result[6] ? Numeral.parse(result[7]) : Numeral.parse("I")
         );
     }
 
@@ -41,7 +41,7 @@ export default class Chord {
             key = new Key(key.degree(this.relativeKey.degree), this.relativeKey.tonality);
         }
 
-        const rootPitch = key.degree(this.base.degree).alter(this.base.accidental).semitones - key.degree(0).semitones;
+        const rootPitch = key.degree(this.base.degree).alter(this.base.accidental).semitones() - key.degree(0).semitones();
         const third = key.degree(this.base.degree + 2, rootPitch + (this.base.tonality ? 4 : 3));
         let fifth: Tone;
         let seventh: Tone | undefined;
@@ -67,10 +67,10 @@ export default class Chord {
         if (this.relativeKey === null) {
             throw new Error("Cannot calculate progressions of a chord with no relative key");
         }
-        const SPECIFIC = dictionary["SPECIFIC_" + this.relativeKey.string];
-        const SPECIFIC_OPTIONS = SPECIFIC?.[this.string].map(Chord.parse) as Chord[];
+        const SPECIFIC = dictionary["SPECIFIC_" + this.relativeKey.toString()];
+        const SPECIFIC_OPTIONS = SPECIFIC?.[this.toStringStem()].map(Chord.parse) as Chord[];
         const COMMON = this.relativeKey.tonality ? dictionary.COMMON_MAJOR : dictionary.COMMON_MINOR;
-        const COMMON_OPTIONS = COMMON[this.string].map((string: string) => {
+        const COMMON_OPTIONS = COMMON[this.toStringStem()].map((string: string) => {
             const chord = Chord.parse(string);
             chord.relativeKey = this.relativeKey;
             return chord;
@@ -79,11 +79,19 @@ export default class Chord {
         return SPECIFIC_OPTIONS ? SPECIFIC_OPTIONS.concat(COMMON_OPTIONS) : COMMON_OPTIONS;
     }
 
-    get string() {
-        return this.base ? this.base.string + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "null";
+    getInversion() {
+        return this.inversion;
     }
 
-    get stringFull() {
-        return this.string + (this.relativeKey ? "/" + this.relativeKey.string : "");
+    toStringStem() {
+        return this.base ? this.base.toString() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "null";
+    }
+
+    toString() {
+        let string = this.toStringStem();
+        if (!(this.relativeKey.degree === 0 && this.relativeKey.accidental === 0)) {
+            string += "/" + this.relativeKey.toString();
+        }
+        return string;
     }
 }

@@ -1,4 +1,4 @@
-import EventGroup from "./event";
+import EventGroup from "./event.js";
 
 export type Alteration = "" | "7" | "o7";
 
@@ -22,4 +22,8 @@ export interface Permutation {
 export interface Time {
     bar: number;
     event: number;
+}
+
+export abstract class Printable {
+    abstract toString(): string;
 }

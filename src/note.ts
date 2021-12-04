@@ -1,9 +1,8 @@
-import Tone from "./tone.js";
 import Pitch from "./pitch.js";
 
 export default class Note {
     pitch: Pitch;
-    duration: number;
+    private duration: number;
     private tie: boolean;
 
     constructor(pitch: Pitch, duration: number, tie: boolean) {
@@ -24,7 +23,11 @@ export default class Note {
         );
     }
 
-    get string() {
-        return this.pitch.string;
+    getDuration() {
+        return this.duration;
+    }
+
+    toString() {
+        return this.pitch.toString();
     }
 }

@@ -20,11 +20,11 @@ export default class Key {
         degree %= 7;
         relativePitch ??= (this.tonality ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10])[degree];
         const top = new Tone((this.tone.letter + degree) % 7, 0);
-        top.accidental = (relativePitch - top.semitones + this.tone.semitones + 18) % 12 - 6;
+        top.accidental = (relativePitch - top.semitones() + this.tone.semitones() + 18) % 12 - 6;
         return top;
     }
 
-    get string() {
-        return this.tone.string + " " + (this.tonality ? "major" : "minor");
+    toString() {
+        return this.tone.toString() + " " + (this.tonality ? "major" : "minor");
     }
 }

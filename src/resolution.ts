@@ -25,7 +25,7 @@ export default class Resolution {
         }
     }
     
-    bottom() {
+    bass() {
         return this.at(this.inversion);
     }
 
