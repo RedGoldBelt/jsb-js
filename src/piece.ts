@@ -350,9 +350,13 @@ export default class Piece implements Printable {
         if (previousEvent === undefined) {
             return false;
         }
-        const previousInterval = (previousEvent[upper].at(-1).getPitch().semitones() - previousEvent[lower].at(-1).getPitch().semitones()) % 12;
-        const interval = (this.getOutputEvent()[upper].at(0).getPitch().semitones() - this.getOutputEvent()[lower].at(0).getPitch().semitones()) % 12;
-        return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && previousEvent[upper].at(-1).getPitch() !== this.getOutputEvent()[upper].at(0).getPitch();
+        const previousUpper = previousEvent[upper].at(-1).getPitch().semitones();
+        const previousLower = previousEvent[lower].at(-1).getPitch().semitones()
+        const currentUpper = this.getOutputEvent()[upper].at(0).getPitch().semitones();
+        const currentLower = this.getOutputEvent()[lower].at(0).getPitch().semitones();
+        const previousInterval = (previousUpper - previousLower) % 12;
+        const interval = (currentUpper - currentLower) % 12;
+        return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && previousUpper !== currentUpper && previousLower !== currentLower;
     }
 
     private clear() {
