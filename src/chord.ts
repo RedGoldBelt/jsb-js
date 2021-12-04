@@ -1,6 +1,6 @@
 import Key from "./key.js";
 import Numeral from "./numeral.js";
-import BasicTone from "./basictone.js";
+import Tone from "./tone.js";
 import { Alteration, Inversion } from "./util.js";
 import Resolution from "./resolution.js";
 
@@ -41,10 +41,10 @@ export default class Chord {
             key = new Key(key.degree(this.relativeKey.degree), this.relativeKey.tonality);
         }
 
-        const rootPitch = key.degree(this.base.degree).alter(this.base.accidental).pitch - key.degree(0).pitch;
+        const rootPitch = key.degree(this.base.degree).alter(this.base.accidental).semitones - key.degree(0).semitones;
         const third = key.degree(this.base.degree + 2, rootPitch + (this.base.tonality ? 4 : 3));
-        let fifth: BasicTone;
-        let seventh: BasicTone | null = null;
+        let fifth: Tone;
+        let seventh: Tone | undefined;
 
         switch (this.alteration) {
             case "":

@@ -1,4 +1,4 @@
-import BasicTone from "./basictone.js";
+import Tone from "./tone.js";
 import Chord from "./chord.js";
 import * as Dict from "./dictionary.js";
 import Event from "./event.js";
@@ -8,11 +8,11 @@ import Note from "./note.js";
 import Numeral from "./numeral.js";
 import Piece from "./piece.js";
 import Resolution from "./resolution.js";
-import Tone from "./tone.js";
+import Pitch from "./pitch.js";
 import * as Util from "./util.js";
 
 export {
-    BasicTone,
+    Tone,
     Chord,
     Dict,
     Event,
@@ -22,6 +22,6 @@ export {
     Numeral,
     Piece,
     Resolution,
-    Tone,
+    Pitch,
     Util
 }

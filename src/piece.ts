@@ -1,11 +1,11 @@
 import Chord from "./chord.js";
 import * as DICTIONARY from "./dictionary.js";
 import Key from "./key.js";
-import Tone from "./tone.js";
+import Pitch from "./pitch.js";
 import Numeral from "./numeral.js";
 import Resolution from "./resolution.js";
 import Event from "./event.js";
-import BasicTone from "./basictone.js";
+import Tone from "./tone.js";
 import { Bar, Config, Inversion, Part, Permutation, Time } from "./util.js";
 import Group from "./group.js";
 
@@ -14,7 +14,7 @@ export default class Piece {
     private bars: Bar[] = [];
     private time: Time = { bar: 0, event: 0 };
     private key: Key;
-    private resolution: Resolution = new Resolution(BasicTone.parse("C"), BasicTone.parse("C"), BasicTone.parse("C"), BasicTone.parse("C"), 0); // Dummy resolution
+    private resolution: Resolution = new Resolution(Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), 0); // Dummy resolution
     private config: Config = {
         dictionary: DICTIONARY.FULL,
         debug: false
@@ -106,7 +106,7 @@ export default class Piece {
             }
 
             // REJECT: WRONG INVERSION
-            if (this.cacheEvent.b.main && !this.cacheEvent.b.main.equals(this.resolution.at(this.resolution.inversion))) {
+            if (this.cacheEvent.b.main && !this.cacheEvent.b.main.pitch.tone.equals(this.resolution.at(this.resolution.inversion))) {
                 continue;
             }
 
@@ -125,19 +125,20 @@ export default class Piece {
             if (this.cacheEvent.b.main) {
                 this.event.b = this.cacheEvent.b;
             } else {
-                const options = (this.event.previous?.b.main ?? Tone.parse("Eb3")).near(this.resolution.at(this.resolution.inversion));
-                this.event.bass = options.filter((tone: Tone) => tone.pitch >= 28 && tone.pitch <= 48 && tone.pitch <= this.event.s.main.pitch - 10)[0];
+                const options = (this.event.previous?.b.main.pitch ?? Pitch.parse("Eb3")).near(this.resolution.bottom());
+                this.event.bass = options.filter((tone: Pitch) => tone.semitones >= 28 && tone.semitones <= 48 && tone.semitones <= this.event.s.main.pitch.semitones - 10)[0];
             }
             this.event.chord = chord;
 
-            const quotas = this.resolution[3] !== null ? [1, 1, 1, 1] : [2, 1, 2, 0];
+            const quotas = this.resolution.seventh ? [1, 1, 1, 1] : [2, 1, 2, 0];
 
             for (const part of ["s", "a", "t", "b"] as Part[]) {
-                const inversion = this.resolution.array.findIndex((tone: BasicTone) => tone.equals(this.event[part].main));
+                const array = [this.resolution.root, this.resolution.third, this.resolution.fifth, this.resolution.seventh].filter(tone => tone !== undefined) as Tone[];
+                const inversion = array.findIndex((tone: Tone) => tone.equals(this.event[part].main?.pitch.tone));
                 --quotas[inversion];
             }
 
-            if (this.resolution[3] === null) {
+            if (this.resolution.seventh === undefined) {
                 if (quotas[0] === 0) quotas[2] = 1;
                 if (quotas[2] === 0) quotas[0] = 1;
             }
@@ -203,8 +204,8 @@ export default class Piece {
                     continue;
                 }
 
-                this.event.alto = (this.event.previous?.a.main ?? Tone.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0];
-                this.event.tenor = (this.event.previous?.t.main ?? Tone.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((tone: Tone) => tone.pitch >= this.event.b.main.pitch)[0];
+                this.event.alto = (this.event.previous?.a.main.pitch ?? Pitch.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0];
+                this.event.tenor = (this.event.previous?.t.main.pitch ?? Pitch.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((tone: Pitch) => tone.semitones >= this.event.b.main.pitch.semitones)[0];
 
                 // REJECT: PARALLEL PARTS
                 if (!(this.time.bar === 0 && this.time.event === 0) && (
@@ -257,16 +258,16 @@ export default class Piece {
     }
 
     private partsUnfit() {
-        if (this.resolution.excludes(this.cacheEvent.s.main)) {
+        if (this.resolution.excludes(this.cacheEvent.s.main.pitch.tone)) {
             return true;
         }
-        if (this.resolution.excludes(this.cacheEvent.a.main)) {
+        if (this.resolution.excludes(this.cacheEvent.a.main?.pitch.tone)) {
             return true;
         }
-        if (this.resolution.excludes(this.cacheEvent.t.main)) {
+        if (this.resolution.excludes(this.cacheEvent.t.main?.pitch.tone)) {
             return true;
         }
-        if (this.resolution.excludes(this.cacheEvent.b.main)) {
+        if (this.resolution.excludes(this.cacheEvent.b.main?.pitch.tone)) {
             return true;
         }
         return false;
@@ -330,16 +331,16 @@ export default class Piece {
     }
 
     private score(altoInversion: Inversion, tenorInversion: Inversion) {
-        const previousA = this.event.previous?.a.at(-1) ?? Tone.parse("D4");
-        const previousT = this.event.previous?.t.at(-1) ?? Tone.parse("B3");
-        const s = this.event.s.main.pitch;
-        const b = this.event.b.main.pitch;
+        const previousA = this.event.previous?.a.at(-1).pitch ?? Pitch.parse("D4");
+        const previousT = this.event.previous?.t.at(-1).pitch ?? Pitch.parse("B3");
+        const s = this.event.s.main.pitch.semitones;
+        const b = this.event.b.main.pitch.semitones;
         const aTone = previousA.near(this.resolution.at(altoInversion))[0];
-        const a = aTone.pitch;
+        const a = aTone.semitones;
         const tTone = previousT.near(this.resolution.at(tenorInversion))[0];
-        const t = tTone.pitch;
-        const aChange = Math.abs(a - previousA.pitch);
-        const tChange = Math.abs(t - previousT.pitch);
+        const t = tTone.semitones;
+        const aChange = Math.abs(a - previousA.semitones);
+        const tChange = Math.abs(t - previousT.semitones);
 
         if (
             aChange > 7 ||
@@ -369,8 +370,8 @@ export default class Piece {
 
     private parallel(upper: Part, lower: Part) {
         const previousEvent = this.event.previous as Event;
-        const previousInterval = (previousEvent[upper].at(-1).pitch - previousEvent[lower].at(-1).pitch) % 12;
-        const interval = (this.event[upper].at(0).pitch - this.event[lower].at(0).pitch) % 12;
+        const previousInterval = (previousEvent[upper].at(-1).pitch.semitones - previousEvent[lower].at(-1).pitch.semitones) % 12;
+        const interval = (this.event[upper].at(0).pitch.semitones - this.event[lower].at(0).pitch.semitones) % 12;
         return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && previousEvent[upper].at(-1).pitch !== this.event[upper].at(0).pitch;
     }
 
@@ -383,6 +384,6 @@ export default class Piece {
     }
 
     private string(part: Part | "chord") {
-        return "[" + this.bars.map(bar => bar.map(event => event[part]?.string.padEnd(6)).join(" ")).join("|") + "]";
+        return "[" + this.bars.map(bar => bar.map(event => event[part]?.string.padEnd(8)).join(" ")).join("|") + "]";
     }
 }

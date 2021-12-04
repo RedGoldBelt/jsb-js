@@ -1,7 +1,7 @@
 import Chord from "./chord.js";
 import Group from "./group.js";
 import Note from "./note.js";
-import Tone from "./tone.js";
+import Pitch from "./pitch.js";
 
 export default class Event {
     previous;
@@ -24,19 +24,19 @@ export default class Event {
         this.cadence = cadence;
     }
     
-    set soprano(tone: Tone) {
-        this.s = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false)], 0);
+    set soprano(pitch: Pitch) {
+        this.s = new Group([new Note(pitch, this.duration, false)], 0);
     }
 
-    set alto(tone: Tone) {
-        this.a = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false)], 0);
+    set alto(pitch: Pitch) {
+        this.a = new Group([new Note(pitch, this.duration, false)], 0);
     }
 
-    set tenor(tone: Tone) {
-        this.t = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false)], 0);
+    set tenor(pitch: Pitch) {
+        this.t = new Group([new Note(pitch, this.duration, false)], 0);
     }
 
-    set bass(tone: Tone) {
-        this.b = new Group([new Note(false, tone.letter, tone.accidental, tone.octave, this.duration, false)], 0);
+    set bass(pitch: Pitch) {
+        this.b = new Group([new Note(pitch, this.duration, false)], 0);
     }
 }

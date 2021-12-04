@@ -1,43 +1,38 @@
-import BasicTone from "./basictone.js";
+import Tone from "./tone.js";
 import { Inversion } from "./util.js";
 
 export default class Resolution {
-    "0";
-    "1";
-    "2";
-    "3";
+    root;
+    third;
+    fifth;
+    seventh;
     inversion: Inversion;
 
-    constructor(root: BasicTone, third: BasicTone, fifth: BasicTone, seventh: BasicTone | null, inversion: Inversion) {
-        this[0] = root;
-        this[1] = third;
-        this[2] = fifth;
-        this[3] = seventh;
+    constructor(root: Tone, third: Tone, fifth: Tone, seventh: Tone | undefined, inversion: Inversion) {
+        this.root = root;
+        this.third = third;
+        this.fifth = fifth;
+        this.seventh = seventh;
         this.inversion = inversion;
     }
 
-    *[Symbol.iterator]() {
-        for (let inversion of [0, 1, 2, 3] as Inversion[]) {
-            yield this[inversion];
+    at(inversion: Inversion) {
+        switch (inversion) {
+            case 0: return this.root;
+            case 1: return this.third;
+            case 2: return this.fifth;
+            case 3: return this.seventh as Tone;
         }
     }
-
-    at(inversion: Inversion) {
-        return this[inversion] as BasicTone;
+    
+    bottom() {
+        return this.at(this.inversion);
     }
 
-    excludes(testTone: BasicTone | undefined) {
+    excludes(testTone: Tone | undefined) {
         if (testTone === undefined) {
             return false;
         }
-        return this.array.every(tone => !tone?.equals(testTone));
-    }
-
-    get array() {
-        return Array.from(this).filter(tone => tone !== null) as BasicTone[]
-    }
-
-    get string() {
-        return `{${(Array.from(this).filter(tone => tone !== null) as BasicTone[]).map((tone, inversion) => inversion === this.inversion ? `(${tone.string})` : tone.string).join(" ")}}`;
+        return !this.root?.equals(testTone) && !this.third?.equals(testTone) && !this.fifth?.equals(testTone) && !this.seventh?.equals(testTone);
     }
 }

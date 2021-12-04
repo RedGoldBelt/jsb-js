@@ -12,8 +12,7 @@ export default class Group {
     static parse(string: string) {
         if (string.startsWith("(") && string.endsWith(")")) {
             const array = string.slice(1, -1).split(",").map(string => Note.parse(string));
-            const index = array.findIndex(note => note.harmonic);
-            return new Group(array, index === -1 ? 0 : index);
+            return new Group(array, 0);
         }
         return new Group([Note.parse(string)], 0);
     }

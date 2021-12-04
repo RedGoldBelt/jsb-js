@@ -1,4 +1,4 @@
-import BasicTone from "./basictone.js";
+import Tone from "./tone.js";
 
 export default class Numeral {
     static NUMERALS = ["i", "ii", "iii", "iv", "v", "vi", "vii"];
@@ -18,10 +18,10 @@ export default class Numeral {
         if (result === null) {
             throw new Error(`Could not parse numeral '${string}'`);
         }
-        return new Numeral(BasicTone.ACCIDENTALS.indexOf(result[1]), Numeral.NUMERALS.indexOf(result[2].toLowerCase()), result[2] === result[2].toUpperCase());
+        return new Numeral(Tone.ACCIDENTALS.indexOf(result[1]), Numeral.NUMERALS.indexOf(result[2].toLowerCase()), result[2] === result[2].toUpperCase());
     }
 
     get string() {
-        return BasicTone.ACCIDENTALS[this.accidental] + Numeral.NUMERALS[this.degree][this.tonality ? "toUpperCase" : "toLowerCase"]();
+        return Tone.ACCIDENTALS[this.accidental] + Numeral.NUMERALS[this.degree][this.tonality ? "toUpperCase" : "toLowerCase"]();
     }
 }
