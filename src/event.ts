@@ -7,7 +7,6 @@ export default class Event {
     private a: Group;
     private t: Group;
     private b: Group;
-    private duration: number;
     private chord: Chord | undefined;
     private cadence: boolean;
     map: number = 0;
@@ -18,7 +17,6 @@ export default class Event {
         this.a = a;
         this.t = t;
         this.b = b;
-        this.duration = s.duration();
         this.cadence = cadence;
     }
 
@@ -67,8 +65,8 @@ export default class Event {
         return this;
     }
 
-    getDuration() {
-        return this.duration;
+    duration() {
+        return this.getS().duration() ?? this.getA().duration ?? this.getT().duration ?? this.getB().duration ?? 0;
     }
 
     getChord() {

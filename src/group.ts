@@ -18,6 +18,10 @@ export default class Group implements Printable {
         return new Group([Note.parse(string)], 0);
     }
 
+    static empty() {
+        return new Group([], 0);
+    }
+
     main() {
         return this.getNotes()[this.getIndex()];
     }

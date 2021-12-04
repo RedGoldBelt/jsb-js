@@ -25,7 +25,6 @@ export default class Piece implements Printable {
     parse(string: string, part: Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
 
-        let previousInputEvent: Event | undefined;
         let previousOutputEvent: Event | undefined;
 
         for (let bar = 0; bar < split.length; ++bar) {
@@ -38,10 +37,10 @@ export default class Piece implements Printable {
                     split[bar][event] = split[bar][event].slice(0, -1);
                 }
                 const group = Group.parse(split[bar][event]);
-                previousInputEvent = this.input[bar][event] ??= new Event(previousInputEvent, group, new Group([], 0), new Group([], 0), new Group([], 0), cadence);
-                this.input[bar][event][part] = group;
-
-                previousOutputEvent = this.output[bar][event] ??= new Event(previousOutputEvent, group, new Group([], 0), new Group([], 0), new Group([], 0), cadence);
+                const groups = [Group.empty(), Group.empty(), Group.empty(), Group.empty()];
+                groups[["s", "a", "t", "b"].indexOf(part)] = group;
+                this.input[bar][event] ??= new Event(undefined, groups[0], groups[1], groups[2], groups[3], cadence);
+                previousOutputEvent = this.output[bar][event] ??= new Event(previousOutputEvent, group, Group.empty(), Group.empty(), Group.empty(), cadence);
             }
         }
         return this;
@@ -103,7 +102,7 @@ export default class Piece implements Printable {
             } else {
                 const options = (this.getOutputEvent().getPrevious()?.getB().main().getPitch() ?? Pitch.parse("Eb3")).near(this.resolution.bass());
                 const pitch = options.filter((tone: Pitch) => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= this.getOutputEvent().getS().main().getPitch().semitones() - 10)[0];
-                this.getOutputEvent().setB(pitch.group(this.getOutputEvent().getDuration()));
+                this.getOutputEvent().setB(pitch.group(this.getOutputEvent().duration()));
             }
             this.getOutputEvent().setChord(chord);
 
@@ -181,8 +180,8 @@ export default class Piece implements Printable {
                     continue;
                 }
 
-                this.getOutputEvent().setA((this.getOutputEvent().getPrevious()?.getA().main().getPitch() ?? Pitch.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0].group(this.getOutputEvent().getDuration()));
-                this.getOutputEvent().setT((this.getOutputEvent().getPrevious()?.getT().main().getPitch() ?? Pitch.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((tone: Pitch) => tone.semitones() >= this.getOutputEvent().getB().main().getPitch().semitones())[0].group(this.getOutputEvent().getDuration()));
+                this.getOutputEvent().setA((this.getOutputEvent().getPrevious()?.getA().main().getPitch() ?? Pitch.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0].group(this.getOutputEvent().duration()));
+                this.getOutputEvent().setT((this.getOutputEvent().getPrevious()?.getT().main().getPitch() ?? Pitch.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((tone: Pitch) => tone.semitones() >= this.getOutputEvent().getB().main().getPitch().semitones())[0].group(this.getOutputEvent().duration()));
 
                 // REJECT: PARALLEL PARTS
                 if (
