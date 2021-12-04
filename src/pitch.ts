@@ -35,7 +35,7 @@ export default class Pitch implements Printable {
         return this.tone.string() + this.octave;
     }
 
-    toGroup(duration: number) {
+    group(duration: number) {
         return new Group([new Note(this, duration, false)], 0);
     }
 }
