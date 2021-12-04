@@ -1,4 +1,6 @@
-export default class Tone {
+import { Printable } from "./util";
+
+export default class Tone implements Printable {
     static ACCIDENTALS = ["", "#", "x"];
     static {
         Tone.ACCIDENTALS[-2] = "bb";
@@ -38,7 +40,7 @@ export default class Tone {
         this.accidental += accidental; return this;
     }
 
-    toString() {
+    string() {
         return Tone.LETTERS[this.letter] + Tone.ACCIDENTALS[this.accidental];
     }
 }

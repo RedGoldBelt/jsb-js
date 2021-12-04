@@ -1,6 +1,7 @@
 import Pitch from "./pitch.js";
+import { Printable } from "./util.js";
 
-export default class Note {
+export default class Note implements Printable{
     pitch: Pitch;
     private duration: number;
     private tie: boolean;
@@ -27,7 +28,7 @@ export default class Note {
         return this.duration;
     }
 
-    toString() {
-        return this.pitch.toString();
+    string() {
+        return this.pitch.string();
     }
 }

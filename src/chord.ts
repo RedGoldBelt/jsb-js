@@ -67,7 +67,7 @@ export default class Chord implements Printable {
         if (this.relativeKey === null) {
             throw new Error("Cannot calculate progressions of a chord with no relative key");
         }
-        const SPECIFIC = dictionary["SPECIFIC_" + this.relativeKey.toString()];
+        const SPECIFIC = dictionary["SPECIFIC_" + this.relativeKey.string()];
         const SPECIFIC_OPTIONS = SPECIFIC?.[this.toStringStem()].map(Chord.parse) as Chord[];
         const COMMON = this.relativeKey.tonality ? dictionary.COMMON_MAJOR : dictionary.COMMON_MINOR;
         const COMMON_OPTIONS = COMMON[this.toStringStem()].map((string: string) => {
@@ -84,13 +84,13 @@ export default class Chord implements Printable {
     }
 
     toStringStem() {
-        return this.base ? this.base.toString() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "null";
+        return this.base ? this.base.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "null";
     }
 
-    toString() {
+    string() {
         let string = this.toStringStem();
         if (!(this.relativeKey.degree === 0 && this.relativeKey.accidental === 0)) {
-            string += "/" + this.relativeKey.toString();
+            string += "/" + this.relativeKey.string();
         }
         return string;
     }

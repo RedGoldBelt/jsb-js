@@ -1,6 +1,7 @@
 import Note from "./note.js";
+import { Printable } from "./util.js";
 
-export default class Group {
+export default class Group implements Printable {
     private notes: Note[];
     private index: number;
 
@@ -32,7 +33,7 @@ export default class Group {
         return this.notes.map(note => note.getDuration()).reduce((l, r) => l + r);
     }
 
-    toString() {
-        return this.notes.map(note => note.toString()).join(" ");
+    string() {
+        return this.notes.map(note => note.string()).join(" ");
     }
 }

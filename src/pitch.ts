@@ -1,8 +1,9 @@
 import Group from "./group.js";
 import Note from "./note.js";
 import Tone from "./tone.js";
+import { Printable } from "./util.js";
 
-export default class Pitch {
+export default class Pitch implements Printable {
     tone: Tone;
     octave;
 
@@ -30,8 +31,8 @@ export default class Pitch {
         return [tone1, tone2, tone3].sort((l, r) => Math.abs(this.semitones() - l.semitones()) - Math.abs(this.semitones() - r.semitones()));
     }
 
-    toString() {
-        return this.tone.toString() + this.octave;
+    string() {
+        return this.tone.string() + this.octave;
     }
 
     toGroup(duration: number) {

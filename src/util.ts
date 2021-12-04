@@ -25,5 +25,5 @@ export interface Time {
 }
 
 export abstract class Printable {
-    abstract toString(): string;
+    abstract string(): string;
 }

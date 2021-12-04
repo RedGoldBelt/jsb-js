@@ -1,7 +1,8 @@
+import Piece from "./piece.js";
 import Tone from "./tone.js";
-import { Inversion } from "./util.js";
+import { Inversion, Printable } from "./util.js";
 
-export default class Resolution {
+export default class Resolution implements Printable {
     root;
     third;
     fifth;
@@ -34,5 +35,11 @@ export default class Resolution {
             return false;
         }
         return !this.root?.equals(testTone) && !this.third?.equals(testTone) && !this.fifth?.equals(testTone) && !this.seventh?.equals(testTone);
+    }
+
+    string() {
+        const array = [this.root, this.third, this.fifth, this.seventh].filter(tone => tone).map(tone => tone?.string());
+        array[this.inversion] = `{${array[this.inversion]}}`;
+        return array.join(" ");
     }
 }

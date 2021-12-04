@@ -25,6 +25,6 @@ export default class Key {
     }
 
     toString() {
-        return this.tone.toString() + " " + (this.tonality ? "major" : "minor");
+        return this.tone.string() + " " + (this.tonality ? "major" : "minor");
     }
 }

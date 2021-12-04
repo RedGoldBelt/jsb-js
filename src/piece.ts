@@ -7,14 +7,14 @@ import Numeral from "./numeral.js";
 import Pitch from "./pitch.js";
 import Resolution from "./resolution.js";
 import Tone from "./tone.js";
-import { Bar, Time, Config, Part, Inversion, Permutation } from "./util.js";
+import { Bar, Time, Config, Part, Inversion, Permutation, Printable } from "./util.js";
 
-export default class Piece {
+export default class Piece implements Printable {
     private cache: Bar[] = [];
     private bars: Bar[] = [];
     private time: Time = { bar: 0, event: 0 };
     private key: Key;
-    private resolution: Resolution = new Resolution(Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), 0); // Dummy resolution
+    private resolution: Resolution = new Resolution(Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), 0);
     private config: Config = {
         dictionary: FULL,
         debug: false
@@ -82,7 +82,7 @@ export default class Piece {
         }
 
         console.timeEnd("Time");
-        console.info(this.toString());
+        console.info(this.string());
         console.groupEnd();
         this.success = true;
         return this;
@@ -109,9 +109,9 @@ export default class Piece {
             }
 
             // REJECT: Invalid second inversion chord
-            if (previousChord.getInversion() === 2 && this.getEvent().previous?.previous?.getChord()?.toString() === chord.toString()) {
+            if (previousChord.getInversion() === 2 && this.getEvent().previous?.previous?.getChord()?.string() === chord.string()) {
                 if (this.config.debug) {
-                    console.info(`Rejected '${chord.toString()}': Invalid second inversion chord`);
+                    console.info(`Rejected '${chord.string()}': Invalid second inversion chord`);
                 }
                 continue;
             }
@@ -145,7 +145,7 @@ export default class Piece {
             if (quotas[0] < 0) {
                 this.clear();
                 if (this.config.debug) {
-                    console.info(`Rejected '${chord.toString()}': Too many roots`);
+                    console.info(`Rejected '${chord.string()}': Too many roots`);
                 }
                 continue;
             }
@@ -154,7 +154,7 @@ export default class Piece {
             if (quotas[1] < 0) {
                 this.clear();
                 if (this.config.debug) {
-                    console.info(`Rejected '${chord.toString()}': Too many thirds`);
+                    console.info(`Rejected '${chord.string()}': Too many thirds`);
                 }
                 continue;
             }
@@ -163,7 +163,7 @@ export default class Piece {
             if (quotas[2] < 0) {
                 this.clear();
                 if (this.config.debug) {
-                    console.info(`Rejected '${chord.toString()}': Too many fifths`);
+                    console.info(`Rejected '${chord.string()}': Too many fifths`);
                 }
                 continue;
             }
@@ -172,7 +172,7 @@ export default class Piece {
             if (quotas[1] < 0) {
                 this.clear();
                 if (this.config.debug) {
-                    console.info(`Rejected '${chord.toString()}': Too many sevenths`);
+                    console.info(`Rejected '${chord.string()}': Too many sevenths`);
                 }
                 continue;
             }
@@ -181,13 +181,13 @@ export default class Piece {
             if (!(this.time.bar === 0 && this.time.event === 0) && this.parallel("s", "b")) {
                 this.clear();
                 if (this.config.debug) {
-                    console.info(`Rejected '${chord.toString()}': Soprano and bass in parallel`);
+                    console.info(`Rejected '${chord.string()}': Soprano and bass in parallel`);
                 }
                 continue;
             }
 
             if (this.config.debug) {
-                console.info(`Trying '${chord.toString()}'`);
+                console.info(`Trying '${chord.string()}'`);
             }
 
             const ones = quotas.map((quota, inversion) => quota === 1 ? inversion : null).filter(inversion => inversion !== null) as Inversion[];
@@ -213,7 +213,7 @@ export default class Piece {
                     this.parallel("a", "b") ||
                     this.parallel("t", "b"))) {
                     if (this.config.debug) {
-                        console.info(`|   Rejected permutation '${this.getEvent().getS().toString()} ${this.getEvent().getA().toString()} ${this.getEvent().getT().toString()} ${this.getEvent().getB().toString()}': Parallel parts`);
+                        console.info(`|   Rejected permutation '${this.getEvent().getS().string()} ${this.getEvent().getA().string()} ${this.getEvent().getT().string()} ${this.getEvent().getB().string()}': Parallel parts`);
                     }
                     continue;
                 }
@@ -221,8 +221,8 @@ export default class Piece {
                 // ACCEPT
                 this.getEvent().setChord(chord);
                 if (this.config.debug) {
-                    console.info(`|   Accepted permutation '${this.getEvent().getS().toString()} ${this.getEvent().getA().toString()} ${this.getEvent().getT().toString()} ${this.getEvent().getB().toString()}'`);
-                    console.info(`Accepted '${chord.toString()}' (Bar ${this.time.bar + 1}, Chord ${this.time.event + 1})`);
+                    console.info(`|   Accepted permutation '${this.getEvent().getS().string()} ${this.getEvent().getA().string()} ${this.getEvent().getT().string()} ${this.getEvent().getB().string()}'`);
+                    console.info(`Accepted '${chord.string()}' (Bar ${this.time.bar + 1}, Chord ${this.time.event + 1})`);
                 }
                 if (++this.time.event === this.cache[this.time.bar].length) {
                     this.time.event = 0;
@@ -234,7 +234,7 @@ export default class Piece {
             // REJECT: NO GOOD REALISATION
             this.clear();
             if (this.config.debug) {
-                console.info(`Rejected '${chord.toString()}': No good realisation`);
+                console.info(`Rejected '${chord.string()}': No good realisation`);
             }
             continue;
         }
@@ -250,7 +250,7 @@ export default class Piece {
             ++this.getEvent().map;
         }
         if (this.config.debug) {
-            console.info(`Reverted '${previousChord?.toString()}': No good progressions available`);
+            console.info(`Reverted '${previousChord?.string()}': No good progressions available`);
         }
         return;
     }
@@ -352,7 +352,7 @@ export default class Piece {
             t > 52
         ) {
             if (this.config.debug) {
-                console.info(`|   '${this.getEvent().getS().main().toString()} ${aTone.toString()} ${tTone.toString()} ${this.getEvent().getB().main().toString()}' rejected`);
+                console.info(`|   '${this.getEvent().getS().main().string()} ${aTone.string()} ${tTone.string()} ${this.getEvent().getB().main().string()}' rejected`);
             }
             return Infinity;
         }
@@ -361,7 +361,7 @@ export default class Piece {
         const stdDev = Math.sqrt((sa * sa + at * at) / 2 - (sa + at) ** 2 / 4);
         const score = aChange + tChange + stdDev;
         if (this.config.debug) {
-            console.info(`|   '${this.getEvent().getS().main().toString()} ${aTone.toString()} ${tTone.toString()} ${this.getEvent().getB().main().toString()}' scores ${score}`);
+            console.info(`|   '${this.getEvent().getS().main().string()} ${aTone.string()} ${tTone.string()} ${this.getEvent().getB().main().string()}' scores ${score}`);
         }
         return score;
     }
@@ -381,11 +381,15 @@ export default class Piece {
         this.getEvent().setChord(undefined);
     }
 
-    private toString() {
-        return `[${this.bars.map(bar => bar.map(event => event.getS().toString().padEnd(8)).join(" ")).join("|")}]
-[${this.bars.map(bar => bar.map(event => event.getA().toString().padEnd(8)).join(" ")).join("|")}]
-[${this.bars.map(bar => bar.map(event => event.getT().toString().padEnd(8)).join(" ")).join("|")}]
-[${this.bars.map(bar => bar.map(event => event.getB().toString().padEnd(8)).join(" ")).join("|")}]
-[${this.bars.map(bar => bar.map(event => event.getChord()?.toString().padEnd(8)).join(" ")).join("|")}]`
+    isSuccess() {
+        return this.success;
+    }
+
+    string() {
+        return `[${this.bars.map(bar => bar.map(event => event.getS().string().padEnd(8)).join(" ")).join("|")}]
+[${this.bars.map(bar => bar.map(event => event.getA().string().padEnd(8)).join(" ")).join("|")}]
+[${this.bars.map(bar => bar.map(event => event.getT().string().padEnd(8)).join(" ")).join("|")}]
+[${this.bars.map(bar => bar.map(event => event.getB().string().padEnd(8)).join(" ")).join("|")}]
+[${this.bars.map(bar => bar.map(event => event.getChord()?.string().padEnd(8)).join(" ")).join("|")}]`
     }
 }

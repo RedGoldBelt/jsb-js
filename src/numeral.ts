@@ -1,6 +1,7 @@
 import Tone from "./tone.js";
+import { Printable } from "./util.js";
 
-export default class Numeral {
+export default class Numeral implements Printable {
     static NUMERALS = ["i", "ii", "iii", "iv", "v", "vi", "vii"];
 
     accidental;
@@ -21,7 +22,7 @@ export default class Numeral {
         return new Numeral(Tone.ACCIDENTALS.indexOf(result[1]), Numeral.NUMERALS.indexOf(result[2].toLowerCase()), result[2] === result[2].toUpperCase());
     }
 
-    toString() {
+    string() {
         return Tone.ACCIDENTALS[this.accidental] + Numeral.NUMERALS[this.degree][this.tonality ? "toUpperCase" : "toLowerCase"]();
     }
 }
