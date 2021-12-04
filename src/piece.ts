@@ -36,11 +36,9 @@ export default class Piece implements Printable {
                 if (cadence) {
                     split[bar][event] = split[bar][event].slice(0, -1);
                 }
-                const group = Group.parse(split[bar][event]);
-                const groups = [Group.empty(), Group.empty(), Group.empty(), Group.empty()];
-                groups[["s", "a", "t", "b"].indexOf(part)] = group;
-                this.input[bar][event] ??= new Event(undefined, groups[0], groups[1], groups[2], groups[3], cadence);
-                previousOutputEvent = this.output[bar][event] ??= new Event(previousOutputEvent, group, Group.empty(), Group.empty(), Group.empty(), cadence);
+                this.input[bar][event] ??= new Event(undefined, Group.empty(), Group.empty(), Group.empty(), Group.empty(), cadence);
+                this.input[bar][event][part] = Group.parse(split[bar][event]);
+                previousOutputEvent = this.output[bar][event] ??= new Event(previousOutputEvent, Group.empty(), Group.empty(), Group.empty(), Group.empty(), cadence);
             }
         }
         return this;
