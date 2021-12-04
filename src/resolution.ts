@@ -1,13 +1,12 @@
-import Piece from "./piece.js";
 import Tone from "./tone.js";
 import { Inversion, Printable } from "./util.js";
 
 export default class Resolution implements Printable {
-    root;
-    third;
-    fifth;
-    seventh;
-    inversion: Inversion;
+    private root;
+    private third;
+    private fifth;
+    private seventh;
+    private inversion: Inversion;
 
     constructor(root: Tone, third: Tone, fifth: Tone, seventh: Tone | undefined, inversion: Inversion) {
         this.root = root;
@@ -25,7 +24,7 @@ export default class Resolution implements Printable {
             case 3: return this.seventh as Tone;
         }
     }
-    
+
     bass() {
         return this.at(this.inversion);
     }
@@ -35,6 +34,40 @@ export default class Resolution implements Printable {
             return false;
         }
         return !this.root?.equals(testTone) && !this.third?.equals(testTone) && !this.fifth?.equals(testTone) && !this.seventh?.equals(testTone);
+    }
+
+    getRoot() {
+        return this.root;
+    }
+
+    setRoot(root: Tone) {
+        this.root = root;
+        return this;
+    }
+
+    getThird() {
+        return this.third;
+    }
+
+    setThird(third: Tone) {
+        this.third = third;
+        return this;
+    }
+    getFifth() {
+        return this.fifth;
+    }
+
+    setFifth(fifth: Tone) {
+        this.fifth = fifth;
+        return this;
+    }
+    getSeventh() {
+        return this.seventh;
+    }
+
+    setSeventh(seventh: Tone) {
+        this.seventh = seventh;
+        return this;
     }
 
     string() {

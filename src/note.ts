@@ -2,14 +2,14 @@ import Pitch from "./pitch.js";
 import { Printable } from "./util.js";
 
 export default class Note implements Printable{
-    pitch: Pitch;
+    private pitch: Pitch;
     private duration: number;
-    private tie: boolean;
+    private tied: boolean;
 
-    constructor(pitch: Pitch, duration: number, tie: boolean) {
+    constructor(pitch: Pitch, duration: number, tied: boolean) {
         this.pitch = pitch;
         this.duration = duration;
-        this.tie = tie;
+        this.tied = tied;
     }
 
     static parse(string: string) {
@@ -24,11 +24,34 @@ export default class Note implements Printable{
         );
     }
 
+    getPitch() {
+        return this.pitch;
+    }
+
+    setPitch(pitch: Pitch) {
+        this.pitch = pitch;
+        return this;
+    }
+
     getDuration() {
         return this.duration;
     }
 
+    setDuration(duration: number) {
+        this.duration = duration;
+        return this;
+    }
+
+    isTied() {
+        return this.tied;
+    }
+
+    setTied(tied: boolean) {
+        this.tied = tied;
+        return this;
+    }
+
     string() {
-        return this.pitch.string();
+        return this.getPitch().string();
     }
 }

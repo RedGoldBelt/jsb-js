@@ -2,7 +2,7 @@ import Chord from "./chord.js";
 import Group from "./group.js";
 
 export default class Event {
-    previous;
+    private previous;
     private s: Group;
     private a: Group;
     private t: Group;
@@ -18,8 +18,17 @@ export default class Event {
         this.a = a;
         this.t = t;
         this.b = b;
-        this.duration = s.getDuration();
+        this.duration = s.duration();
         this.cadence = cadence;
+    }
+
+    getPrevious() {
+        return this.previous;
+    }
+
+    setPrevious(previous: Event) {
+        this.previous = previous;
+        return this;
     }
 
     getS() {

@@ -9,8 +9,8 @@ export default class Tone implements Printable {
     static LETTERS = ["C", "D", "E", "F", "G", "A", "B"];
     private static PITCHES = [0, 2, 4, 5, 7, 9, 11];
 
-    letter;
-    accidental;
+    private letter;
+    private accidental;
 
     constructor(letter: number, accidental: number) {
         this.letter = letter;
@@ -36,7 +36,25 @@ export default class Tone implements Printable {
         return this.letter === tone.letter && this.accidental === tone.accidental;
     }
 
-    alter(accidental: number) {
+    getLetter() {
+        return this.letter;
+    }
+
+    setLetter(letter: number) {
+        this.letter = letter;
+        return this;
+    }
+
+    getAccidental() {
+        return this.accidental;
+    }
+
+    setAccidental(accidental: number) {
+        this.accidental = accidental;
+        return this;
+    }
+
+    alterAccidental(accidental: number) {
         this.accidental += accidental; return this;
     }
 

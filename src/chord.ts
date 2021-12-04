@@ -38,29 +38,29 @@ export default class Chord implements Printable {
         }
 
         if (this.relativeKey) {
-            key = new Key(key.degree(this.relativeKey.degree), this.relativeKey.tonality);
+            key = new Key(key.degree(this.relativeKey.getDegree()), this.relativeKey.getTonality());
         }
 
-        const rootPitch = key.degree(this.base.degree).alter(this.base.accidental).semitones() - key.degree(0).semitones();
-        const third = key.degree(this.base.degree + 2, rootPitch + (this.base.tonality ? 4 : 3));
+        const rootPitch = key.degree(this.base.getDegree()).alterAccidental(this.base.getAccidental()).semitones() - key.degree(0).semitones();
+        const third = key.degree(this.base.getDegree() + 2, rootPitch + (this.base.getTonality() ? 4 : 3));
         let fifth: Tone;
         let seventh: Tone | undefined;
 
         switch (this.alteration) {
             case "":
-                fifth = key.degree(this.base.degree + 4);
+                fifth = key.degree(this.base.getDegree() + 4);
                 break;
             case "o7":
-                fifth = key.degree(this.base.degree + 4, rootPitch + 6);
-                seventh = key.degree(this.base.degree + 6, rootPitch + 9);
+                fifth = key.degree(this.base.getDegree() + 4, rootPitch + 6);
+                seventh = key.degree(this.base.getDegree() + 6, rootPitch + 9);
                 break;
             case "7":
-                fifth = key.degree(this.base.degree + 4);
-                seventh = key.degree(this.base.degree + 6);
+                fifth = key.degree(this.base.getDegree() + 4);
+                seventh = key.degree(this.base.getDegree() + 6);
                 break;
         }
 
-        return new Resolution(key.degree(this.base.degree).alter(this.base.accidental), third, fifth, seventh, this.inversion);
+        return new Resolution(key.degree(this.base.getDegree()).alterAccidental(this.base.getAccidental()), third, fifth, seventh, this.inversion);
     }
 
     progression(dictionary: any) {
@@ -69,7 +69,7 @@ export default class Chord implements Printable {
         }
         const SPECIFIC = dictionary["SPECIFIC_" + this.relativeKey.string()];
         const SPECIFIC_OPTIONS = SPECIFIC?.[this.toStringStem()].map(Chord.parse) as Chord[];
-        const COMMON = this.relativeKey.tonality ? dictionary.COMMON_MAJOR : dictionary.COMMON_MINOR;
+        const COMMON = this.relativeKey.getTonality() ? dictionary.COMMON_MAJOR : dictionary.COMMON_MINOR;
         const COMMON_OPTIONS = COMMON[this.toStringStem()].map((string: string) => {
             const chord = Chord.parse(string);
             chord.relativeKey = this.relativeKey;
@@ -83,13 +83,18 @@ export default class Chord implements Printable {
         return this.inversion;
     }
 
+    setInversion(inversion: Inversion) {
+        this.inversion = inversion;
+        return this;
+    }
+
     toStringStem() {
         return this.base ? this.base.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "null";
     }
 
     string() {
         let string = this.toStringStem();
-        if (!(this.relativeKey.degree === 0 && this.relativeKey.accidental === 0)) {
+        if (!(this.relativeKey.getDegree() === 0 && this.relativeKey.getAccidental() === 0)) {
             string += "/" + this.relativeKey.string();
         }
         return string;

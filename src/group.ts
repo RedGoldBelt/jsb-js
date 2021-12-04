@@ -19,21 +19,42 @@ export default class Group implements Printable {
     }
 
     main() {
-        return this.notes[this.index];
+        return this.getNotes()[this.getIndex()];
     }
 
     at(index: number) {
         if (index < 0) {
-            index = this.notes.length + index;
+            index = this.getNotes().length + index;
         }
-        return this.notes[index] as Note;
+        return this.getNotes()[index] as Note;
     }
 
-    getDuration() {
-        return this.notes.map(note => note.getDuration()).reduce((l, r) => l + r);
+    duration() {
+        return this.getNotes().map(note => note.getDuration()).reduce((l, r) => l + r);
+    }
+
+    getNotes() {
+        return this.notes;
+    }
+
+    setNotes(notes: Note[]) {
+        this.notes = notes;
+        return this;
+    }
+
+    getIndex() {
+        return this.index;
+    }
+
+    setIndex(index: number) {
+        if (this.getNotes()[index] === undefined) {
+            throw new Error("Invalid index for group");
+        }
+        this.index = index;
+        return this;
     }
 
     string() {
-        return this.notes.map(note => note.string()).join(" ");
+        return this.getNotes().map(note => note.string()).join(" ");
     }
 }

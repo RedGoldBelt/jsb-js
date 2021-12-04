@@ -1,11 +1,12 @@
 import Tone from "./tone.js";
 
 export default class Key {
-    tone;
-    tonality;
+    private tone;
+    private tonality;
 
     constructor(tone: Tone, tonality: boolean) {
-        this.tone = tone; this.tonality = tonality;
+        this.tone = tone;
+        this.tonality = tonality;
     }
 
     static parse(string: string) {
@@ -18,13 +19,31 @@ export default class Key {
 
     degree(degree: number, relativePitch?: number) {
         degree %= 7;
-        relativePitch ??= (this.tonality ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10])[degree];
-        const top = new Tone((this.tone.letter + degree) % 7, 0);
-        top.accidental = (relativePitch - top.semitones() + this.tone.semitones() + 18) % 12 - 6;
+        relativePitch ??= (this.getTonality() ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10])[degree];
+        const top = new Tone((this.getTone().getLetter() + degree) % 7, 0);
+        top.setAccidental((relativePitch - top.semitones() + this.getTone().semitones() + 18) % 12 - 6);
         return top;
     }
 
+    getTone() {
+        return this.tone;
+    }
+
+    setTone(tone: Tone) {
+        this.tone = tone;
+        return this;
+    }
+
+    getTonality() {
+        return this.tonality;
+    }
+
+    setTonality(tonality: boolean) {
+        this.tonality = tonality;
+        return this;
+    }
+
     toString() {
-        return this.tone.string() + " " + (this.tonality ? "major" : "minor");
+        return this.getTone().string() + " " + (this.getTonality() ? "major" : "minor");
     }
 }
