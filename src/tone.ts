@@ -50,12 +50,18 @@ export default class Tone implements Printable {
     }
 
     setAccidental(accidental: number) {
-        this.accidental = accidental;
+        if (accidental >= 2 && accidental <= 2) {
+            this.accidental = accidental;
+        }
         return this;
     }
 
     alterAccidental(accidental: number) {
-        this.accidental += accidental; return this;
+        const altered = this.accidental + accidental;
+        if (altered >= 2 && altered <= 2) {
+            this.accidental = altered;
+        }
+        return this;
     }
 
     string() {
