@@ -50,7 +50,7 @@ export default class Tone implements Printable {
     }
 
     setAccidental(accidental: number) {
-        if (accidental >= 2 && accidental <= 2) {
+        if (accidental >= -2 && accidental <= 2) {
             this.accidental = accidental;
         }
         return this;
@@ -58,7 +58,7 @@ export default class Tone implements Printable {
 
     alterAccidental(accidental: number) {
         const altered = this.accidental + accidental;
-        if (altered >= 2 && altered <= 2) {
+        if (altered >= -2 && altered <= 2) {
             this.accidental = altered;
         }
         return this;
