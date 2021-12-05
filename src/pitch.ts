@@ -54,6 +54,6 @@ export default class Pitch implements Printable {
     }
 
     group(duration: number) {
-        return new Group([new Note(this, duration, false)], 0);
+        return new Group([new Note(this, duration)], 0);
     }
 }

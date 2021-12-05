@@ -1,6 +1,6 @@
 import * as JSB from "../dist/index.js";
 
-new JSB.Piece().setKey("G major").parse("[(G4/,F#4/) G4 A4|F#4. G4/ A4|B4 B4 C5|B4. A4/ G4|A4 G4 F#4|G4_.]", "s").harmonise();
+console.log(new JSB.Piece().setKey("G major").parse("[(G4/,F#4/) G4 A4|F#4. G4/ A4|B4 B4 C5|B4. A4/ G4|A4 G4 F#4|G4_.]", "s").harmonise().string());
 new JSB.Piece().setKey("G major").parse("[D4 G4 G4. F#4/|G4@ B4 B4 A4@|D5 D5 (C5.,C5/)|B4 A4 B4_@]", "s").harmonise();
 new JSB.Piece().setKey("C major").parse("[C5|A4 F4 G4 C5|C5 B4 C5@ D5|E5 C5 D5 B4|C5_.@]", "s").harmonise();
 new JSB.Piece({dictionary: JSB.Dict.PRIMARY_AB}).setKey("C major").parse("[C5|A4 F4 G4 C5|C5 B4 C5@ D5|E5 C5 D5 B4|C5_.@]", "s").harmonise();
@@ -11,4 +11,6 @@ new JSB.Piece().setKey("Ab major").parse("[Eb4|Ab4 G4 F4 Eb4|(Ab4,Ab4) (Bb4,C5/,
 new JSB.Piece().setKey("Eb major").parse("[G4_ G4 F4|Eb4_ Bb4_|C5 Bb4 Bb4 Ab4|G4__@|G4_ Ab4 Bb4|C5_ Bb4_|Ab4 F4 G4 Ab4|Bb4__@|G4_ G4 F4|Eb4_ Bb4_|Bb4 Ab4 Ab4 G4|F4__@|F4_ G4 Ab4|G4 F4 Eb4 Ab4|G4_ F4_|Eb4__@]", "s").harmonise();
 new JSB.Piece().setKey("A major").parse("[A4|A4 A4 (F#4/,G#4/) A4|(B4/,A4/) G#4 F#4_@|G#4 A4 B4 E4/ F#4/|(G#4/,A4/) F#4 E4@]", "s").parse("[A3|A2 C#3 D3 F#3|D#3 E3 B2_@|G#2 F#2 E2 G#2/ A2/|B2 B2 E3@]", "b").harmonise();
 new JSB.Piece({dictionary: JSB.Dict.PRIMARY_A}).setKey("F# minor").parse("[F#4 F#4 F#4 G#4|A4 G#4 F#4_|D4 F#4 F#4 E#4|F#4__]", "s").harmonise();
-new JSB.Piece().setKey("Bb major").parse("[Bb4 Bb4/. C5// D5 Bb4|G4 C5/ Bb4/ A4_]", "s").harmonise();
+const a = new JSB.Piece().setKey("Bb major").parse("[Bb4 Bb4/. C5// D5 Bb4|G4 C5/ Bb4/ A4_]", "s");
+a.getInput()[0][1].setS(JSB.Group.empty());
+a.harmonise();

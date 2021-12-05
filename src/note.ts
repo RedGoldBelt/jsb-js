@@ -4,23 +4,20 @@ import { Printable } from "./util.js";
 export default class Note implements Printable{
     private pitch: Pitch;
     private duration: number;
-    private tied: boolean;
 
-    constructor(pitch: Pitch, duration: number, tied: boolean) {
+    constructor(pitch: Pitch, duration: number) {
         this.pitch = pitch;
         this.duration = duration;
-        this.tied = tied;
     }
 
     static parse(string: string) {
-        const result = string.match(/^([A-G](bb|b|#|x|)[1-6])(_*)(\/*)(\.*)(~?)$/);
+        const result = string.match(/^([A-G](bb|b|#|x|)[1-6])(_*)(\/*)(\.*)$/);
         if (result === null) {
             throw new Error(`Could not parse note '${string}'`);
         }
         return new Note(
             Pitch.parse(result[1]),
-            2 ** (result[3].length - result[4].length) * 1.5 ** result[5].length,
-            result[6] === "~"
+            2 ** (result[3].length - result[4].length) * 1.5 ** result[5].length
         );
     }
 
@@ -42,16 +39,19 @@ export default class Note implements Printable{
         return this;
     }
 
-    isTied() {
-        return this.tied;
-    }
-
-    setTied(tied: boolean) {
-        this.tied = tied;
-        return this;
-    }
-
     string() {
-        return this.getPitch().string();
+        let string = this.getPitch().string();
+        switch (this.getDuration()) {
+            case 0.25: string += "𝅘𝅥𝅯"; break;
+            case 0.5: string += "♪"; break;
+            case 0.75: string += "♪."; break;
+            case 1: string += "♩"; break;
+            case 1.5: string += "♩."; break;
+            case 2: string += "𝅗𝅥"; break;
+            case 3: string += "𝅗𝅥."; break;
+            case 4: string += "𝅝"; break;
+            case 6: string += "𝅝."; break;
+        }
+        return string;
     }
 }
