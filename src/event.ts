@@ -2,7 +2,6 @@ import Chord from "./chord.js";
 import Group from "./group.js";
 
 export default class Event {
-    private previous;
     private s: Group;
     private a: Group;
     private t: Group;
@@ -11,22 +10,12 @@ export default class Event {
     private cadence: boolean;
     map: number = 0;
 
-    constructor(previous: Event | undefined, s: Group, a: Group, t: Group, b: Group, cadence: boolean) {
-        this.previous = previous;
+    constructor(s: Group, a: Group, t: Group, b: Group, cadence: boolean) {
         this.s = s;
         this.a = a;
         this.t = t;
         this.b = b;
         this.cadence = cadence;
-    }
-
-    getPrevious() {
-        return this.previous;
-    }
-
-    setPrevious(previous: Event) {
-        this.previous = previous;
-        return this;
     }
 
     getS() {
