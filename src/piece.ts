@@ -26,24 +26,22 @@ export default class Piece implements Printable {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
 
         for (let bar = 0; bar < split.length; ++bar) {
-            this.input[bar] ??= []
-            this.output[bar] = [];
+            this.getInput()[bar] ??= []
 
             for (let event = 0; event < split[bar].length; ++event) {
                 const cadence = split[bar][event].endsWith("@");
                 if (cadence) {
                     split[bar][event] = split[bar][event].slice(0, -1);
                 }
-                this.input[bar][event] ??= new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), cadence);
-                this.input[bar][event][part] = Group.parse(split[bar][event]);
-                this.output[bar][event] ??= new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), cadence);
+                this.getInput()[bar][event] ??= new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), cadence);
+                this.getInput()[bar][event][part] = Group.parse(split[bar][event]);
             }
         }
         return this;
     }
 
     private inputEvent() {
-        return this.input[this.getTime().bar][this.getTime().event];
+        return this.getInput()[this.getTime().bar][this.getTime().event];
     }
 
     private previousPreviousOutputEvent() {
@@ -52,15 +50,15 @@ export default class Piece implements Printable {
             if (--bar < 0) {
                 return undefined;
             }
-            event = this.output[bar].length - 1;
+            event = this.getOutput()[bar].length - 1;
         }
         if (--event < 0) {
             if (--bar < 0) {
                 return undefined;
             }
-            event = this.output[bar].length - 1;
+            event = this.getOutput()[bar].length - 1;
         }
-        return this.output[bar][event];
+        return this.getOutput()[bar][event];
     }
 
     private previousOutputEvent() {
@@ -69,17 +67,19 @@ export default class Piece implements Printable {
             if (--bar < 0) {
                 return undefined;
             }
-            event = this.output[bar].length - 1;
+            event = this.getOutput()[bar].length - 1;
         }
-        return this.output[bar][event];
+        return this.getOutput()[bar][event];
     }
 
     private outputEvent() {
-        return this.output[this.getTime().bar][this.getTime().event];
+        return this.getOutput()[this.getTime().bar][this.getTime().event];
     }
 
     harmonise() {
-        for (this.setTime({ bar: 0, event: 0 }); this.getTime().bar !== this.input.length; this.step()) {
+        this.setOutput([]);
+
+        for (this.setTime({ bar: 0, event: 0 }); this.getTime().bar !== this.getInput().length; this.step()) {
             if (this.getTime().bar < 0) {
                 this.setStatus(false);
                 return this;
@@ -94,6 +94,8 @@ export default class Piece implements Printable {
     }
 
     private step() {
+        this.getOutput()[this.time.bar] ??= [];
+        this.getOutput()[this.time.bar][this.time.event] ??= new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), this.inputEvent().isCadence());
         const previousChord = this.previousOutputEvent()?.getChord() ?? new Chord(null, "", 0, new Numeral(0, 0, this.key.getTonality()));
         const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.outputEvent().isCadence() || ["I", "i", "V"].includes(chord.toStringStem()));
         for (; this.outputEvent().map < chordOptions.length; ++this.outputEvent().map) {
@@ -227,7 +229,7 @@ export default class Piece implements Printable {
                     console.info(`|   Accepted permutation '${this.outputEvent().getS().string()} ${this.outputEvent().getA().string()} ${this.outputEvent().getT().string()} ${this.outputEvent().getB().string()}'`);
                     console.info(`Accepted '${chord.string()}' (Bar ${this.getTime().bar + 1}, Chord ${this.getTime().event + 1})`);
                 }
-                if (++this.getTime().event === this.input[this.getTime().bar].length) {
+                if (++this.getTime().event === this.getInput()[this.getTime().bar].length) {
                     this.getTime().event = 0;
                     ++this.getTime().bar;
                 }
@@ -246,7 +248,7 @@ export default class Piece implements Printable {
         this.outputEvent().map = 0;
         if (--this.getTime().event < 0) {
             if (--this.getTime().bar >= 0) {
-                this.getTime().event = this.input[this.getTime().bar].length - 1;
+                this.getTime().event = this.getInput()[this.getTime().bar].length - 1;
             }
         }
         if (this.getTime().bar >= 0) {
@@ -449,10 +451,10 @@ export default class Piece implements Printable {
     }
 
     string() {
-        return `[${this.output.map(bar => bar.map(event => event.getS().string().padEnd(8)).join(" ")).join("|")}]
-[${this.output.map(bar => bar.map(event => event.getA().string().padEnd(8)).join(" ")).join("|")}]
-[${this.output.map(bar => bar.map(event => event.getT().string().padEnd(8)).join(" ")).join("|")}]
-[${this.output.map(bar => bar.map(event => event.getB().string().padEnd(8)).join(" ")).join("|")}]
-[${this.output.map(bar => bar.map(event => event.getChord()?.string().padEnd(8)).join(" ")).join("|")}]`
+        return `[${this.getOutput().map(bar => bar.map(event => event.getS().string().padEnd(8)).join(" ")).join("|")}]
+[${this.getOutput().map(bar => bar.map(event => event.getA().string().padEnd(8)).join(" ")).join("|")}]
+[${this.getOutput().map(bar => bar.map(event => event.getT().string().padEnd(8)).join(" ")).join("|")}]
+[${this.getOutput().map(bar => bar.map(event => event.getB().string().padEnd(8)).join(" ")).join("|")}]
+[${this.getOutput().map(bar => bar.map(event => event.getChord()?.string().padEnd(8)).join(" ")).join("|")}]`
     }
 }
