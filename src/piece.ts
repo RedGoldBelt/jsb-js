@@ -7,19 +7,15 @@ import Numeral from "./numeral.js";
 import Pitch from "./pitch.js";
 import Resolution from "./resolution.js";
 import Tone from "./tone.js";
-import { Bar, Time, Config, Part, Inversion, Permutation, Printable } from "./util.js";
+import { Bar, Time, Part, Inversion, Permutation, Printable } from "./util.js";
 
 export default class Piece implements Printable {
     private input: Bar[] = [];
     private output: Bar[] = [];
     private time: Time = { bar: 0, event: 0 };
-    private key: Key = Key.parse("C major");
-    private config: Config = { dictionary: FULL, debug: false }
-    private status: boolean = false;
-
-    constructor(config: Config = {}) {
-        this.setConfig(config);
-    }
+    private key = Key.parse("C major");
+    private dictionary = FULL;
+    private status = false;
 
     parse(string: string, part: Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
@@ -37,10 +33,6 @@ export default class Piece implements Printable {
             }
         }
         return this;
-    }
-
-    private inputEvent() {
-        return this.getInput()[this.getTime().bar][this.getTime().event];
     }
 
     private previousPreviousOutputEvent() {
@@ -83,53 +75,51 @@ export default class Piece implements Printable {
                 this.setStatus(false);
                 return this;
             }
-            if (this.inputEvent().getS().main() === undefined) {
-                this.setStatus(false);
-                return this;
-            }
         }
         this.setStatus(true);
         return this;
     }
 
     private step() {
+        const inputEvent = this.getInput()[this.getTime().bar][this.getTime().event];
+        if (inputEvent.getS().main() === undefined) {
+            this.time.bar = -1;
+            return;
+        }
         this.getOutput()[this.time.bar] ??= [];
-        this.getOutput()[this.time.bar][this.time.event] ??= new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), this.inputEvent().isCadence());
+        this.getOutput()[this.time.bar][this.time.event] ??= new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), inputEvent.isCadence());
         const previousChord = this.previousOutputEvent()?.getChord() ?? new Chord(null, "", 0, new Numeral(0, 0, this.key.getTonality()));
-        const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.outputEvent().isCadence() || ["I", "i", "V"].includes(chord.toStringStem()));
+        const chordOptions = previousChord.progression(this.dictionary).filter(chord => !this.outputEvent().isCadence() || ["I", "i", "V"].includes(chord.toStringStem()));
         for (; this.outputEvent().map < chordOptions.length; ++this.outputEvent().map) {
             const chord = chordOptions[this.outputEvent().map];
             const resolution = chord.resolve(this.key);
 
             // REJECT: PARTS DO NOT FIT
             if (
-                resolution.excludes(this.inputEvent().getS().main().getPitch().getTone()) ||
-                resolution.excludes(this.inputEvent().getA().main()?.getPitch().getTone()) ||
-                resolution.excludes(this.inputEvent().getT().main()?.getPitch().getTone()) ||
-                resolution.excludes(this.inputEvent().getB().main()?.getPitch().getTone())
+                resolution.excludes(inputEvent.getS().main().getPitch().getTone()) ||
+                resolution.excludes(inputEvent.getA().main()?.getPitch().getTone()) ||
+                resolution.excludes(inputEvent.getT().main()?.getPitch().getTone()) ||
+                resolution.excludes(inputEvent.getB().main()?.getPitch().getTone())
             ) {
                 continue;
             }
 
             // REJECT: WRONG INVERSION
-            if (this.inputEvent().getB().main() && !this.inputEvent().getB().main().getPitch().getTone().equals(resolution.bass())) {
+            if (inputEvent.getB().main() && !inputEvent.getB().main().getPitch().getTone().equals(resolution.bass())) {
                 continue;
             }
 
             // REJECT: Invalid second inversion chord
             if (previousChord.getInversion() === 2 && this.previousPreviousOutputEvent()?.getChord()?.string() === chord.string()) {
-                if (this.config.debug) {
-                    console.info(`Rejected '${chord.string()}': Invalid second inversion chord`);
-                }
                 continue;
             }
 
             // TEST VIABILITY
-            this.outputEvent().setS(this.inputEvent().getS());
-            this.outputEvent().setA(this.inputEvent().getA());
-            this.outputEvent().setT(this.inputEvent().getT());
-            if (this.inputEvent().getB().main()) {
-                this.outputEvent().setB(this.inputEvent().getB());
+            this.outputEvent().setS(inputEvent.getS());
+            this.outputEvent().setA(inputEvent.getA());
+            this.outputEvent().setT(inputEvent.getT());
+            if (inputEvent.getB().main()) {
+                this.outputEvent().setB(inputEvent.getB());
             } else {
                 const options = (this.previousOutputEvent()?.getB().main().getPitch() ?? Pitch.parse("Eb3")).near(resolution.bass());
                 const pitch = options.filter((tone: Pitch) => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= this.outputEvent().getS().main().getPitch().semitones() - 10)[0];
@@ -152,46 +142,27 @@ export default class Piece implements Printable {
 
             // REJECT: TOO MANY ROOTS
             if (quotas[0] < 0) {
-                if (this.config.debug) {
-                    console.info(`Rejected '${chord.string()}': Too many roots`);
-                }
                 continue;
             }
 
             // REJECT: TOO MANY THIRDS
             if (quotas[1] < 0) {
-                if (this.config.debug) {
-                    console.info(`Rejected '${chord.string()}': Too many thirds`);
-                }
                 continue;
             }
 
             // REJECT: TOO MANY FIFTHS
             if (quotas[2] < 0) {
-                if (this.config.debug) {
-                    console.info(`Rejected '${chord.string()}': Too many fifths`);
-                }
                 continue;
             }
 
             // REJECT: TOO MANY SEVENTHS
             if (quotas[1] < 0) {
-                if (this.config.debug) {
-                    console.info(`Rejected '${chord.string()}': Too many sevenths`);
-                }
                 continue;
             }
 
             // REJECT: S-B PARALLEL
             if (this.checkParallel("s", "b")) {
-                if (this.config.debug) {
-                    console.info(`Rejected '${chord.string()}': Soprano and bass in parallel`);
-                }
                 continue;
-            }
-
-            if (this.config.debug) {
-                console.info(`Trying '${chord.string()}'`);
             }
 
             const ones = quotas.map((quota, inversion) => quota === 1 ? inversion : null).filter(inversion => inversion !== null) as Inversion[];
@@ -274,18 +245,12 @@ export default class Piece implements Printable {
                     this.checkParallel("a", "t") ||
                     this.checkParallel("a", "b") ||
                     this.checkParallel("t", "b")) {
-                    if (this.config.debug) {
-                        console.info(`|   Rejected permutation '${this.outputEvent().getS().string()} ${this.outputEvent().getA().string()} ${this.outputEvent().getT().string()} ${this.outputEvent().getB().string()}': Parallel parts`);
-                    }
+
                     continue;
                 }
 
                 // ACCEPT
                 this.outputEvent().setChord(chord);
-                if (this.config.debug) {
-                    console.info(`|   Accepted permutation '${this.outputEvent().getS().string()} ${this.outputEvent().getA().string()} ${this.outputEvent().getT().string()} ${this.outputEvent().getB().string()}'`);
-                    console.info(`Accepted '${chord.string()}' (Bar ${this.getTime().bar + 1}, Chord ${this.getTime().event + 1})`);
-                }
                 if (++this.getTime().event === this.getInput()[this.getTime().bar].length) {
                     this.getTime().event = 0;
                     ++this.getTime().bar;
@@ -294,9 +259,6 @@ export default class Piece implements Printable {
             }
 
             // REJECT: NO GOOD REALISATION
-            if (this.config.debug) {
-                console.info(`Rejected '${chord.string()}': No good realisation`);
-            }
             continue;
         }
 
@@ -309,9 +271,6 @@ export default class Piece implements Printable {
         }
         if (this.getTime().bar >= 0) {
             ++this.outputEvent().map;
-        }
-        if (this.config.debug) {
-            console.info(`Reverted '${previousChord?.string()}': No good progressions available`);
         }
         return;
     }
@@ -339,18 +298,12 @@ export default class Piece implements Printable {
             t < 40 ||
             t > 52
         ) {
-            if (this.config.debug) {
-                console.info(`|   '${this.outputEvent().getS().main().string()} ${aTone.string()} ${tTone.string()} ${this.outputEvent().getB().main().string()}' rejected`);
-            }
             return Infinity;
         }
         const sa = s - a;
         const at = a - t;
         const stdDev = Math.sqrt((sa * sa + at * at) / 2 - (sa + at) ** 2 / 4);
         const score = aChange + tChange + stdDev;
-        if (this.config.debug) {
-            console.info(`|   '${this.outputEvent().getS().main().string()} ${aTone.string()} ${tTone.string()} ${this.outputEvent().getB().main().string()}' scores ${score}`);
-        }
         return score;
     }
 
@@ -404,15 +357,12 @@ export default class Piece implements Printable {
         return this;
     }
 
-    getConfig() {
-        return this.config;
+    getDictionary() {
+        return this.dictionary;
     }
 
-    setConfig(config: Config) {
-        this.config = {
-            dictionary: config.dictionary ?? this.config.dictionary,
-            debug: config.debug ?? this.config.debug
-        }
+    setDictionary(dictionary: any) {
+        this.dictionary = dictionary;
         return this;
     }
 
