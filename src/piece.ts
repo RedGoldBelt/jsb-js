@@ -14,7 +14,6 @@ export default class Piece implements Printable {
     private output: Bar[] = [];
     private time: Time = { bar: 0, event: 0 };
     private key: Key = Key.parse("C major");
-    private resolution: Resolution = new Resolution(Tone.parse("C"), Tone.parse("C"), Tone.parse("C"), undefined, 0);
     private config: Config = { dictionary: FULL, debug: false }
     private status: boolean = false;
 
@@ -100,15 +99,20 @@ export default class Piece implements Printable {
         const chordOptions = previousChord.progression(this.config.dictionary).filter(chord => !this.outputEvent().isCadence() || ["I", "i", "V"].includes(chord.toStringStem()));
         for (; this.outputEvent().map < chordOptions.length; ++this.outputEvent().map) {
             const chord = chordOptions[this.outputEvent().map];
-            this.resolution = chord.resolve(this.key);
+            const resolution = chord.resolve(this.key);
 
             // REJECT: PARTS DO NOT FIT
-            if (this.partsUnfit()) {
+            if (
+                resolution.excludes(this.inputEvent().getS().main().getPitch().getTone()) ||
+                resolution.excludes(this.inputEvent().getA().main()?.getPitch().getTone()) ||
+                resolution.excludes(this.inputEvent().getT().main()?.getPitch().getTone()) ||
+                resolution.excludes(this.inputEvent().getB().main()?.getPitch().getTone())
+            ) {
                 continue;
             }
 
             // REJECT: WRONG INVERSION
-            if (this.inputEvent().getB().main() && !this.inputEvent().getB().main().getPitch().getTone().equals(this.resolution.bass())) {
+            if (this.inputEvent().getB().main() && !this.inputEvent().getB().main().getPitch().getTone().equals(resolution.bass())) {
                 continue;
             }
 
@@ -127,28 +131,27 @@ export default class Piece implements Printable {
             if (this.inputEvent().getB().main()) {
                 this.outputEvent().setB(this.inputEvent().getB());
             } else {
-                const options = (this.previousOutputEvent()?.getB().main().getPitch() ?? Pitch.parse("Eb3")).near(this.resolution.bass());
+                const options = (this.previousOutputEvent()?.getB().main().getPitch() ?? Pitch.parse("Eb3")).near(resolution.bass());
                 const pitch = options.filter((tone: Pitch) => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= this.outputEvent().getS().main().getPitch().semitones() - 10)[0];
                 this.outputEvent().setB(pitch.group(this.outputEvent().duration()));
             }
             this.outputEvent().setChord(chord);
 
-            const quotas = this.resolution.getSeventh() ? [1, 1, 1, 1] : [2, 1, 2, 0];
+            const quotas = resolution.getSeventh() ? [1, 1, 1, 1] : [2, 1, 2, 0];
 
             for (const part of ["s", "a", "t", "b"] as Part[]) {
-                const array = [this.resolution.getRoot(), this.resolution.getThird(), this.resolution.getFifth(), this.resolution.getSeventh()].filter(tone => tone !== undefined) as Tone[];
-                const inversion = array.findIndex((tone: Tone) => tone.equals(this.outputEvent()[part].main()?.getPitch().getTone()));
+                const array = [resolution.getRoot(), resolution.getThird(), resolution.getFifth(), resolution.getSeventh()].filter(tone => tone !== undefined) as Tone[];
+                const inversion = array.findIndex((tone: Tone) => tone.equals(this.outputEvent().getPart(part).main()?.getPitch().getTone()));
                 --quotas[inversion];
             }
 
-            if (this.resolution.getSeventh() === undefined) {
+            if (resolution.getSeventh() === undefined) {
                 if (quotas[0] === 0) quotas[2] = 1;
                 if (quotas[2] === 0) quotas[0] = 1;
             }
 
             // REJECT: TOO MANY ROOTS
             if (quotas[0] < 0) {
-                this.clear();
                 if (this.config.debug) {
                     console.info(`Rejected '${chord.string()}': Too many roots`);
                 }
@@ -157,7 +160,6 @@ export default class Piece implements Printable {
 
             // REJECT: TOO MANY THIRDS
             if (quotas[1] < 0) {
-                this.clear();
                 if (this.config.debug) {
                     console.info(`Rejected '${chord.string()}': Too many thirds`);
                 }
@@ -166,7 +168,6 @@ export default class Piece implements Printable {
 
             // REJECT: TOO MANY FIFTHS
             if (quotas[2] < 0) {
-                this.clear();
                 if (this.config.debug) {
                     console.info(`Rejected '${chord.string()}': Too many fifths`);
                 }
@@ -175,7 +176,6 @@ export default class Piece implements Printable {
 
             // REJECT: TOO MANY SEVENTHS
             if (quotas[1] < 0) {
-                this.clear();
                 if (this.config.debug) {
                     console.info(`Rejected '${chord.string()}': Too many sevenths`);
                 }
@@ -183,8 +183,7 @@ export default class Piece implements Printable {
             }
 
             // REJECT: S-B PARALLEL
-            if (this.parallel("s", "b")) {
-                this.clear();
+            if (this.checkParallel("s", "b")) {
                 if (this.config.debug) {
                     console.info(`Rejected '${chord.string()}': Soprano and bass in parallel`);
                 }
@@ -196,9 +195,67 @@ export default class Piece implements Printable {
             }
 
             const ones = quotas.map((quota, inversion) => quota === 1 ? inversion : null).filter(inversion => inversion !== null) as Inversion[];
-            const two = quotas.findIndex(quota => quota === 2) as Inversion | -1;
+            let two = quotas.findIndex(quota => quota === 2) as Inversion | -1;
 
-            const permutations = this.permute(ones, two);
+            let permutations: Permutation[];
+
+            switch (ones.length as 1 | 2 | 3) {
+                case 1:
+                    two = two as Inversion;
+                    const permutation1: Permutation = {
+                        altoInversion: ones[0],
+                        tenorInversion: two,
+                        score: this.score(ones[0], two, resolution)
+                    };
+                    const permutation2: Permutation = {
+                        altoInversion: two,
+                        tenorInversion: ones[0],
+                        score: this.score(two, ones[0], resolution)
+                    };
+                    const permutation3: Permutation = {
+                        altoInversion: two,
+                        tenorInversion: two,
+                        score: this.score(two, two, resolution)
+                    };
+                    permutations = [permutation1, permutation2, permutation3].sort((l, r) => l.score - r.score);
+                    break;
+                case 2:
+                    const permutation4: Permutation = {
+                        altoInversion: ones[0],
+                        tenorInversion: ones[1],
+                        score: this.score(ones[0], ones[1], resolution)
+                    };
+                    const permutation5: Permutation = {
+                        altoInversion: ones[1],
+                        tenorInversion: ones[0],
+                        score: this.score(ones[1], ones[0], resolution)
+                    };
+                    permutations = [permutation4, permutation5].sort((l, r) => l.score - r.score);
+                    break;
+                case 3:
+                    const permutation6: Permutation = {
+                        altoInversion: ones[0],
+                        tenorInversion: ones[1],
+                        score: this.score(ones[0], ones[1], resolution)
+                    };
+                    const permutation7: Permutation = {
+                        altoInversion: ones[1],
+                        tenorInversion: ones[0],
+                        score: this.score(ones[1], ones[0], resolution)
+                    };
+                    const permutation8: Permutation = {
+                        altoInversion: ones[1],
+                        tenorInversion: ones[2],
+                        score: this.score(ones[1], ones[2], resolution)
+                    };
+                    const permutation9: Permutation = {
+                        altoInversion: ones[2],
+                        tenorInversion: ones[1],
+                        score: this.score(ones[2], ones[1], resolution)
+                    };
+                    permutations = [permutation6, permutation7, permutation8, permutation9].sort((l, r) => l.score - r.score);
+                    break;
+            }
 
             for (const permutation of permutations) {
 
@@ -207,16 +264,16 @@ export default class Piece implements Printable {
                     continue;
                 }
 
-                this.outputEvent().setA((this.previousOutputEvent()?.getA().main().getPitch() ?? Pitch.parse("D4")).near(this.resolution.at(permutation.altoInversion))[0].group(this.outputEvent().duration()));
-                this.outputEvent().setT((this.previousOutputEvent()?.getT().main().getPitch() ?? Pitch.parse("B3")).near(this.resolution.at(permutation.tenorInversion)).filter((tone: Pitch) => tone.semitones() >= this.outputEvent().getB().main().getPitch().semitones())[0].group(this.outputEvent().duration()));
+                this.outputEvent().setA((this.previousOutputEvent()?.getA().main().getPitch() ?? Pitch.parse("D4")).near(resolution.at(permutation.altoInversion))[0].group(this.outputEvent().duration()));
+                this.outputEvent().setT((this.previousOutputEvent()?.getT().main().getPitch() ?? Pitch.parse("B3")).near(resolution.at(permutation.tenorInversion)).filter((tone: Pitch) => tone.semitones() >= this.outputEvent().getB().main().getPitch().semitones())[0].group(this.outputEvent().duration()));
 
                 // REJECT: PARALLEL PARTS
                 if (
-                    this.parallel("s", "a") ||
-                    this.parallel("s", "t") ||
-                    this.parallel("a", "t") ||
-                    this.parallel("a", "b") ||
-                    this.parallel("t", "b")) {
+                    this.checkParallel("s", "a") ||
+                    this.checkParallel("s", "t") ||
+                    this.checkParallel("a", "t") ||
+                    this.checkParallel("a", "b") ||
+                    this.checkParallel("t", "b")) {
                     if (this.config.debug) {
                         console.info(`|   Rejected permutation '${this.outputEvent().getS().string()} ${this.outputEvent().getA().string()} ${this.outputEvent().getT().string()} ${this.outputEvent().getB().string()}': Parallel parts`);
                     }
@@ -237,7 +294,6 @@ export default class Piece implements Printable {
             }
 
             // REJECT: NO GOOD REALISATION
-            this.clear();
             if (this.config.debug) {
                 console.info(`Rejected '${chord.string()}': No good realisation`);
             }
@@ -260,87 +316,14 @@ export default class Piece implements Printable {
         return;
     }
 
-    private partsUnfit() {
-        if (this.resolution.excludes(this.inputEvent().getS().main().getPitch().getTone())) {
-            return true;
-        }
-        if (this.resolution.excludes(this.inputEvent().getA().main()?.getPitch().getTone())) {
-            return true;
-        }
-        if (this.resolution.excludes(this.inputEvent().getT().main()?.getPitch().getTone())) {
-            return true;
-        }
-        if (this.resolution.excludes(this.inputEvent().getB().main()?.getPitch().getTone())) {
-            return true;
-        }
-        return false;
-    }
-
-    private permute(ones: Inversion[], two: Inversion | -1) {
-        switch (ones.length as 1 | 2 | 3) {
-            case 1:
-                two = two as Inversion;
-                const permutation1: Permutation = {
-                    altoInversion: ones[0],
-                    tenorInversion: two,
-                    score: this.score(ones[0], two)
-                };
-                const permutation2: Permutation = {
-                    altoInversion: two,
-                    tenorInversion: ones[0],
-                    score: this.score(two, ones[0])
-                };
-                const permutation3: Permutation = {
-                    altoInversion: two,
-                    tenorInversion: two,
-                    score: this.score(two, two)
-                };
-                return [permutation1, permutation2, permutation3].sort((l, r) => l.score - r.score);
-            case 2:
-                const permutation4: Permutation = {
-                    altoInversion: ones[0],
-                    tenorInversion: ones[1],
-                    score: this.score(ones[0], ones[1])
-                };
-                const permutation5: Permutation = {
-                    altoInversion: ones[1],
-                    tenorInversion: ones[0],
-                    score: this.score(ones[1], ones[0])
-                };
-                return [permutation4, permutation5].sort((l, r) => l.score - r.score);
-            case 3:
-                const permutation6: Permutation = {
-                    altoInversion: ones[0],
-                    tenorInversion: ones[1],
-                    score: this.score(ones[0], ones[1])
-                };
-                const permutation7: Permutation = {
-                    altoInversion: ones[1],
-                    tenorInversion: ones[0],
-                    score: this.score(ones[1], ones[0])
-                };
-                const permutation8: Permutation = {
-                    altoInversion: ones[1],
-                    tenorInversion: ones[2],
-                    score: this.score(ones[1], ones[2])
-                };
-                const permutation9: Permutation = {
-                    altoInversion: ones[2],
-                    tenorInversion: ones[1],
-                    score: this.score(ones[2], ones[1])
-                };
-                return [permutation6, permutation7, permutation8, permutation9].sort((l, r) => l.score - r.score);
-        }
-    }
-
-    private score(altoInversion: Inversion, tenorInversion: Inversion) {
+    private score(altoInversion: Inversion, tenorInversion: Inversion, resolution: Resolution) {
         const previousA = this.previousOutputEvent()?.getA().at(-1).getPitch() ?? Pitch.parse("D4");
         const previousT = this.previousOutputEvent()?.getT().at(-1).getPitch() ?? Pitch.parse("B3");
         const s = this.outputEvent().getS().main().getPitch().semitones();
         const b = this.outputEvent().getB().main().getPitch().semitones();
-        const aTone = previousA.near(this.resolution.at(altoInversion))[0];
+        const aTone = previousA.near(resolution.at(altoInversion))[0];
         const a = aTone.semitones();
-        const tTone = previousT.near(this.resolution.at(tenorInversion))[0];
+        const tTone = previousT.near(resolution.at(tenorInversion))[0];
         const t = tTone.semitones();
         const aChange = Math.abs(a - previousA.semitones());
         const tChange = Math.abs(t - previousT.semitones());
@@ -371,26 +354,18 @@ export default class Piece implements Printable {
         return score;
     }
 
-    private parallel(upper: Part, lower: Part) {
+    private checkParallel(upper: Part, lower: Part) {
         const previousEvent = this.previousOutputEvent();
         if (previousEvent === undefined) {
             return false;
         }
-        const previousUpper = previousEvent[upper].at(-1).getPitch().semitones();
-        const previousLower = previousEvent[lower].at(-1).getPitch().semitones()
-        const currentUpper = this.outputEvent()[upper].at(0).getPitch().semitones();
-        const currentLower = this.outputEvent()[lower].at(0).getPitch().semitones();
+        const previousUpper = previousEvent.getPart(upper).at(-1).getPitch().semitones();
+        const previousLower = previousEvent.getPart(lower).at(-1).getPitch().semitones()
+        const currentUpper = this.outputEvent().getPart(upper).at(0).getPitch().semitones();
+        const currentLower = this.outputEvent().getPart(lower).at(0).getPitch().semitones();
         const previousInterval = (previousUpper - previousLower) % 12;
         const interval = (currentUpper - currentLower) % 12;
         return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && previousUpper !== currentUpper && previousLower !== currentLower;
-    }
-
-    private clear() {
-        this.outputEvent().setS(new Group([], 0));
-        this.outputEvent().setA(new Group([], 0));
-        this.outputEvent().setT(new Group([], 0));
-        this.outputEvent().setB(new Group([], 0));
-        this.outputEvent().setChord(undefined);
     }
 
     getInput() {

@@ -1,5 +1,6 @@
 import Chord from "./chord.js";
 import Group from "./group.js";
+import { Part } from "./util.js";
 
 export default class Event {
     private s: Group;
@@ -52,6 +53,24 @@ export default class Event {
     setB(b: Group) {
         this.b = b;
         return this;
+    }
+
+    getPart(part: Part) {
+        switch (part) {
+            case "s": return this.getS();
+            case "a": return this.getA();
+            case "t": return this.getT();
+            case "b": return this.getB();
+        }
+    }
+
+    setPart(part: Part, group: Group) {
+        switch (part) {
+            case "s": return this.setS(group);
+            case "a": return this.setA(group);
+            case "t": return this.setT(group);
+            case "b": return this.setB(group);
+        }
     }
 
     duration() {
