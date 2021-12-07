@@ -85,7 +85,7 @@ export default class Chord implements Printable {
     }
 
     toStringStem() {
-        return this.base ? this.base.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "Start";
+        return this.base ? this.base.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "start";
     }
 
     string() {

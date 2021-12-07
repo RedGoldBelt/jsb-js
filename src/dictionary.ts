@@ -1,6 +1,6 @@
 export const FULL: any = {
     COMMON_MAJOR: {
-        null: ["I", "V", "IV", "ii", "vi", "iii"],
+        start: ["I", "V", "IV", "ii", "vi", "iii"],
 
         "I": [
             "viib",
@@ -79,7 +79,7 @@ export const FULL: any = {
         "viio7d": []
     },
     COMMON_MINOR: {
-        null: ["i", "iv", "V"],
+        start: ["i", "iv", "V"],
 
         "i": [
             "VI",
@@ -137,7 +137,7 @@ export const FULL: any = {
         "#viio7d": ["ic"]
     },
     SPECIFIC_I: {
-        null: [],
+        start: [],
 
         "I": ["vii7/V"],
         "Ib": [],
@@ -188,7 +188,7 @@ export const FULL: any = {
         "viio7d": []
     },
     SPECIFIC_IV: {
-        null: ["I", "V", "IV", "ii", "vi", "iii"],
+        start: ["I", "V", "IV", "ii", "vi", "iii"],
 
         "I": [],
         "Ib": [],
@@ -289,7 +289,7 @@ export const FULL: any = {
 
 export const PRIMARY_A: any = {
     COMMON_MAJOR: {
-        null: [
+        start: [
             "I",
             "IV",
             "V"
@@ -311,7 +311,7 @@ export const PRIMARY_A: any = {
         ]
     },
     COMMON_MINOR: {
-        null: ["i",
+        start: ["i",
             "iv",
             "V"],
         "i": [
@@ -333,7 +333,7 @@ export const PRIMARY_A: any = {
 
 export const PRIMARY_AB: any = {
     COMMON_MAJOR: {
-        null: [
+        start: [
             "I", "Ib",
             "IVb", "IV",
             "V", "Vb"
@@ -371,7 +371,7 @@ export const PRIMARY_AB: any = {
         ]
     },
     COMMON_MINOR: {
-        null: [
+        start: [
             "i", "ib",
             "ivb", "iv",
             "V", "Vb"
@@ -411,7 +411,7 @@ export const PRIMARY_AB: any = {
 
 export const PRIMARY_ABC: any = {
     COMMON_MAJOR: {
-        null: [
+        start: [
             "I", "Ib", "Ic",
             "IVc", "IVb", "IV",
             "V", "Vb", "Vc"
@@ -451,7 +451,7 @@ export const PRIMARY_ABC: any = {
         ]
     },
     COMMON_MINOR: {
-        null: [
+        start: [
             "i", "ib",
             "ivb", "iv",
             "V", "Vb"
