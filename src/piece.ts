@@ -94,7 +94,6 @@ export default class Piece implements Printable {
             const chord = chordOptions[this.outputEvent().map];
             const resolution = chord.resolve(this.key);
 
-            // REJECT: PARTS DO NOT FIT
             if (
                 resolution.excludes(inputEvent.getS().main().getPitch().getTone()) ||
                 resolution.excludes(inputEvent.getA().main()?.getPitch().getTone()) ||
@@ -104,151 +103,193 @@ export default class Piece implements Printable {
                 continue;
             }
 
-            // REJECT: WRONG INVERSION
             if (inputEvent.getB().main() && !inputEvent.getB().main().getPitch().getTone().equals(resolution.bass())) {
                 continue;
             }
 
-            // REJECT: Invalid second inversion chord
             if (previousChord.getInversion() === 2 && this.previousPreviousOutputEvent()?.getChord()?.string() === chord.string()) {
                 continue;
             }
 
-            // TEST VIABILITY
             this.outputEvent().setS(inputEvent.getS());
             this.outputEvent().setA(inputEvent.getA());
             this.outputEvent().setT(inputEvent.getT());
-            if (inputEvent.getB().main()) {
-                this.outputEvent().setB(inputEvent.getB());
-            } else {
-                const options = (this.previousOutputEvent()?.getB().main().getPitch() ?? Pitch.parse("Eb3")).near(resolution.bass());
-                const pitch = options.filter((tone: Pitch) => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= this.outputEvent().getS().main().getPitch().semitones() - 10)[0];
+            this.outputEvent().setB(inputEvent.getB());
+            this.outputEvent().setChord(chord);
+
+            const defined = {
+                a: this.outputEvent().getA().main() !== undefined,
+                t: this.outputEvent().getT().main() !== undefined,
+                b: this.outputEvent().getB().main() !== undefined
+            };
+
+            const target = {
+                a: this.previousOutputEvent()?.getA().at(-1).getPitch() ?? Pitch.parse("D4"),
+                t: this.previousOutputEvent()?.getT().at(-1).getPitch() ?? Pitch.parse("B3"),
+                b: this.previousOutputEvent()?.getB().at(-1).getPitch() ?? Pitch.parse("Eb3")
+            }
+
+            if (!defined.b) {
+                const options = resolution.bass().near(target.b);
+                const pitch = options.filter(tone => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= this.outputEvent().getS().main().getPitch().semitones() - 10)[0];
                 this.outputEvent().setB(pitch.group(this.outputEvent().duration()));
             }
-            this.outputEvent().setChord(chord);
 
             const quotas = resolution.getSeventh() ? [1, 1, 1, 1] : [2, 1, 2, 0];
 
             for (const part of ["s", "a", "t", "b"] as Part[]) {
                 const array = [resolution.getRoot(), resolution.getThird(), resolution.getFifth(), resolution.getSeventh()].filter(tone => tone !== undefined) as Tone[];
                 const inversion = array.findIndex((tone: Tone) => tone.equals(this.outputEvent().getPart(part).main()?.getPitch().getTone()));
-                --quotas[inversion];
+                if (inversion !== -1) {
+                    --quotas[inversion];
+                }
             }
 
             if (resolution.getSeventh() === undefined) {
-                if (quotas[0] === 0) quotas[2] = 1;
-                if (quotas[2] === 0) quotas[0] = 1;
-            }
-
-            // REJECT: TOO MANY ROOTS
-            if (quotas[0] < 0) {
-                continue;
-            }
-
-            // REJECT: TOO MANY THIRDS
-            if (quotas[1] < 0) {
-                continue;
-            }
-
-            // REJECT: TOO MANY FIFTHS
-            if (quotas[2] < 0) {
-                continue;
-            }
-
-            // REJECT: TOO MANY SEVENTHS
-            if (quotas[1] < 0) {
-                continue;
+                if (quotas[0] === 0) {
+                    quotas[2] = 1;
+                    if (quotas[2] === 0) {
+                        continue;
+                    }
+                }
+                if (quotas[2] === 0) {
+                    quotas[0] = 1;
+                }
             }
 
             if (quotas.some(quota => quota < 0)) {
                 continue;
             }
 
-            const ones = quotas.map((quota, inversion) => quota === 1 ? inversion : null).filter(inversion => inversion !== null) as Inversion[];
-            let two = quotas.findIndex(quota => quota === 2) as Inversion | -1;
-
             let permutations: Permutation[];
+            const ones = quotas.map((quota, inversion) => quota === 1 ? resolution.at(inversion as Inversion) : undefined).filter(tone => tone !== undefined) as Tone[];
 
-            switch (ones.length as 1 | 2 | 3) {
-                case 1:
-                    two = two as Inversion;
-                    const permutation1: Permutation = {
-                        altoInversion: ones[0],
-                        tenorInversion: two,
-                        score: this.score(ones[0], two, resolution)
-                    };
-                    const permutation2: Permutation = {
-                        altoInversion: two,
-                        tenorInversion: ones[0],
-                        score: this.score(two, ones[0], resolution)
-                    };
-                    const permutation3: Permutation = {
-                        altoInversion: two,
-                        tenorInversion: two,
-                        score: this.score(two, two, resolution)
-                    };
-                    permutations = [permutation1, permutation2, permutation3].sort((l, r) => l.score - r.score);
-                    break;
-                case 2:
-                    const permutation4: Permutation = {
-                        altoInversion: ones[0],
-                        tenorInversion: ones[1],
-                        score: this.score(ones[0], ones[1], resolution)
-                    };
-                    const permutation5: Permutation = {
-                        altoInversion: ones[1],
-                        tenorInversion: ones[0],
-                        score: this.score(ones[1], ones[0], resolution)
-                    };
-                    permutations = [permutation4, permutation5].sort((l, r) => l.score - r.score);
-                    break;
-                case 3:
-                    const permutation6: Permutation = {
-                        altoInversion: ones[0],
-                        tenorInversion: ones[1],
-                        score: this.score(ones[0], ones[1], resolution)
-                    };
-                    const permutation7: Permutation = {
-                        altoInversion: ones[1],
-                        tenorInversion: ones[0],
-                        score: this.score(ones[1], ones[0], resolution)
-                    };
-                    const permutation8: Permutation = {
-                        altoInversion: ones[1],
-                        tenorInversion: ones[2],
-                        score: this.score(ones[1], ones[2], resolution)
-                    };
-                    const permutation9: Permutation = {
-                        altoInversion: ones[2],
-                        tenorInversion: ones[1],
-                        score: this.score(ones[2], ones[1], resolution)
-                    };
-                    permutations = [permutation6, permutation7, permutation8, permutation9].sort((l, r) => l.score - r.score);
-                    break;
+            let a: Pitch;
+            let t: Pitch;
+
+            if (!defined.a && !defined.t) {
+                let two = resolution.at(quotas.findIndex(quota => quota === 2) as Inversion);
+
+                switch (ones.length as 1 | 2 | 3) {
+                    case 1:
+                        const permutation1: Permutation = {
+                            a: a = ones[0].near(target.a)[0],
+                            t: t = two.near(target.t)[0],
+                            score: this.score(a, t)
+                        };
+                        const permutation2: Permutation = {
+                            a: a = two.near(target.a)[0],
+                            t: t = ones[0].near(target.t)[0],
+                            score: this.score(a, t)
+                        };
+                        const permutation3: Permutation = {
+                            a: a = two.near(target.a)[0],
+                            t: t = two.near(target.t)[0],
+                            score: this.score(a, t)
+                        };
+                        permutations = [permutation1, permutation2, permutation3].sort((l, r) => l.score - r.score);
+                        break;
+                    case 2:
+                        const permutation4: Permutation = {
+                            a: a = ones[0].near(target.a)[0],
+                            t: t = ones[1].near(target.t)[0],
+                            score: this.score(a, t)
+                        };
+                        const permutation5: Permutation = {
+                            a: a = ones[1].near(target.a)[0],
+                            t: t = ones[0].near(target.t)[0],
+                            score: this.score(a, t)
+                        };
+                        permutations = [permutation4, permutation5].sort((l, r) => l.score - r.score);
+                        break;
+                    case 3:
+                        const permutation6: Permutation = {
+                            a: a = ones[0].near(target.a)[0],
+                            t: t = ones[1].near(target.t)[0],
+                            score: this.score(a, t)
+                        };
+                        const permutation7: Permutation = {
+                            a: a = ones[1].near(target.a)[0],
+                            t: t = ones[0].near(target.t)[0],
+                            score: this.score(a, t)
+                        };
+                        const permutation8: Permutation = {
+                            a: a = ones[1].near(target.a)[0],
+                            t: t = ones[2].near(target.t)[0],
+                            score: this.score(a, t)
+                        };
+                        const permutation9: Permutation = {
+                            a: a = ones[2].near(target.a)[0],
+                            t: t = ones[1].near(target.t)[0],
+                            score: this.score(a, t)
+                        };
+                        permutations = [permutation6, permutation7, permutation8, permutation9].sort((l, r) => l.score - r.score);
+                        break;
+                }
+            } else if (defined.a && !defined.t) {
+                a = this.outputEvent().getA().main().getPitch();
+                if (ones.length === 1) {
+                    permutations = [{
+                        a: a,
+                        t: t = ones[0].near(target.t)[0],
+                        score: this.score(a, t)
+                    }];
+                } else {
+                    permutations = [{
+                        a: a,
+                        t: t = ones[0].near(target.t)[0],
+                        score: this.score(a, t)
+                    }, {
+                        a: a,
+                        t: t = ones[1].near(target.t)[0],
+                        score: this.score(a, t)
+                    }];
+                }
+            } else if (!defined.a && defined.t) {
+                t = this.outputEvent().getT().main().getPitch();
+                if (ones.length === 1) {
+                    permutations = [{
+                        a: a = ones[0].near(target.a)[0],
+                        t: t,
+                        score: this.score(a, t)
+                    }];
+                } else {
+                    permutations = [{
+                        a: a = ones[0].near(target.a)[0],
+                        t: t,
+                        score: this.score(a, t)
+                    }, {
+                        a: a = ones[1].near(target.a)[0],
+                        t: t,
+                        score: this.score(a, t)
+                    }];
+                }
+            } else {
+                permutations = [{
+                    a: a = this.outputEvent().getA().main().getPitch(),
+                    t: t = this.outputEvent().getT().main().getPitch(),
+                    score: this.score(a, t)
+                }];
             }
 
             for (const permutation of permutations) {
-
-                // REJECT: BAD REALISATION
                 if (permutation.score === Infinity) {
                     continue;
                 }
 
-                this.outputEvent().setA((this.previousOutputEvent()?.getA().main().getPitch() ?? Pitch.parse("D4")).near(resolution.at(permutation.altoInversion))[0].group(this.outputEvent().duration()));
-                this.outputEvent().setT((this.previousOutputEvent()?.getT().main().getPitch() ?? Pitch.parse("B3")).near(resolution.at(permutation.tenorInversion)).filter((tone: Pitch) => tone.semitones() >= this.outputEvent().getB().main().getPitch().semitones())[0].group(this.outputEvent().duration()));
+                this.outputEvent().setA(permutation.a.group(this.outputEvent().duration()));
+                this.outputEvent().setT(permutation.t.group(this.outputEvent().duration()));
 
-                // REJECT: PARALLEL PARTS
                 if (
                     this.checkParallel("s", "a") ||
                     this.checkParallel("s", "t") ||
+                    this.checkParallel("s", "b") ||
                     this.checkParallel("a", "t") ||
                     this.checkParallel("a", "b") ||
                     this.checkParallel("t", "b")) {
-
                     continue;
                 }
 
-                // ACCEPT
                 this.outputEvent().setChord(chord);
                 if (++this.getTime().event === this.getInput()[this.getTime().bar].length) {
                     this.getTime().event = 0;
@@ -272,15 +313,13 @@ export default class Piece implements Printable {
         return;
     }
 
-    private score(altoInversion: Inversion, tenorInversion: Inversion, resolution: Resolution) {
+    private score(aPitch: Pitch, tPitch: Pitch) {
+        const s = this.outputEvent().getS().main().getPitch().semitones();
+        const a = aPitch.semitones();
+        const t = tPitch.semitones();
+        const b = this.outputEvent().getB().main().getPitch().semitones();
         const previousA = this.previousOutputEvent()?.getA().at(-1).getPitch() ?? Pitch.parse("D4");
         const previousT = this.previousOutputEvent()?.getT().at(-1).getPitch() ?? Pitch.parse("B3");
-        const s = this.outputEvent().getS().main().getPitch().semitones();
-        const b = this.outputEvent().getB().main().getPitch().semitones();
-        const aTone = previousA.near(resolution.at(altoInversion))[0];
-        const a = aTone.semitones();
-        const tTone = previousT.near(resolution.at(tenorInversion))[0];
-        const t = tTone.semitones();
         const aChange = Math.abs(a - previousA.semitones());
         const tChange = Math.abs(t - previousT.semitones());
 
