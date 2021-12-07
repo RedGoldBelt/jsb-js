@@ -1,3 +1,4 @@
+import Pitch from "./pitch.js";
 import { Printable } from "./util";
 
 export default class Tone implements Printable {
@@ -34,6 +35,13 @@ export default class Tone implements Printable {
             return false;
         }
         return this.letter === tone.letter && this.accidental === tone.accidental;
+    }
+
+    near(pitch: Pitch) {
+        const tone1 = new Pitch(this, pitch.getOctave() - 1);
+        const tone2 = new Pitch(this, pitch.getOctave());
+        const tone3 = new Pitch(this, pitch.getOctave() + 1);
+        return [tone1, tone2, tone3].sort((l, r) => Math.abs(pitch.semitones() - l.semitones()) - Math.abs(pitch.semitones() - r.semitones()));
     }
 
     getLetter() {

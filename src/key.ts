@@ -43,7 +43,7 @@ export default class Key {
         return this;
     }
 
-    toString() {
+    string() {
         return this.getTone().string() + " " + (this.getTonality() ? "major" : "minor");
     }
 }
