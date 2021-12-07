@@ -51,9 +51,6 @@ export default class Group implements Printable {
     }
 
     setIndex(index: number) {
-        if (this.getNotes()[index] === undefined) {
-            throw new Error("Invalid index for group");
-        }
         this.index = index;
         return this;
     }

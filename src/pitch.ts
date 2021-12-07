@@ -15,7 +15,7 @@ export default class Pitch implements Printable {
     static parse(string: string) {
         const result = string.match(/^([A-G](bb|b|#|x|))([1-6])$/);
         if (result === null) {
-            throw new Error(`Could not parse tone '${string}'`);
+            throw `Could not parse pitch '${string}'`;
         }
         return new Pitch(Tone.parse(result[1]), Number(result[3]));
     }

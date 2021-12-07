@@ -13,7 +13,7 @@ export default class Note implements Printable{
     static parse(string: string) {
         const result = string.match(/^([A-G](bb|b|#|x|)[1-6])(_*)(\/*)(\.*)$/);
         if (result === null) {
-            throw new Error(`Could not parse note '${string}'`);
+            throw `Could not parse note '${string}'`;
         }
         return new Note(
             Pitch.parse(result[1]),

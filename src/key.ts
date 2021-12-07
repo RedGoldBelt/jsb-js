@@ -12,7 +12,7 @@ export default class Key {
     static parse(string: string) {
         const result = string.match(/^(C|D|E|F|G|A|B)(bb|x|b|#|) (major|minor)$/);
         if (result === null) {
-            throw new Error(`Could not parse key '${string}'`);
+            throw `Could not parse key '${string}'`;
         }
         return new Key(Tone.parse(result[1] + result[2]), result[3] === "major");
     }

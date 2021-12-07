@@ -17,7 +17,7 @@ export default class Numeral implements Printable {
     static parse(string: string) {
         const result = string.match(/^(b|#|)(III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v)$/);
         if (result === null) {
-            throw new Error(`Could not parse numeral '${string}'`);
+            throw `Could not parse numeral '${string}'`;
         }
         return new Numeral(Tone.ACCIDENTALS.indexOf(result[1]), Numeral.NUMERALS.indexOf(result[2].toLowerCase()), result[2] === result[2].toUpperCase());
     }

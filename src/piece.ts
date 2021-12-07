@@ -71,7 +71,7 @@ export default class Piece implements Printable {
 
         for (this.setTime({ bar: 0, event: 0 }); this.getTime().bar !== this.getInput().length; this.step()) {
             if (this.getTime().bar < 0) {
-                throw new Error("Failed to harmonise.");
+                throw "Failed to harmonise.";
             }
         }
         return this;
@@ -112,11 +112,11 @@ export default class Piece implements Printable {
             };
 
             if ((["s", "a", "t", "b"] as Part[]).filter(part => defined[part]).map(part => inputEvent.getPart(part).duration()).some((duration, i, array) => duration !== array[0])) {
-                throw new Error("Not all parts have the same duration.");
+                throw "Not all parts have the same duration.";
             }
 
             if (!defined.s) {
-                throw new Error("Soprano line is not defined.");
+                throw "Soprano line is not defined.";
             }
 
             this.outputEvent().setS(inputEvent.getS());

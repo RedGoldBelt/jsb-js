@@ -22,7 +22,7 @@ export default class Chord implements Printable {
     static parse(string: string) {
         const result = string.match(/^((b|#|)(III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v))(o7|7|)([a-d])?(\/((b|#|)(III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v)))?$/);
         if (result === null) {
-            throw new Error(`Could not parse chord '${string}'`);
+            throw `Could not parse chord '${string}'`;
         }
         return new Chord(
             Numeral.parse(result[1]),
@@ -34,9 +34,8 @@ export default class Chord implements Printable {
 
     resolve(key: Key) {
         if (this.base === null) {
-            throw new Error("Cannot resolve chord with base 'null'");
+            throw "Cannot resolve chord with base 'null'";
         }
-
         if (this.relativeKey) {
             key = new Key(key.degree(this.relativeKey.getDegree()), this.relativeKey.getTonality());
         }
@@ -64,9 +63,6 @@ export default class Chord implements Printable {
     }
 
     progression(dictionary: any) {
-        if (this.relativeKey === null) {
-            throw new Error("Cannot calculate progressions of a chord with no relative key");
-        }
         const SPECIFIC = dictionary["SPECIFIC_" + this.relativeKey.string()];
         const SPECIFIC_OPTIONS = SPECIFIC?.[this.toStringStem()].map(Chord.parse) as Chord[];
         const COMMON = this.relativeKey.getTonality() ? dictionary.COMMON_MAJOR : dictionary.COMMON_MINOR;
@@ -89,7 +85,7 @@ export default class Chord implements Printable {
     }
 
     toStringStem() {
-        return this.base ? this.base.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "null";
+        return this.base ? this.base.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "Start";
     }
 
     string() {
