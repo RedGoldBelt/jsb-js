@@ -15,13 +15,12 @@ export default class Piece implements Printable {
     private time: Time = { bar: 0, event: 0 };
     private key = Key.parse("C major");
     private dictionary = FULL;
-    private status = false;
 
     parse(string: string, part: Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
 
         for (let bar = 0; bar < split.length; ++bar) {
-            this.getInput()[bar] ??= []
+            this.getInput()[bar] ??= [];
 
             for (let event = 0; event < split[bar].length; ++event) {
                 const cadence = split[bar][event].endsWith("@");
@@ -72,20 +71,14 @@ export default class Piece implements Printable {
 
         for (this.setTime({ bar: 0, event: 0 }); this.getTime().bar !== this.getInput().length; this.step()) {
             if (this.getTime().bar < 0) {
-                this.setStatus(false);
-                return this;
+                throw new Error("Failed to harmonise.");
             }
         }
-        this.setStatus(true);
         return this;
     }
 
     private step() {
         const inputEvent = this.getInput()[this.getTime().bar][this.getTime().event];
-        if (inputEvent.getS().main() === undefined) {
-            this.time.bar = -1;
-            return;
-        }
         this.getOutput()[this.time.bar] ??= [];
         this.getOutput()[this.time.bar][this.time.event] ??= new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), inputEvent.isCadence());
         const previousChord = this.previousOutputEvent()?.getChord() ?? new Chord(null, "", 0, new Numeral(0, 0, this.key.getTonality()));
@@ -111,17 +104,26 @@ export default class Piece implements Printable {
                 continue;
             }
 
+            const defined = {
+                s: inputEvent.getS().main() !== undefined,
+                a: inputEvent.getA().main() !== undefined,
+                t: inputEvent.getT().main() !== undefined,
+                b: inputEvent.getB().main() !== undefined
+            };
+
+            if ((["s", "a", "t", "b"] as Part[]).filter(part => defined[part]).map(part => inputEvent.getPart(part).duration()).some((duration, i, array) => duration !== array[0])) {
+                throw new Error("Not all parts have the same duration.");
+            }
+
+            if (!defined.s) {
+                throw new Error("Soprano line is not defined.");
+            }
+
             this.outputEvent().setS(inputEvent.getS());
             this.outputEvent().setA(inputEvent.getA());
             this.outputEvent().setT(inputEvent.getT());
             this.outputEvent().setB(inputEvent.getB());
             this.outputEvent().setChord(chord);
-
-            const defined = {
-                a: this.outputEvent().getA().main() !== undefined,
-                t: this.outputEvent().getT().main() !== undefined,
-                b: this.outputEvent().getB().main() !== undefined
-            };
 
             const target = {
                 a: this.previousOutputEvent()?.getA().at(-1).getPitch() ?? Pitch.parse("D4"),
@@ -399,15 +401,6 @@ export default class Piece implements Printable {
 
     setDictionary(dictionary: any) {
         this.dictionary = dictionary;
-        return this;
-    }
-
-    getStatus() {
-        return this.status;
-    }
-
-    setStatus(status: boolean) {
-        this.status = status;
         return this;
     }
 
