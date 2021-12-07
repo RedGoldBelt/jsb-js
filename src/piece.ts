@@ -13,6 +13,7 @@ export default class Piece implements Printable {
     private input: Bar[] = [];
     private output: Bar[] = [];
     private time: Time = { bar: 0, event: 0 };
+    private maxTime: Time = { bar: 0, event: 0 };
     private key = Key.parse("C major");
     private dictionary = FULL;
 
@@ -68,10 +69,16 @@ export default class Piece implements Printable {
 
     harmonise() {
         this.setOutput([]);
-
+        this.setMaxTime({ bar: 0, event: 0 });
         for (this.setTime({ bar: 0, event: 0 }); this.getTime().bar !== this.getInput().length; this.step()) {
             if (this.getTime().bar < 0) {
                 throw "Failed to harmonise.";
+            }
+            if (this.getTime().bar >= this.getMaxTime().bar) {
+                this.getMaxTime().bar = this.getTime().bar;
+                if (this.getTime().event >= this.getMaxTime().event) {
+                    this.getMaxTime().event = this.getTime().event;
+                }
             }
         }
         return this;
@@ -86,23 +93,6 @@ export default class Piece implements Printable {
         for (; this.outputEvent().map < chordOptions.length; ++this.outputEvent().map) {
             const chord = chordOptions[this.outputEvent().map];
             const resolution = chord.resolve(this.key);
-
-            if (
-                resolution.excludes(inputEvent.getS().main().getPitch().getTone()) ||
-                resolution.excludes(inputEvent.getA().main()?.getPitch().getTone()) ||
-                resolution.excludes(inputEvent.getT().main()?.getPitch().getTone()) ||
-                resolution.excludes(inputEvent.getB().main()?.getPitch().getTone())
-            ) {
-                continue;
-            }
-
-            if (inputEvent.getB().main() && !inputEvent.getB().main().getPitch().getTone().equals(resolution.bass())) {
-                continue;
-            }
-
-            if (previousChord.getInversion() === 2 && this.previousPreviousOutputEvent()?.getChord()?.string() === chord.string()) {
-                continue;
-            }
 
             const defined = {
                 s: inputEvent.getS().main() !== undefined,
@@ -123,7 +113,6 @@ export default class Piece implements Printable {
             this.outputEvent().setA(inputEvent.getA());
             this.outputEvent().setT(inputEvent.getT());
             this.outputEvent().setB(inputEvent.getB());
-            this.outputEvent().setChord(chord);
 
             const target = {
                 a: this.previousOutputEvent()?.getA().at(-1).getPitch() ?? Pitch.parse("D4"),
@@ -135,6 +124,23 @@ export default class Piece implements Printable {
                 const options = resolution.bass().near(target.b);
                 const pitch = options.filter(tone => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= this.outputEvent().getS().main().getPitch().semitones() - 10)[0];
                 this.outputEvent().setB(pitch.group(this.outputEvent().duration()));
+            }
+
+            if (
+                resolution.excludes(inputEvent.getS().main()?.getPitch().getTone()) ||
+                resolution.excludes(inputEvent.getA().main()?.getPitch().getTone()) ||
+                resolution.excludes(inputEvent.getT().main()?.getPitch().getTone()) ||
+                resolution.excludes(inputEvent.getB().main()?.getPitch().getTone())
+            ) {
+                continue;
+            }
+
+            if (inputEvent.getB().main() && !inputEvent.getB().main().getPitch().getTone().equals(resolution.bass())) {
+                continue;
+            }
+
+            if (previousChord.getInversion() === 2 && this.previousPreviousOutputEvent()?.getChord()?.string() === chord.string()) {
+                continue;
             }
 
             const quotas = resolution.getSeventh() ? [1, 1, 1, 1] : [2, 1, 2, 0];
@@ -383,6 +389,15 @@ export default class Piece implements Printable {
 
     setTime(time: Time) {
         this.time = time;
+        return this;
+    }
+
+    getMaxTime() {
+        return this.maxTime;
+    }
+
+    setMaxTime(maxTime: Time) {
+        this.maxTime = maxTime;
         return this;
     }
 
