@@ -75,7 +75,7 @@ export default class Piece implements Printable {
                 throw "Failed to harmonise.";
             }
             if (this.getTime().bar > this.getMaxTime().bar) {
-                this.setMaxTime(this.getTime());
+                this.setMaxTime({ ...this.getTime() });
             } else if (this.getTime().bar === this.getMaxTime().bar) {
                 if (this.getTime().event >= this.getMaxTime().event) {
                     this.getMaxTime().event = this.getTime().event;
