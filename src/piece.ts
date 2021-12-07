@@ -160,8 +160,7 @@ export default class Piece implements Printable {
                 continue;
             }
 
-            // REJECT: S-B PARALLEL
-            if (this.checkParallel("s", "b")) {
+            if (quotas.some(quota => quota < 0)) {
                 continue;
             }
 
@@ -258,11 +257,9 @@ export default class Piece implements Printable {
                 return;
             }
 
-            // REJECT: NO GOOD REALISATION
             continue;
         }
 
-        // REVERT: NO GOOD PROGRESSIONS
         this.outputEvent().map = 0;
         if (--this.getTime().event < 0) {
             if (--this.getTime().bar >= 0) {
