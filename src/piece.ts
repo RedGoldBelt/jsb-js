@@ -406,8 +406,8 @@ export default class Piece implements Printable {
         return this.key;
     }
 
-    setKey(string: string) {
-        this.key = Key.parse(string);
+    setKey(key: Key) {
+        this.key = key;
         return this;
     }
 

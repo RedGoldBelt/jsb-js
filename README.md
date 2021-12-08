@@ -25,15 +25,13 @@ Importantly, JSB.js employs a heuristic algorithm, which is not based on machine
 
 ### Browser
 
-`<script type="module" src="https://unpkg.com/jsb-js"></script>`
-
-`import * as JSB from "jsb";`
+`import * as JSB from "https://unpkg.com/jsb-js";`
 
 ## Usage
 
 Example usage:
 
-`const gstq = new JSB.Piece("G major").load("[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]", "s").harmonise();`
+`const gstq = new JSB.Piece().setKey(JSB.Key.parse("G major")).load("[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]", "s").harmonise();`
 
 The key is written in the format `"<A|B|C|D|E|F|G><|#|b> <major|minor>"`, which is CASE-SENSITIVE.
 
@@ -54,21 +52,10 @@ Finally, you can annotate a note as being the final chord of a cadence (like a f
 
 `"[...|D5. C#/ B E|A4_.@ G#|A B C# C#|..."`
 
-To harmonise the piece, call the harmonise() method on it. You can optionally specify configuration options:
+To harmonise the piece, call the harmonise() method on it.
 
-`const myPiece = new JSB.Piece(...).load(...).harmonise({ dictionary: JSB.Dict.PRIMARY_AB, debug: true });`
+You can change the dictionary that is used.
 
-Configuration options default to JSB.Dict.FULL, false.
+`const myPiece = new JSB.Piece().setKey(...).load(...).setDictionary(JSB.Dict.PRIMARY_AB).harmonise();`
 
-Sample output:
-
-
-`new JSB.Piece("G major").load("[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]", "s").harmonise();`
-```
-[G4     G4     A4    |F#4    G4     A4    |B4     B4     C5    |B4     A4     G4    |A4     G4     F#4   |G4    ]
-[D4     E4     E4    |F#4    E4     D4    |D4     E4     E4    |G4     D4     D4    |E4     B3     C4    |D4    ]
-[B3     B3     C4    |B3     B3     A3    |G3     B3     A3    |G3     F#3    G3    |G3     G3     A3    |B3    ]
-[G3     E3     E3    |D3     E3     F#3   |G3     G3     A3    |D3     C3     B2    |C3     D3     D3    |G3    ]
-[I      vi     iic   |iiib   vi     Vb    |I      vib    ii    |Ic     V7d    Ib    |ii7b   Ic     V7    |I     ]
-```
 Copyright Jeremy Chen
