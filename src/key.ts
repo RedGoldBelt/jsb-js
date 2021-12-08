@@ -25,6 +25,30 @@ export default class Key {
         return top;
     }
 
+    accidentals() {
+        let accidentals = (2 * this.getTone().getLetter()) % 7 + 7 * this.getTone().getAccidental();
+        if (this.getTone().getLetter() === 3) {
+            accidentals -= 7;
+        }
+        if (!this.tonality) {
+            accidentals -= 3;
+        }
+        return accidentals;
+    }
+
+    signature() {
+        const accidentals = this.accidentals();
+        return [
+            Math.floor((accidentals + 5) / 7),
+            Math.floor((accidentals + 3) / 7),
+            Math.floor((accidentals + 1) / 7),
+            Math.floor((accidentals + 6) / 7),
+            Math.floor((accidentals + 4) / 7),
+            Math.floor((accidentals + 2) / 7),
+            Math.floor(accidentals / 7)
+        ];
+    }
+
     getTone() {
         return this.tone;
     }
