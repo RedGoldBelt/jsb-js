@@ -13,6 +13,7 @@
   "author": "Jeremy Chen",
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "README.md",
     "LICENSE.md",
