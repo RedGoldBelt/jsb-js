@@ -21,12 +21,11 @@
     "releases"
   ],
   "scripts": {
-    "build": "npm run compile && npx gulp build",
+    "build": "npm run compile && npx webpack",
     "compile": "tsc --project tsconfig.json"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.0",
     "typescript": "^4.5.2",
-    "webpack": "^5.65.0"
+    "webpack-cli": "^4.9.1"
   }
 }
