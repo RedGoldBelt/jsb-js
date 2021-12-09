@@ -13,11 +13,12 @@
   "author": "Jeremy Chen",
   "source": "dist/index.js",
   "main": "build/bundle.js",
+  "type": "module",
   "files": [
     "README.md",
     "LICENSE.md",
     "dist",
-    "build"
+    "releases"
   ],
   "scripts": {
     "build": "npm run compile && npx gulp build",
@@ -25,8 +26,10 @@
   },
   "devDependencies": {
     "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.1",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "gulp-uglify": "^3.0.2",
-    "typescript": "^4.5.2"
+    "gulp-umd": "^2.0.0",
+    "typescript": "^4.5.2",
+    "webpack-stream": "^7.0.0"
   }
 }
