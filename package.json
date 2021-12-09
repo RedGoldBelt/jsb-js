@@ -16,7 +16,8 @@
   "files": [
     "README.md",
     "LICENSE.md",
-    "dist"
+    "dist",
+    "build"
   ],
   "scripts": {
     "build": "npm run compile && npx gulp build",
