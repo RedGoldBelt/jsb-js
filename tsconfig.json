@@ -7,10 +7,12 @@
     "noImplicitReturns": true,
     "removeComments": true,
     "declaration": true,
+    "module": "System",
     "outDir": "./dist",
-    "target": "ES2017",
+    "outFile": "./releases/jsb.js",
+    "target": "es5",
     "baseUrl": "jsb-js",
-    "lib": ["ES2017"]
+    "lib": ["es2017"]
   },
   "include": ["./src/*.ts"]
 }
