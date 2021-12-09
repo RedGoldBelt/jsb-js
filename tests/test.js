@@ -1,4 +1,4 @@
-import * as JSB from "../dist/index.js";
+import JSB from "../dist/index.js";
 
 Object.defineProperty(String.prototype, 'print', {
     value() {

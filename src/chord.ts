@@ -2,9 +2,9 @@ import Key from "./key.js";
 import Numeral from "./numeral.js";
 import Resolution from "./resolution.js";
 import Tone from "./tone.js";
-import { Printable, Alteration, Inversion } from "./util.js";
+import Util from "./util.js";
 
-export default class Chord implements Printable {
+export default class Chord implements Util.Printable {
     private static INVERSIONS = ["a", "b", "c", "d"];
 
     private base;
@@ -12,7 +12,7 @@ export default class Chord implements Printable {
     private inversion;
     private relativeKey;
 
-    constructor(base: Numeral | null, alteration: Alteration, inversion: Inversion, relativeKey: Numeral) {
+    constructor(base: Numeral | null, alteration: Util.Alteration, inversion: Util.Inversion, relativeKey: Numeral) {
         this.base = base;
         this.alteration = alteration;
         this.inversion = inversion;
@@ -26,8 +26,8 @@ export default class Chord implements Printable {
         }
         return new Chord(
             Numeral.parse(result[1]),
-            result[4] as Alteration,
-            (result[5] ? Chord.INVERSIONS.indexOf(result[5]) : 0) as Inversion,
+            result[4] as Util.Alteration,
+            (result[5] ? Chord.INVERSIONS.indexOf(result[5]) : 0) as Util.Inversion,
             result[6] ? Numeral.parse(result[7]) : Numeral.parse("I")
         );
     }
@@ -79,7 +79,7 @@ export default class Chord implements Printable {
         return this.inversion;
     }
 
-    setInversion(inversion: Inversion) {
+    setInversion(inversion: Util.Inversion) {
         this.inversion = inversion;
         return this;
     }

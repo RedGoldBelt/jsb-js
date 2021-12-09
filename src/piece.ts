@@ -1,22 +1,22 @@
 import Chord from "./chord.js";
-import { FULL } from "./dictionary.js";
+import FULL from "./dictionary.js";
 import Event from "./event.js";
 import Group from "./group.js";
 import Key from "./key.js";
 import Numeral from "./numeral.js";
 import Pitch from "./pitch.js";
 import Tone from "./tone.js";
-import { Printable, Bar, Time, Part, Permutation, Inversion } from "./util.js";
+import Util from "./util.js";
 
-export default class Piece implements Printable {
-    private input: Bar[] = [];
-    private output: Bar[] = [];
-    private time: Time = { bar: 0, event: 0 };
-    private maxTime: Time = { bar: 0, event: 0 };
+export default class Piece implements Util.Printable {
+    private input: Util.Bar[] = [];
+    private output: Util.Bar[] = [];
+    private time: Util.Time = { bar: 0, event: 0 };
+    private maxTime: Util.Time = { bar: 0, event: 0 };
     private key = Key.parse("C major");
     private dictionary = FULL;
 
-    parse(string: string, part: Part) {
+    parse(string: string, part: Util.Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
 
         for (let bar = 0; bar < split.length; ++bar) {
@@ -101,7 +101,7 @@ export default class Piece implements Printable {
                 b: inputEvent.getB().main() !== undefined
             };
 
-            if ((["s", "a", "t", "b"] as Part[]).filter(part => defined[part]).map(part => inputEvent.getPart(part).duration()).some((duration, i, array) => duration !== array[0])) {
+            if ((["s", "a", "t", "b"] as Util.Part[]).filter(part => defined[part]).map(part => inputEvent.getPart(part).duration()).some((duration, i, array) => duration !== array[0])) {
                 throw "Not all parts have the same duration.";
             }
 
@@ -145,7 +145,7 @@ export default class Piece implements Printable {
 
             const quotas = resolution.getSeventh() ? [1, 1, 1, 1] : [2, 1, 2, 0];
 
-            for (const part of ["s", "a", "t", "b"] as Part[]) {
+            for (const part of ["s", "a", "t", "b"] as Util.Part[]) {
                 const array = [resolution.getRoot(), resolution.getThird(), resolution.getFifth(), resolution.getSeventh()].filter(tone => tone !== undefined) as Tone[];
                 const inversion = array.findIndex((tone: Tone) => tone.equals(this.outputEvent().getPart(part).main()?.getPitch().getTone()));
                 if (inversion !== -1) {
@@ -169,28 +169,28 @@ export default class Piece implements Printable {
                 continue;
             }
 
-            let permutations: Permutation[];
-            const ones = quotas.map((quota, inversion) => quota === 1 ? resolution.at(inversion as Inversion) : undefined).filter(tone => tone !== undefined) as Tone[];
+            let permutations: Util.Permutation[];
+            const ones = quotas.map((quota, inversion) => quota === 1 ? resolution.at(inversion as Util.Inversion) : undefined).filter(tone => tone !== undefined) as Tone[];
 
             let a: Pitch;
             let t: Pitch;
 
             if (!defined.a && !defined.t) {
-                let two = resolution.at(quotas.findIndex(quota => quota === 2) as Inversion);
+                let two = resolution.at(quotas.findIndex(quota => quota === 2) as Util.Inversion);
 
                 switch (ones.length as 1 | 2 | 3) {
                     case 1:
-                        const permutation1: Permutation = {
+                        const permutation1: Util.Permutation = {
                             a: a = ones[0].near(target.a)[0],
                             t: t = two.near(target.t)[0],
                             score: this.score(a, t)
                         };
-                        const permutation2: Permutation = {
+                        const permutation2: Util.Permutation = {
                             a: a = two.near(target.a)[0],
                             t: t = ones[0].near(target.t)[0],
                             score: this.score(a, t)
                         };
-                        const permutation3: Permutation = {
+                        const permutation3: Util.Permutation = {
                             a: a = two.near(target.a)[0],
                             t: t = two.near(target.t)[0],
                             score: this.score(a, t)
@@ -198,12 +198,12 @@ export default class Piece implements Printable {
                         permutations = [permutation1, permutation2, permutation3].sort((l, r) => l.score - r.score);
                         break;
                     case 2:
-                        const permutation4: Permutation = {
+                        const permutation4: Util.Permutation = {
                             a: a = ones[0].near(target.a)[0],
                             t: t = ones[1].near(target.t)[0],
                             score: this.score(a, t)
                         };
-                        const permutation5: Permutation = {
+                        const permutation5: Util.Permutation = {
                             a: a = ones[1].near(target.a)[0],
                             t: t = ones[0].near(target.t)[0],
                             score: this.score(a, t)
@@ -211,22 +211,22 @@ export default class Piece implements Printable {
                         permutations = [permutation4, permutation5].sort((l, r) => l.score - r.score);
                         break;
                     case 3:
-                        const permutation6: Permutation = {
+                        const permutation6: Util.Permutation = {
                             a: a = ones[0].near(target.a)[0],
                             t: t = ones[1].near(target.t)[0],
                             score: this.score(a, t)
                         };
-                        const permutation7: Permutation = {
+                        const permutation7: Util.Permutation = {
                             a: a = ones[1].near(target.a)[0],
                             t: t = ones[0].near(target.t)[0],
                             score: this.score(a, t)
                         };
-                        const permutation8: Permutation = {
+                        const permutation8: Util.Permutation = {
                             a: a = ones[1].near(target.a)[0],
                             t: t = ones[2].near(target.t)[0],
                             score: this.score(a, t)
                         };
-                        const permutation9: Permutation = {
+                        const permutation9: Util.Permutation = {
                             a: a = ones[2].near(target.a)[0],
                             t: t = ones[1].near(target.t)[0],
                             score: this.score(a, t)
@@ -351,7 +351,7 @@ export default class Piece implements Printable {
         return score;
     }
 
-    private checkParallel(upper: Part, lower: Part) {
+    private checkParallel(upper: Util.Part, lower: Util.Part) {
         const previousEvent = this.previousOutputEvent();
         if (previousEvent === undefined) {
             return false;
@@ -369,7 +369,7 @@ export default class Piece implements Printable {
         return this.input;
     }
 
-    setInput(input: Bar[]) {
+    setInput(input: Util.Bar[]) {
         this.input = input;
         return this;
     }
@@ -378,7 +378,7 @@ export default class Piece implements Printable {
         return this.output;
     }
 
-    setOutput(output: Bar[]) {
+    setOutput(output: Util.Bar[]) {
         this.output = output;
         return this;
     }
@@ -387,7 +387,7 @@ export default class Piece implements Printable {
         return this.time;
     }
 
-    setTime(time: Time) {
+    setTime(time: Util.Time) {
         this.time = time;
         return this;
     }
@@ -396,7 +396,7 @@ export default class Piece implements Printable {
         return this.maxTime;
     }
 
-    setMaxTime(maxTime: Time) {
+    setMaxTime(maxTime: Util.Time) {
         this.maxTime = maxTime;
         return this;
     }

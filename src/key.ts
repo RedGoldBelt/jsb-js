@@ -1,6 +1,7 @@
 import Tone from "./tone.js";
+import Util from "./util.js";
 
-export default class Key {
+export default class Key implements Util.Printable {
     private tone;
     private tonality;
 

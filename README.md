@@ -17,15 +17,9 @@ Importantly, JSB.js employs a heuristic algorithm, which is not based on machine
 
 ## Installation
 
-### node.js
-
 `npm install jsb-js`
 
-`const * as JSB = require("jsb";`
-
-### Browser
-
-`const * as JSB = require("https://unpkg.com/jsb-js";`
+`import JSB from "jsb-js";`
 
 ## Usage
 

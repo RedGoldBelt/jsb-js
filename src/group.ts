@@ -1,7 +1,7 @@
 import Note from "./note.js";
-import { Printable } from "./util.js";
+import Util from "./util.js";
 
-export default class Group implements Printable {
+export default class Group implements Util.Printable {
     private notes: Note[];
     private index: number;
 

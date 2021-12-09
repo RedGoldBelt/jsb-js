@@ -1,7 +1,7 @@
 import Pitch from "./pitch.js";
-import { Printable } from "./util.js";
+import Util from "./util.js";
 
-export default class Tone implements Printable {
+export default class Tone implements Util.Printable {
     static ACCIDENTALS = ["", "#", "x"];
     static {
         Tone.ACCIDENTALS[-2] = "bb";

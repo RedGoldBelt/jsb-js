@@ -1,7 +1,7 @@
 import Pitch from "./pitch.js";
-import { Printable } from "./util.js";
+import Util from "./util.js";
 
-export default class Note implements Printable{
+export default class Note implements Util.Printable{
     private pitch: Pitch;
     private duration: number;
 

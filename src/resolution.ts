@@ -1,14 +1,14 @@
 import Tone from "./tone.js";
-import { Printable, Inversion } from "./util.js";
+import Util from "./util.js";
 
-export default class Resolution implements Printable {
+export default class Resolution implements Util.Printable {
     private root;
     private third;
     private fifth;
     private seventh;
-    private inversion: Inversion;
+    private inversion: Util.Inversion;
 
-    constructor(root: Tone, third: Tone, fifth: Tone, seventh: Tone | undefined, inversion: Inversion) {
+    constructor(root: Tone, third: Tone, fifth: Tone, seventh: Tone | undefined, inversion: Util.Inversion) {
         this.root = root;
         this.third = third;
         this.fifth = fifth;
@@ -16,7 +16,7 @@ export default class Resolution implements Printable {
         this.inversion = inversion;
     }
 
-    at(inversion: Inversion) {
+    at(inversion: Util.Inversion) {
         switch (inversion) {
             case 0: return this.root;
             case 1: return this.third;
