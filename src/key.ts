@@ -1,4 +1,6 @@
-class Key {
+import Tone from "./tone.js";
+
+export default class Key {
     private tone;
     private tonality;
 

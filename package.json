@@ -24,7 +24,6 @@
     "compile": "tsc --project tsconfig.json"
   },
   "devDependencies": {
-    "@types/node": "^16.11.12",
     "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
     "gulp-uglify": "^3.0.2",

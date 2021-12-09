@@ -1,4 +1,14 @@
-class Piece implements Printable {
+import Chord from "./chord.js";
+import { FULL } from "./dictionary.js";
+import Event from "./event.js";
+import Group from "./group.js";
+import Key from "./key.js";
+import Numeral from "./numeral.js";
+import Pitch from "./pitch.js";
+import Tone from "./tone.js";
+import { Printable, Bar, Time, Part, Permutation, Inversion } from "./util.js";
+
+export default class Piece implements Printable {
     private input: Bar[] = [];
     private output: Bar[] = [];
     private time: Time = { bar: 0, event: 0 };

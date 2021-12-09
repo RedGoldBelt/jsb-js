@@ -1,15 +1,15 @@
-const gulp = require("gulp");
-const concat = require("gulp-concat");
-const uglify = require("gulp-uglify");
+import { task, src, dest } from "gulp";
+import concat from "gulp-concat";
+import uglify from "gulp-uglify";
 
-gulp.task("build", function () {
-    return gulp.src("./dist/*.js")
-        .pipe(concat("bundle.js"))
+task("build", function () {
+    return src("./dist/*.js")
+        .pipe(concat("jsb.js"))
         .pipe(uglify())
-        .pipe(gulp.dest("build/"));
+        .pipe(dest("build/"));
 });
 
-gulp.task("types", function () {
-    return gulp.src("./dist/*.d.ts")
-        .pipe(gulp.dest("types/"));
+task("types", function () {
+    return src("./dist/*.d.ts")
+        .pipe(dest("types/"));
 });

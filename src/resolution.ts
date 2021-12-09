@@ -1,4 +1,7 @@
-class Resolution implements Printable {
+import Tone from "./tone.js";
+import { Printable, Inversion } from "./util.js";
+
+export default class Resolution implements Printable {
     private root;
     private third;
     private fifth;

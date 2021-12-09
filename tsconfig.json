@@ -1,17 +1,16 @@
 {
-    "compileOnSave": true,
-    "compilerOptions": {
-      "strict": true,
-          "importHelpers": true,
-          "noUnusedLocals": false,
-      "noImplicitReturns": true,
-      "removeComments": true,
-      "declaration": true,
-      "outDir": "./dist",
-      "target": "ES2020",
-      "baseUrl": "jsb-js",
-      "lib": ["ES2015"]
-    },
-    "include": ["./src/**/*"]
-  }
-  
+  "compileOnSave": true,
+  "compilerOptions": {
+    "strict": true,
+    "importHelpers": true,
+    "noUnusedLocals": false,
+    "noImplicitReturns": true,
+    "removeComments": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "target": "ES2017",
+    "baseUrl": "jsb-js",
+    "lib": ["ES2017"]
+  },
+  "include": ["./src/*.ts"]
+}

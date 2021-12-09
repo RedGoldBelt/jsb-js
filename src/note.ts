@@ -1,4 +1,7 @@
-class Note implements Printable{
+import Pitch from "./pitch.js";
+import { Printable } from "./util.js";
+
+export default class Note implements Printable{
     private pitch: Pitch;
     private duration: number;
 
