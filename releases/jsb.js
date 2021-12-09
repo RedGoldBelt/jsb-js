@@ -1603,7 +1603,7 @@ var Util;
 /******/ 	__webpack_require__(93);
 /******/ 	__webpack_require__(237);
 /******/ 	var __webpack_exports__ = __webpack_require__(740);
-/******/ 	self.JSB = __webpack_exports__;
+/******/ 	window.JSB = __webpack_exports__;
 /******/ 	
 /******/ })()
 ;

@@ -12,7 +12,7 @@ const config = {
         filename: "jsb.js",
         library: {
             name: "JSB",
-            type: "global"
+            type: "window"
         }
     },
     optimization: {
