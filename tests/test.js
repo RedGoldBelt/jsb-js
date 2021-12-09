@@ -1,4 +1,4 @@
-import * as JSB from "../dist/index.js";
+const * as JSB = require("../dist/index.js";
 
 Object.defineProperty(String.prototype, 'print', {
     value() {

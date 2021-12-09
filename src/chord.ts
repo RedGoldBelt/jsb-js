@@ -1,10 +1,4 @@
-import Key from "./key.js";
-import Numeral from "./numeral.js";
-import Resolution from "./resolution.js";
-import Tone from "./tone.js";
-import { Printable, Alteration, Inversion } from "./util.js";
-
-export default class Chord implements Printable {
+class Chord implements Printable {
     private static INVERSIONS = ["a", "b", "c", "d"];
 
     private base;

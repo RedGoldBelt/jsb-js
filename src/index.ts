@@ -1,27 +1,19 @@
-import Chord from "./chord.js";
-import * as Dict from "./dictionary.js";
-import Event from "./event.js";
-import Group from "./group.js";
-import Key from "./key.js";
-import Note from "./note.js";
-import Numeral from "./numeral.js";
-import Piece from "./piece.js";
-import Pitch from "./pitch.js";
-import Resolution from "./resolution.js";
-import Tone from "./tone.js";
-import * as Util from "./util.js"
+const JSB: any = {};
 
-export {
-    Tone,
-    Chord,
-    Dict,
-    Event,
-    Group,
-    Key,
-    Note,
-    Numeral,
-    Piece,
-    Resolution,
-    Pitch,
-    Util
-}
+JSB.Tone = Tone;
+JSB.Chord = Chord;
+JSB.Dict.FULL = FULL;
+JSB.Dict.PRIMARY_A = PRIMARY_A;
+JSB.Dict.PRIMARY_AB = PRIMARY_AB;
+JSB.Dict.PRIMARY_ABC = PRIMARY_ABC;
+JSB.Event = Event;
+JSB.Group = Group;
+JSB.Key = Key;
+JSB.Note = Note;
+JSB.Numeral = Numeral;
+JSB.Piece = Piece;
+JSB.Resolution = Resolution;
+JSB.Pitch = Pitch;
+JSB.Printable = Printable;
+
+module.exports = JSB;

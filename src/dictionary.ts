@@ -1,4 +1,4 @@
-export const FULL: any = {
+const FULL: any = {
     COMMON_MAJOR: {
         start: ["I", "V", "IV", "ii", "vi", "iii"],
 
@@ -287,7 +287,7 @@ export const FULL: any = {
     }
 }
 
-export const PRIMARY_A: any = {
+const PRIMARY_A: any = {
     COMMON_MAJOR: {
         start: [
             "I",
@@ -331,7 +331,7 @@ export const PRIMARY_A: any = {
     }
 } // Complete
 
-export const PRIMARY_AB: any = {
+const PRIMARY_AB: any = {
     COMMON_MAJOR: {
         start: [
             "I", "Ib",
@@ -409,7 +409,7 @@ export const PRIMARY_AB: any = {
     },
 } // Complete
 
-export const PRIMARY_ABC: any = {
+const PRIMARY_ABC: any = {
     COMMON_MAJOR: {
         start: [
             "I", "Ib", "Ic",

@@ -1,25 +1,22 @@
-import EventGroup from "./event.js";
-import Pitch from "./pitch.js";
+type Alteration = "" | "7" | "o7";
 
-export type Alteration = "" | "7" | "o7";
+type Bar = Event[];
 
-export type Bar = EventGroup[];
+type Inversion = 0 | 1 | 2 | 3;
 
-export type Inversion = 0 | 1 | 2 | 3;
+type Part = "s" | "a" | "t" | "b";
 
-export type Part = "s" | "a" | "t" | "b";
-
-export interface Permutation {
+interface Permutation {
     a: Pitch;
     t: Pitch;
     score: number;
 }
 
-export interface Time {
+interface Time {
     bar: number;
     event: number;
 }
 
-export abstract class Printable {
+abstract class Printable {
     abstract string(): string;
 }

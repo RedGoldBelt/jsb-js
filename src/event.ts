@@ -1,8 +1,4 @@
-import Chord from "./chord.js";
-import Group from "./group.js";
-import { Part } from "./util.js";
-
-export default class Event {
+class Event {
     private s: Group;
     private a: Group;
     private t: Group;

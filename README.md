@@ -21,11 +21,11 @@ Importantly, JSB.js employs a heuristic algorithm, which is not based on machine
 
 `npm install jsb-js`
 
-`import * as JSB from "jsb";`
+`const * as JSB = require("jsb";`
 
 ### Browser
 
-`import * as JSB from "https://unpkg.com/jsb-js";`
+`const * as JSB = require("https://unpkg.com/jsb-js";`
 
 ## Usage
 
