@@ -62,17 +62,17 @@ export default class Chord implements Util.Printable {
         return new Resolution(key.degree(this.base.getDegree()).alterAccidental(this.base.getAccidental()), third, fifth, seventh, this.inversion);
     }
 
-    progression(dictionary: any) {
-        const SPECIFIC = dictionary["SPECIFIC_" + this.relativeKey.string()];
-        const SPECIFIC_OPTIONS = SPECIFIC?.[this.toStringStem()].map(Chord.parse) as Chord[];
-        const COMMON = this.relativeKey.getTonality() ? dictionary.COMMON_MAJOR : dictionary.COMMON_MINOR;
-        const COMMON_OPTIONS = COMMON[this.toStringStem()].map((string: string) => {
+    progression(dictionary: Util.Dictionary) {
+        const SPECIFIC = dictionary.SPECIFIC?.[this.relativeKey.string() as keyof typeof dictionary.SPECIFIC][this.toStringStem()] as string[];
+        const SPECIFIC_OPTIONS = SPECIFIC.map(Chord.parse);
+        const COMMON = (this.relativeKey.getTonality() ? dictionary.COMMON.MAJOR : dictionary.COMMON.MINOR)[this.toStringStem()] as string[];
+        const COMMON_OPTIONS = COMMON.map(string => {
             const chord = Chord.parse(string);
             chord.relativeKey = this.relativeKey;
             return chord;
-        }) as Chord[];
+        });
 
-        return SPECIFIC_OPTIONS ? SPECIFIC_OPTIONS.concat(COMMON_OPTIONS) : COMMON_OPTIONS;
+        return SPECIFIC_OPTIONS?.concat(COMMON_OPTIONS) ?? COMMON_OPTIONS;
     }
 
     getInversion() {

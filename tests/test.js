@@ -1,5 +1,7 @@
 import JSB from "../dist/index.js";
 
+console.log(JSB);
+
 Object.defineProperty(String.prototype, 'print', {
     value() {
         console.log(this.toString());

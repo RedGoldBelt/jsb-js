@@ -11,19 +11,19 @@ import Resolution from "./resolution.js";
 import Tone from "./tone.js";
 import Util from "./util.js";
 
-namespace JSB {
-    Tone
-    Chord
-    Dict
-    Event
-    Group
-    Key
-    Note
-    Numeral
-    Piece
-    Resolution
-    Pitch
+const JSB = {
+    Tone,
+    Chord,
+    Dict,
+    Event,
+    Group,
+    Key,
+    Note,
+    Numeral,
+    Piece,
+    Resolution,
+    Pitch,
     Util
-};
+}
 
 export default JSB;
