@@ -4,17 +4,22 @@ const {
     src,
     dest
 } = gulp;
-import umd from "gulp-umd";
 import webpack from "webpack-stream";
-import uglify from "gulp-uglify";
 
 const config = {
     mode: "production",
     output: {
-        filename: "jsb.js"
+        filename: "jsb.js",
+        library: {
+            name: "JSB",
+            type: "global"
+        }
+    },
+    optimization: {
+        minimize: false
     }
 };
 
 task("build", function () {
-    return src("./dist/*.js").pipe(umd()).pipe(uglify()).pipe(webpack(config)).pipe(dest("releases/"));
+    return src("./dist/*.js").pipe(webpack(config)).pipe(dest("releases/"));
 });
