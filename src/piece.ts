@@ -1,5 +1,5 @@
 import Chord from "./chord.js";
-import FULL from "./dictionary.js";
+import Dict from "./dictionary.js";
 import Event from "./event.js";
 import Group from "./group.js";
 import Key from "./key.js";
@@ -14,7 +14,7 @@ export default class Piece implements Util.Printable {
     private time: Util.Time = { bar: 0, event: 0 };
     private maxTime: Util.Time = { bar: 0, event: 0 };
     private key = Key.parse("C major");
-    private dictionary = FULL;
+    private dictionary = Dict.FULL;
 
     parse(string: string, part: Util.Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
@@ -414,7 +414,7 @@ export default class Piece implements Util.Printable {
         return this.dictionary;
     }
 
-    setDictionary(dictionary: any) {
+    setDictionary(dictionary: Util.Dictionary) {
         this.dictionary = dictionary;
         return this;
     }

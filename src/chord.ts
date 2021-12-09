@@ -64,7 +64,7 @@ export default class Chord implements Util.Printable {
 
     progression(dictionary: Util.Dictionary) {
         const SPECIFIC = dictionary.SPECIFIC?.[this.relativeKey.string() as keyof typeof dictionary.SPECIFIC][this.toStringStem()] as string[];
-        const SPECIFIC_OPTIONS = SPECIFIC.map(Chord.parse);
+        const SPECIFIC_OPTIONS = SPECIFIC?.map(Chord.parse);
         const COMMON = (this.relativeKey.getTonality() ? dictionary.COMMON.MAJOR : dictionary.COMMON.MINOR)[this.toStringStem()] as string[];
         const COMMON_OPTIONS = COMMON.map(string => {
             const chord = Chord.parse(string);
