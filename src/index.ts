@@ -11,7 +11,7 @@ import Resolution from "./resolution.js";
 import Tone from "./tone.js";
 import Util from "./util.js";
 
-const JSB = {
+export {
     Tone,
     Chord,
     Dict,
@@ -25,5 +25,3 @@ const JSB = {
     Pitch,
     Util
 }
-
-export default JSB;
