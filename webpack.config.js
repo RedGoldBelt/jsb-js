@@ -3,6 +3,7 @@ export default {
   mode: "production",
   output: {
     path: "C:/Users/jerem/Programming/Repositories/jsb-js/releases",
-    filename: "jsb.js"
+    filename: "jsb.js",
+    library: "JSB",
   }
 };
