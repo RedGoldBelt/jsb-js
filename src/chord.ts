@@ -63,9 +63,9 @@ export default class Chord implements Util.Printable {
     }
 
     progression(dictionary: Util.Dictionary) {
-        const SPECIFIC = (dictionary.SPECIFIC?.[this.relativeKey.string()]?.[this.toStringStem()] as string[]) ?? [];
+        const SPECIFIC = (dictionary.SPECIFIC?.[this.relativeKey.string()]?.[this.stringStem()] as string[]) ?? [];
         const SPECIFIC_OPTIONS = SPECIFIC?.map(Chord.parse);
-        const COMMON = ((this.relativeKey.getTonality() ? dictionary.COMMON.MAJOR : dictionary.COMMON.MINOR)?.[this.toStringStem()] as string[]) ?? [];
+        const COMMON = ((this.relativeKey.getTonality() ? dictionary.COMMON.MAJOR : dictionary.COMMON.MINOR)?.[this.stringStem()] as string[]) ?? [];
         const COMMON_OPTIONS = COMMON.map(string => {
             const chord = Chord.parse(string);
             chord.relativeKey = this.relativeKey;
@@ -73,6 +73,24 @@ export default class Chord implements Util.Printable {
         });
 
         return SPECIFIC_OPTIONS?.concat(COMMON_OPTIONS) ?? COMMON_OPTIONS;
+    }
+
+    getBase() {
+        return this.base;
+    }
+
+    setBase(base: Numeral) {
+        this.base = base;
+        return this;
+    }
+
+    getAlteration() {
+        return this.alteration;
+    }
+
+    setAlteration(alteration: Util.Alteration) {
+        this.alteration = alteration;
+        return this;
     }
 
     getInversion() {
@@ -84,7 +102,16 @@ export default class Chord implements Util.Printable {
         return this;
     }
 
-    toStringStem() {
+    getRelativeKey() {
+        return this.relativeKey;
+    }
+
+    setRelativeKey(relativeKey: Numeral) {
+        this.relativeKey = relativeKey;
+        return this;
+    }
+
+    stringStem() {
         if (this.base === undefined) {
             return "start";
         }
@@ -92,7 +119,7 @@ export default class Chord implements Util.Printable {
     }
 
     string() {
-        let string = this.toStringStem();
+        let string = this.stringStem();
         if (!(this.relativeKey.getDegree() === 0 && this.relativeKey.getAccidental() === 0)) {
             string += "/" + this.relativeKey.string();
         }

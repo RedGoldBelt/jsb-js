@@ -89,7 +89,7 @@ export default class Piece implements Util.Printable {
         this.getOutput()[this.time.bar] ??= [];
         this.getOutput()[this.time.bar][this.time.event] ??= new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), inputEvent.isCadence());
         const previousChord = this.previousOutputEvent()?.getChord() ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
-        const chordOptions = previousChord.progression(this.dictionary).filter(chord => !this.outputEvent().isCadence() || ["I", "i", "V"].includes(chord.toStringStem()));
+        const chordOptions = previousChord.progression(this.dictionary).filter(chord => !this.outputEvent().isCadence() || ["I", "i", "V"].includes(chord.stringStem()));
         for (; this.outputEvent().map < chordOptions.length; ++this.outputEvent().map) {
             const chord = chordOptions[this.outputEvent().map];
             const resolution = chord.resolve(this.key);
