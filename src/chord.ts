@@ -28,7 +28,7 @@ export default class Chord implements Util.Printable {
             Numeral.parse(result[1]),
             result[4] as Util.Alteration,
             (result[5] ? Chord.INVERSIONS.indexOf(result[5]) : 0) as Util.Inversion,
-            result[6] ? Numeral.parse(result[7]) : Numeral.parse("I")
+            Numeral.parse(result[7])
         );
     }
 

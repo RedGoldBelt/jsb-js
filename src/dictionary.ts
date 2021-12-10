@@ -1,7 +1,7 @@
 import Util from "./util";
 
 namespace Dict {
-    export const FULL: Util.Dictionary = {
+    export const _FULL: Util.Dictionary = {
         "COMMON": {
             "MAJOR": {
                 "start": ["I", "V", "IV", "ii", "vi", "iii"],
@@ -127,8 +127,7 @@ namespace Dict {
                 "viio7c": [],
                 "viio7d": []
             },
-            "ii": {},
-            "iii": {},
+
             "IV": {
                 "start": ["I", "V", "IV", "ii", "vi", "iii"],
                 "I": [],
@@ -207,14 +206,40 @@ namespace Dict {
                 "viio7b": [],
                 "viio7c": [],
                 "viio7d": []
+            }
+        }
+    }
+
+    export const FULL: Util.Dictionary = {
+        "COMMON": {
+            "MAJOR": {
+                "start": ["I"],
+                "I": ["Vb", "vi", "I", "IV", "iib", "V", "Ib", "viib"],
+                "Vb": ["I"],
+                "vi": ["Ib", "iib", "iii"],
+                "Ib": ["IV", "V", "ii", "vi"],
+                "IV": ["I", "viib", "iiib"],
+                "viib": ["Ib"],
+                "vii": ["I"],
+                "iib": ["V"],
+                "V": ["I", "V7", "Vb", "Ib"],
+                "iiib": ["ii7c"],
+                "ii7c": ["vii"],
+                "V7": ["I"],
+                "ii": ["vi"],
+                "iii": ["IV"]
             },
-            "vi": {},
-            "i": {},
-            "III": {},
-            "iv": {},
-            "v": {},
-            "VI": {},
-            "VII": {}
+            "MINOR": {}
+        },
+        "SPECIFIC": {
+            "I": {
+                "Ib": ["vii/V"],
+                "vi": ["V7b/V"]
+            },
+            "V": {
+                "I": ["I"],
+                "V7b": ["V"]
+            }
         }
     }
 
