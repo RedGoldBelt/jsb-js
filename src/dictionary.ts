@@ -1,7 +1,7 @@
 import Util from "./util";
 
 namespace Dict {
-    export const _FULL: Util.Dictionary = {
+    export const FULL: Util.Dictionary = {
         "COMMON": {
             "MAJOR": {
                 "start": ["I", "V", "IV", "ii", "vi", "iii"],
@@ -210,7 +210,7 @@ namespace Dict {
         }
     }
 
-    export const FULL: Util.Dictionary = {
+    export const __FULL: Util.Dictionary = {
         "COMMON": {
             "MAJOR": {
                 "start": ["I"],
