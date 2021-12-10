@@ -12,7 +12,7 @@ export default class Chord implements Util.Printable {
     private inversion;
     private relativeKey;
 
-    constructor(base: Numeral | null, alteration: Util.Alteration, inversion: Util.Inversion, relativeKey: Numeral) {
+    constructor(base: Numeral | undefined, alteration: Util.Alteration, inversion: Util.Inversion, relativeKey: Numeral) {
         this.base = base;
         this.alteration = alteration;
         this.inversion = inversion;
@@ -33,8 +33,8 @@ export default class Chord implements Util.Printable {
     }
 
     resolve(key: Key) {
-        if (this.base === null) {
-            throw "Cannot resolve chord with base 'null'";
+        if (this.base === undefined) {
+            throw "Cannot resolve null chord.";
         }
         if (this.relativeKey) {
             key = new Key(key.degree(this.relativeKey.getDegree()), this.relativeKey.getTonality());
@@ -63,9 +63,9 @@ export default class Chord implements Util.Printable {
     }
 
     progression(dictionary: Util.Dictionary) {
-        const SPECIFIC = dictionary.SPECIFIC?.[this.relativeKey.string() as keyof typeof dictionary.SPECIFIC][this.toStringStem()] as string[];
+        const SPECIFIC = (dictionary.SPECIFIC?.[this.relativeKey.string()]?.[this.toStringStem()] as string[]) ?? [];
         const SPECIFIC_OPTIONS = SPECIFIC?.map(Chord.parse);
-        const COMMON = (this.relativeKey.getTonality() ? dictionary.COMMON.MAJOR : dictionary.COMMON.MINOR)[this.toStringStem()] as string[];
+        const COMMON = ((this.relativeKey.getTonality() ? dictionary.COMMON.MAJOR : dictionary.COMMON.MINOR)?.[this.toStringStem()] as string[]) ?? [];
         const COMMON_OPTIONS = COMMON.map(string => {
             const chord = Chord.parse(string);
             chord.relativeKey = this.relativeKey;
@@ -85,7 +85,10 @@ export default class Chord implements Util.Printable {
     }
 
     toStringStem() {
-        return this.base ? this.base.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "") : "start";
+        if (this.base === undefined) {
+            return "start";
+        }
+        return this.base.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "");
     }
 
     string() {

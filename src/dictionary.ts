@@ -2,30 +2,12 @@ import Util from "./util";
 
 namespace Dict {
     export const FULL: Util.Dictionary = {
-        COMMON: {
-            MAJOR: {
-                start: ["I", "V", "IV", "ii", "vi", "iii"],
-
-                "I": [
-                    "viib",
-                    "iiic", "iiib", "iii",
-                    "vic", "vib", "vi",
-                    "ii7d", "ii7c", "ii7b", "ii7", "iic", "iib", "ii",
-                    "IVc", "IVb", "IV",
-                    "V7d", "V7c", "V7b", "V7", "Vc", "Vb", "V",
-                    "Ic", "Ib", "I"
-                ],
-                "Ib": [
-                    "IV",
-                    "ii7b", "ii7", "iib", "ii",
-                    "V7d", "V7c", "Vc",
-                    "vi",
-                    "Ic", "I"
-                ],
-                "Ic": [
-                    "V7", "V"
-                ],
-
+        "COMMON": {
+            "MAJOR": {
+                "start": ["I", "V", "IV", "ii", "vi", "iii"],
+                "I": ["viib", "iiic", "iiib", "iii", "vic", "vib", "vi", "ii7d", "ii7c", "ii7b", "ii7", "iic", "iib", "ii", "IVc", "IVb", "IV", "V7d", "V7c", "V7b", "V7", "Vc", "Vb", "V", "Ic", "Ib", "I"],
+                "Ib": ["IV", "ii7b", "ii7", "iib", "ii", "V7d", "V7c", "Vc", "vi", "Ic", "I"],
+                "Ic": ["V7", "V"],
                 "ii": ["Ic", "V", "vi", "iii", "IV"],
                 "iib": ["Ic", "V"],
                 "iic": ["iiib"],
@@ -33,175 +15,125 @@ namespace Dict {
                 "ii7b": ["Ic", "V"],
                 "ii7c": [],
                 "ii7d": ["Vb"],
-
                 "iii": ["viib", "vi", "IV", "ii", "vi"],
                 "iiib": ["vi"],
                 "iiic": [],
-
                 "IV": ["vi", "vii", "iii", "Ic", "I", "V", "ii"],
                 "IVb": ["vii", "Ic", "I"],
                 "IVc": [],
-
-                "V": [
-                    "iiic", "iiib", "iii",
-                    "vi",
-                    "iic", "iib", "ii",
-                    "IV",
-                    "Ic", "Ib", "I",
-                    "Vb"
-                ],
+                "V": ["iiic", "iiib", "iii", "vi", "iic", "iib", "ii", "IV", "Ic", "Ib", "I", "Vb"],
                 "Vb": ["vi", "I"],
                 "Vc": ["Ib", "I"],
                 "V7": ["vi", "I"],
                 "V7b": ["iiib", "iii", "vi", "I"],
                 "V7c": ["Ib", "I"],
                 "V7d": ["iii", "Ib"],
-
-                "vi": [
-                    "ii7d", "ii7c", "ii7b", "ii7", "iic", "iib", "ii",
-                    "iiic", "iiib", "iii",
-                    "Vb",
-                    "V",
-                    "IVb", "IV",
-                    "Ib"
-                ],
+                "vi": ["ii7d", "ii7c", "ii7b", "ii7", "iic", "iib", "ii", "iiic", "iiib", "iii", "Vb", "V", "IVb", "IV", "Ib"],
                 "vib": ["ii"],
                 "vic": [],
-
                 "vii": ["V/vi", "iii", "ii", "V"],
                 "viib": ["V/vi", "I", "iii"],
                 "viic": [],
-
                 "vii7": [],
                 "vii7b": [],
                 "vii7c": [],
                 "vii7d": [],
-
                 "viio7": [],
                 "viio7b": [],
                 "viio7c": [],
                 "viio7d": []
             },
-            MINOR: {
-                start: ["i", "iv", "V"],
-
-                "i": [
-                    "VI",
-                    "V7d", "V7c", "V7b", "V7", "Vc", "Vb", "V",
-                    "#viib"
-                ],
+            "MINOR": {
+                "start": ["i", "iv", "V"],
+                "i": ["VI", "V7d", "V7c", "V7b", "V7", "Vc", "Vb", "V", "#viib"],
                 "ib": ["i"],
                 "ic": [],
-
                 "bII": [],
                 "bIIb": [],
                 "bIIc": [],
-
                 "ii": [],
                 "iib": [],
                 "iic": [],
-
                 "ii7": [],
                 "ii7b": [],
                 "ii7c": [],
                 "ii7d": [],
-
                 "III": ["VI"],
                 "IIIb": [],
                 "IIIc": [],
-
                 "iv": ["III", "iv"],
                 "ivb": [],
                 "ivc": [],
-
                 "V": ["bIIb", "i"],
                 "Vb": ["i"],
                 "Vc": ["ib", "i"],
-
                 "V7": ["i"],
                 "V7b": ["i"],
                 "V7c": ["ib", "i"],
                 "V7d": ["ib"],
-
                 "VI": [],
                 "VIb": [],
                 "VIc": [],
-
                 "VII": [],
                 "VIIb": [],
                 "VIIc": [],
-
                 "#vii": [],
                 "#viib": ["ib", "i"],
                 "#viic": [],
-
                 "#viio7": ["i"],
                 "#viio7b": ["ib", "i"],
                 "#viio7c": ["ib"],
                 "#viio7d": ["ic"]
             }
         },
-        SPECIFIC: {
-            I: {
-                start: [],
-
+        "SPECIFIC": {
+            "I": {
+                "start": [],
                 "I": ["vii7/V"],
                 "Ib": [],
                 "Ic": [],
-
                 "ii": [],
                 "iib": [],
                 "iic": [],
-
                 "ii7": [],
                 "ii7b": [],
                 "ii7c": [],
                 "ii7d": [],
-
                 "iii": [],
                 "iiib": [],
                 "iiic": [],
-
                 "IV": [],
                 "IVb": [],
                 "IVc": [],
-
                 "V": ["vii/V", "V7d/V", "V7c/V", "V7b/V", "V7/V"],
                 "Vb": [],
                 "Vc": [],
-
                 "V7": [],
                 "V7b": [],
                 "V7c": [],
                 "V7d": [],
-
                 "vi": ["Vb/V"],
                 "vib": [],
                 "vic": [],
-
                 "vii": [],
                 "viib": [],
                 "viic": [],
-
                 "vii7": [],
                 "vii7b": [],
                 "vii7c": [],
                 "vii7d": [],
-
                 "viio7": [],
                 "viio7b": [],
                 "viio7c": [],
                 "viio7d": []
             },
-            II: {},
-            III: {},
-            IV: {
-                start: ["I", "V", "IV", "ii", "vi", "iii"],
-
+            "ii": {},
+            "iii": {},
+            "IV": {
+                "start": ["I", "V", "IV", "ii", "vi", "iii"],
                 "I": [],
                 "Ib": [],
                 "Ic": [],
-
                 "ii": [],
                 "iib": [],
                 "iic": [],
@@ -209,15 +141,12 @@ namespace Dict {
                 "ii7b": [],
                 "ii7c": [],
                 "ii7d": [],
-
                 "iii": [],
                 "iiib": [],
                 "iiic": [],
-
                 "IV": [],
                 "IVb": [],
                 "IVc": [],
-
                 "V": [],
                 "Vb": [],
                 "Vc": [],
@@ -225,83 +154,67 @@ namespace Dict {
                 "V7b": [],
                 "V7c": [],
                 "V7d": [],
-
                 "vi": [],
                 "vib": [],
                 "vic": [],
-
                 "vii": [],
                 "viib": [],
                 "viic": [],
-
                 "vii7": [],
                 "vii7b": [],
                 "vii7c": [],
                 "vii7d": [],
-
                 "viio7": [],
                 "viio7b": [],
                 "viio7c": [],
                 "viio7d": []
             },
-            V: {
+            "V": {
                 "I": ["V/I"],
                 "Ib": [],
                 "Ic": [],
-
                 "ii": [],
                 "iib": [],
                 "iic": [],
-
                 "ii7": [],
                 "ii7b": [],
                 "ii7c": [],
                 "ii7d": [],
-
                 "iii": [],
                 "iiib": [],
                 "iiic": [],
-
                 "IV": [],
                 "IVb": [],
                 "IVc": [],
-
                 "V": [],
                 "Vb": [],
                 "Vc": [],
-
                 "V7": [],
                 "V7b": ["Ic/I", "V/I"],
                 "V7c": ["Vb/I"],
                 "V7d": [],
-
                 "vi": [],
                 "vib": [],
                 "vic": [],
-
                 "vii": [],
                 "viib": [],
                 "viic": [],
-
                 "vii7": ["Ic/I", "V/I"],
                 "vii7b": [],
                 "vii7c": [],
                 "vii7d": [],
-
                 "viio7": [],
                 "viio7b": [],
                 "viio7c": [],
                 "viio7d": []
             },
-            VI: {},
-            VII: {},
-            i: {},
-            ii: {},
-            iii: {},
-            iv: {},
-            v: {},
-            vi: {},
-            vii: {}
+            "vi": {},
+            "i": {},
+            "III": {},
+            "iv": {},
+            "v": {},
+            "VI": {},
+            "VII": {}
         }
     }
 
