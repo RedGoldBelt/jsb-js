@@ -20,28 +20,34 @@ const p = {
         this.previous = this.chord;
         this.chord = Chord.parse(string);
         if (this.chord.getRelativeKey().string() === this.previous.getRelativeKey().string()) {
-            const buffer = this.previous.getRelativeKey().getTonality() ? this.DICT.COMMON.MAJOR : this.DICT.COMMON.MINOR;
+            const BUFFER = this.previous.getRelativeKey().getTonality() ? this.DICT.COMMON.MAJOR : this.DICT.COMMON.MINOR;
             const previous = this.previous.stringStem();
-            if (buffer[previous] === undefined) {
-                buffer[previous] = [];
+            if (BUFFER[previous] === undefined) {
+                BUFFER[previous] = [];
             }
             const progression = this.chord.stringStem();
-            if (!buffer[previous].includes(progression)) {
-                buffer[previous].push(progression);
+            const datum = BUFFER[previous].find(datum => datum[0] == progression);
+            if (datum === undefined) {
+                BUFFER[previous].push([progression, 1]);
+            } else {
+                ++datum[1];
             }
         } else {
-            const specific = this.DICT.SPECIFIC;
             const relativeKey = this.previous.getRelativeKey().string();
-            if (specific[relativeKey] === undefined) {
-                specific[relativeKey] = {};
+            let BUFFER = this.DICT.SPECIFIC;
+            if (BUFFER[relativeKey] === undefined) {
+                BUFFER[relativeKey] = {};
             }
             const previous = this.previous.stringStem();
-            if (specific[relativeKey][previous] === undefined) {
-                specific[relativeKey][previous] = [];
+            if (BUFFER[relativeKey][previous] === undefined) {
+                BUFFER[relativeKey][previous] = [];
             }
             const progression = this.chord.string();
-            if (!specific[relativeKey][previous].includes(progression)) {
-                specific[relativeKey][previous].push(progression);
+            const datum = BUFFER[relativeKey][previous].find(datum => datum[0] == progression);
+            if (datum === undefined) {
+                BUFFER[relativeKey][previous].push([progression, 1]);
+            } else {
+                ++datum[1];
             }
         }
     },
@@ -61,6 +67,20 @@ const p = {
                 this.register(symbol + this.relativeKey);
             }
         });
+    },
+
+    sort() {
+        for (const array in this.DICT.COMMON.MAJOR) {
+            this.DICT.COMMON.MAJOR[array] = this.DICT.COMMON.MAJOR[array].sort((l, r) => r[1] - l[1]).map(datum => datum[0]);
+        }
+        for (const array in this.DICT.COMMON.MINOR) {
+            this.DICT.COMMON.MINOR[array] = this.DICT.COMMON.MINOR[array].sort((l, r) => r[1] - l[1]).map(datum => datum[0]);
+        }
+        for (const relativeKey in this.DICT.SPECIFIC) {
+            for (const array in this.DICT.SPECIFIC[relativeKey]) {
+                this.DICT.SPECIFIC[relativeKey][array] = this.DICT.SPECIFIC[relativeKey][array].sort((l, r) => r[1] - l[1]).map(datum => datum[0]);
+            }
+        }
     }
 }
 
@@ -80,4 +100,6 @@ p.load("G minor", "i i iib iv7 V ib #viib i iv7 V i i /III vi Vb V I /i i ivb ii
 // BWV 7.7
 p.load("B minor", "iv iv III VI III i VI ii7b V i /v i iv VIb ib /iv ib #viib i V i i ivb iv VII /i VI ii7b V I /iv i ib /VI ii7 V7 I /i iv V i V i /III viib iii7 IV vii7c Ib /iv ii7d Vb i V i VI ic iv /VI viib I");
 
-fs.writeFile("./tests/data/output.json", JSON.stringify(p.DICT), e => 0);
+p.sort();
+
+fs.writeFile("./tests/output.json", JSON.stringify(p.DICT), e => 0);
