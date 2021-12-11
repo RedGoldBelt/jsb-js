@@ -52,6 +52,9 @@ const p = {
         this.relativeKey = this.key.getTonality() ? "/I" : "/i";
 
         symbols.split(" ").forEach(symbol => {
+            if (symbol === "|") {
+                return;
+            }
             if (symbol.startsWith("/")) {
                 this.relativeKey = symbol;
             } else {
@@ -63,7 +66,7 @@ const p = {
 
 p.init();
 // BWV 1.6
-p.load("F major", "I Vb I vi Ib IV I I IV viib Ib /V vii I iib V I /I I IV iiib ii7c vii I V V7 I Vb I V I Ib V Vb I Ib V Ib ii vi iib V I vi iii IV I viib Ib vi /V V7b /I V I");
+p.load("F major", "I Vb I vi Ib IV IVb I | I IV viib Ib /V V7b I ii7b V I | /I I IV iiib IV7b V7b I V Ic V7 I | Vb I | V I | I Ib V Vb I Ib V Ib ii vi iib V I | vi iii IV I viib Ib /V ii V7b I /I I");
 // BWV 2.6
 p.load("G minor", "V i #viib ib i Vb i V bIIb /v #viio7 /i V /v #viio7b /i V7b i V i i /v V i V ib Vc i ivb V i /III IV Ib vii7 I /i V ib iv V i i Vb i ivb /iv V7b /i iv i /v V7 ic V /i V");
 // BWV 3.6
