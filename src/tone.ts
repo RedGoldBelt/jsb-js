@@ -21,7 +21,7 @@ export default class Tone implements Util.Printable {
     static parse(string: string) {
         const result = string.match(/^([A-G])(bb|x|b|#|)$/);
         if (result === null) {
-            throw `Could not parse tone '${string}'`;
+            throw `Could not parse tone '${string}'.`;
         }
         return new Tone(Tone.LETTERS.indexOf(result[1]), Tone.ACCIDENTALS.indexOf(result[2]));
     }

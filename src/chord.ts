@@ -22,7 +22,7 @@ export default class Chord implements Util.Printable {
     static parse(string: string) {
         const result = string.match(/^((b|#|)(III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v))(o7|7|)([a-d])?(\/((b|#|)(III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v)))?$/);
         if (result === null) {
-            throw `Could not parse chord '${string}'`;
+            throw `Could not parse chord '${string}'.`;
         }
         return new Chord(
             Numeral.parse(result[1]),
