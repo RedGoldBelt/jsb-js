@@ -116,9 +116,7 @@ export default class Chord implements Util.Printable {
 
     string() {
         let string = this.stringStem();
-        if (!(this.relativeKey.getDegree() === 0 && this.relativeKey.getAccidental() === 0)) {
-            string += "/" + this.relativeKey.string();
-        }
+        string += "/" + this.relativeKey.string();
         return string;
     }
 }

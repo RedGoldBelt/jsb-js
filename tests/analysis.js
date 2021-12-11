@@ -9,7 +9,7 @@ const p = {
         this.dict = {
             start: {
                 major: [],
-                MINOR: []
+                minor: []
             },
             common: {
                 major: {},
@@ -22,33 +22,43 @@ const p = {
     register(string) {
         this.previous = this.chord;
         this.chord = Chord.parse(string);
+        if (this.previous.base === undefined) {
+            const buffer = this.dict.start[this.previous.getRelativeKey().getTonality() ? "major" : "minor"];
+            const progression = this.chord.string();
+            const datum = buffer.find(datum => datum[0] == progression);
+            if (datum === undefined) {
+                buffer.push([progression, 1])
+            } else {
+                ++datum[1];
+            }
+        }
         if (this.chord.getRelativeKey().string() === this.previous.getRelativeKey().string()) {
-            const BUFFER = this.previous.getRelativeKey().getTonality() ? this.DICT.COMMON.MAJOR : this.DICT.COMMON.MINOR;
+            const buffer = this.dict.common[this.previous.getRelativeKey().getTonality() ? "major" : "minor"];
             const previous = this.previous.stringStem();
-            if (BUFFER[previous] === undefined) {
-                BUFFER[previous] = [];
+            if (buffer[previous] === undefined) {
+                buffer[previous] = [];
             }
             const progression = this.chord.stringStem();
-            const datum = BUFFER[previous].find(datum => datum[0] == progression);
+            const datum = buffer[previous].find(datum => datum[0] == progression);
             if (datum === undefined) {
-                BUFFER[previous].push([progression, 1]);
+                buffer[previous].push([progression, 1]);
             } else {
                 ++datum[1];
             }
         } else {
             const relativeKey = this.previous.getRelativeKey().string();
-            let BUFFER = this.DICT.SPECIFIC;
-            if (BUFFER[relativeKey] === undefined) {
-                BUFFER[relativeKey] = {};
+            let buffer = this.dict.specific;
+            if (buffer[relativeKey] === undefined) {
+                buffer[relativeKey] = {};
             }
             const previous = this.previous.stringStem();
-            if (BUFFER[relativeKey][previous] === undefined) {
-                BUFFER[relativeKey][previous] = [];
+            if (buffer[relativeKey][previous] === undefined) {
+                buffer[relativeKey][previous] = [];
             }
             const progression = this.chord.string();
-            const datum = BUFFER[relativeKey][previous].find(datum => datum[0] == progression);
+            const datum = buffer[relativeKey][previous].find(datum => datum[0] == progression);
             if (datum === undefined) {
-                BUFFER[relativeKey][previous].push([progression, 1]);
+                buffer[relativeKey][previous].push([progression, 1]);
             } else {
                 ++datum[1];
             }
@@ -68,15 +78,17 @@ const p = {
     },
 
     sort() {
-        for (const array in this.DICT.COMMON.MAJOR) {
-            this.DICT.COMMON.MAJOR[array] = this.DICT.COMMON.MAJOR[array].sort((l, r) => r[1] - l[1]).map(datum => datum[0]);
+        this.dict.start.major = this.dict.start.major.sort((l, r) => r[1] - l[1]).map(datum => datum[0]);
+        this.dict.start.minor = this.dict.start.minor.sort((l, r) => r[1] - l[1]).map(datum => datum[0]);
+        for (const array in this.dict.common.major) {
+            this.dict.common.major[array] = this.dict.common.major[array].sort((l, r) => r[1] - l[1]).map(datum => datum[0]);
         }
-        for (const array in this.DICT.COMMON.MINOR) {
-            this.DICT.COMMON.MINOR[array] = this.DICT.COMMON.MINOR[array].sort((l, r) => r[1] - l[1]).map(datum => datum[0]);
+        for (const array in this.dict.common.minor) {
+            this.dict.common.minor[array] = this.dict.common.minor[array].sort((l, r) => r[1] - l[1]).map(datum => datum[0]);
         }
-        for (const relativeKey in this.DICT.SPECIFIC) {
-            for (const array in this.DICT.SPECIFIC[relativeKey]) {
-                this.DICT.SPECIFIC[relativeKey][array] = this.DICT.SPECIFIC[relativeKey][array].sort((l, r) => r[1] - l[1]).map(datum => datum[0]);
+        for (const relativeKey in this.dict.specific) {
+            for (const array in this.dict.specific[relativeKey]) {
+                this.dict.specific[relativeKey][array] = this.dict.specific[relativeKey][array].sort((l, r) => r[1] - l[1]).map(datum => datum[0]);
             }
         }
     }
@@ -115,7 +127,7 @@ p.load(
 // BWV 4.8
 p.load(
     false,
-    "/i i /v V ib Vc i V7b i V I", // First chord considered in i or v?
+    "/v iv V ib Vc i V7b i V I", // First chord considered in i or v?
     "/i V i /III Vb I /i V7c i ii7b V i i ivb iv i /III V I /i III I #viib /v IV Vb i V i /VII viib I IV IVb I /i i V7 VI III V7b i VI ii7b V I"
 );
 // BWV 5.7
@@ -136,4 +148,4 @@ p.load(
 
 p.sort();
 
-fs.writeFile("./tests/output.json", JSON.stringify(p.DICT), e => 0);
+fs.writeFile("./tests/data.json", JSON.stringify(p.dict), e => 0);
