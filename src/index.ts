@@ -11,7 +11,7 @@ import Resolution from "./resolution.js";
 import Tone from "./tone.js";
 import Util from "./util.js";
 
-const Version = "1.7.12"
+const Version = "1.7.13";
 
 export {
     Tone,
