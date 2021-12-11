@@ -1,48 +1,52 @@
 {
+    "START": {
+
+    },
     "COMMON": {
         "MAJOR": {
             "start": ["I"],
-            "I": ["Vb", "I", "V", "vi", "IV", "Ib", "ii7b", "viib", "V7c", "V7"],
+            "I": ["Vb", "I", "vi", "IV", "V", "Ib", "ii7b", "viib", "V7c", "ii", "V7"],
             "Vb": ["I", "V"],
-            "vi": ["Vb", "Ib", "iib", "iii", "ii7b", "ii"],
-            "Ib": ["V", "IV", "ii", "vii7", "viib", "ii7b", "I"],
-            "IV": ["IVb", "viib", "iiib", "I", "Ib", "vi", "vii7c"],
+            "vi": ["Ib", "iib", "iii", "ii7b", "Vb", "ii"],
+            "Ib": ["IV", "V", "ii", "viib", "ii7b", "I"],
+            "IV": ["IVb", "vii7c", "viib", "iiib", "I", "Ib"],
             "IVb": ["I"],
             "viib": ["I", "Ib", "iii7"],
             "V7b": ["I", "V7"],
             "ii7b": ["V", "Ic"],
-            "V": ["I", "vi", "Ic", "Vb", "Ib", "V7d"],
+            "V": ["I", "Ib", "Ic", "Vb", "V"],
             "iiib": ["IV7b"],
             "IV7b": ["V7b"],
             "Ic": ["V", "V7"],
             "V7": ["I", "Ib", "Ic"],
-            "ii": ["vi", "V7b", "Ib", "viib"],
+            "ii": ["V7b", "vi", "V", "Ib", "viib"],
             "iib": ["V"],
             "iii": ["IV"],
             "vii7": ["I"],
-            "V7d": ["Ib"],
             "V7c": ["Ib"],
+            "vii7c": ["I", "Ib"],
             "ii7": ["V7"],
-            "iii7": ["IV"],
-            "vii7c": ["Ib"]
+            "iii7": ["IV"]
         },
         "MINOR": {
             "start": ["i", "V", "iv"],
             "V": ["i", "ib", "I", "bIIb", "V7d", "V", "V7", "VI"],
             "i": ["V", "i", "ivb", "VI", "iv", "#viib", "Vb", "iib", "V7b", "ii7b", "V7", "iv7", "ib"],
             "#viib": ["i", "ib"],
-            "ib": ["#viib", "Vc", "i", "iv", "V"],
+            "ib": ["#viib", "Vc", "i", "iv", "V7b", "V"],
             "Vb": ["i", "I", "V"],
+            "#viio7": ["I"],
+            "I": ["#viio7b", "#viib"],
             "V7b": ["i"],
             "Vc": ["i"],
             "ivb": ["iv", "V", "iic"],
-            "iv": ["V", "i", "#viib", "iv", "III", "VIb", "VII"],
+            "ii7c": ["V"],
+            "iv": ["V", "V7", "i", "#viib", "iv", "III", "VIb", "VII"],
             "V7": ["VI", "ic", "I"],
             "ic": ["V", "iv"],
             "V7c": ["i"],
             "ii7b": ["V"],
             "III": ["I", "V7b", "VI", "i"],
-            "I": ["#viib"],
             "IV": ["Vb"],
             "VI": ["ii7b", "III", "iv", "iv7", "ic"],
             "V7d": ["ib"],
@@ -56,8 +60,9 @@
     "SPECIFIC": {
         "I": {
             "Ib": ["V7b/V", "ii/V"],
-            "vi": ["V/V", "V7b/V"],
-            "I": ["Vb/vi"]
+            "IV": ["ii/V"],
+            "I": ["Vb/vi"],
+            "V": ["ii/V"]
         },
         "V": {
             "I": ["I", "V"],
@@ -65,27 +70,28 @@
         },
         "i": {
             "bIIb": ["#viio7/v"],
-            "V": ["#viio7b/v"],
-            "i": ["V/v", "Vb/III", "V7/v", "V/III", "V7/III", "V7b/VII", "vi/III", "i/v", "viib/III"],
-            "ivb": ["V7b/iv", "vi/III"],
+            "i": ["Vb/III", "Vb/v", "ib/iv", "V/v", "V/III", "V7/III", "V7b/VII", "vi/III", "i/v", "viib/III"],
             "#viib": ["IV/v"],
+            "ivb": ["vi/III"],
             "I": ["i/iv"]
         },
         "v": {
-            "#viio7": ["V"],
             "#viio7b": ["V7b"],
-            "i": ["IV/III", "viib/VII"],
-            "V": ["V"],
+            "V": ["iii/III"],
             "I": ["V"],
+            "i": ["viib/VII"],
             "ib": ["ib/iv"]
         },
         "III": {
-            "I": ["V", "V7c", "III", "Vb", "V7", "i"],
-            "V": ["Vb"],
-            "Ib": ["ii7d/iv"]
+            "Ib": ["vii7/VII", "ii7d/iv"],
+            "I": ["V7c", "III", "Vb", "V7", "i", "V"],
+            "V": ["Vb"]
+        },
+        "VII": {
+            "I": ["ii7c", "i", "V7/III"]
         },
         "iv": {
-            "V7b": ["iv"],
+            "i": ["iv/v"],
             "VII": ["VI"],
             "ib": ["ii7/VI"],
             "iv": ["viib/VI"]
@@ -94,10 +100,7 @@
             "I": ["#viib/ii"]
         },
         "ii": {
-            "#viib": ["ii"]
-        },
-        "VII": {
-            "I": ["i", "V7/III"]
+            "i": ["Ib"]
         },
         "VI": {
             "I": ["iv"]

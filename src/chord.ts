@@ -28,7 +28,7 @@ export default class Chord implements Util.Printable {
             Numeral.parse(result[1]),
             result[4] as Util.Alteration,
             (result[5] ? Chord.INVERSIONS.indexOf(result[5]) : 0) as Util.Inversion,
-            Numeral.parse(result[7])
+            Numeral.parse(result[6] ? result[7] : "I")
         );
     }
 
@@ -63,16 +63,15 @@ export default class Chord implements Util.Printable {
     }
 
     progression(dictionary: Util.Dictionary) {
-        const SPECIFIC = (dictionary.SPECIFIC?.[this.relativeKey.string()]?.[this.stringStem()] as string[]) ?? [];
-        const SPECIFIC_OPTIONS = SPECIFIC?.map(Chord.parse);
-        const COMMON = ((this.relativeKey.getTonality() ? dictionary.COMMON.MAJOR : dictionary.COMMON.MINOR)?.[this.stringStem()] as string[]) ?? [];
-        const COMMON_OPTIONS = COMMON.map(string => {
-            const chord = Chord.parse(string);
-            chord.relativeKey = this.relativeKey;
-            return chord;
-        });
+        if (this.base === undefined) {
+            return dictionary.start[this.relativeKey.getTonality() ? "major" : "minor"].map(Chord.parse);
+        }
+        const specific = dictionary.specific?.[this.relativeKey.string()]?.[this.stringStem()] as string[];
+        const specificOptions = specific?.map(Chord.parse) ?? [];
+        const common = dictionary.common[this.relativeKey.getTonality() ? "major" : "minor"][this.stringStem()] as string[];
+        const commonOptions = common?.map(string => Chord.parse(string).setRelativeKey(this.relativeKey)) ?? [];
 
-        return SPECIFIC_OPTIONS?.concat(COMMON_OPTIONS) ?? COMMON_OPTIONS;
+        return specificOptions?.concat(commonOptions) ?? commonOptions;
     }
 
     getBase() {
@@ -112,10 +111,7 @@ export default class Chord implements Util.Printable {
     }
 
     stringStem() {
-        if (this.base === undefined) {
-            return "start";
-        }
-        return this.base.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "");
+        return this.base?.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "");
     }
 
     string() {
