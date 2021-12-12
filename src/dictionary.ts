@@ -70,8 +70,8 @@ namespace Dict {
 
     export const PRIMARY_A: Util.Dictionary = {
         start: {
-            major: ["I", "IV", "V"],
-            minor: ["i", "iv", "V"]
+            major: ["I/I", "IV/I", "V/I"],
+            minor: ["i/i", "iv/i", "V/i"]
         },
         common: {
             major: {
@@ -89,8 +89,8 @@ namespace Dict {
 
     export const PRIMARY_AB: Util.Dictionary = {
         start: {
-            major: ["I", "Ib", "IVb", "IV", "V", "Vb"],
-            minor: ["i", "ib", "ivb", "iv", "V", "Vb"]
+            major: ["I/I", "Ib/I", "IVb/I", "IV/I", "V/I", "Vb/I"],
+            minor: ["i/i", "ib/i", "ivb/i", "iv/i", "V/i", "Vb/i"]
         },
         common: {
             major: {
@@ -114,7 +114,7 @@ namespace Dict {
 
     export const PRIMARY_ABC: Util.Dictionary = {
         start: {
-            major: ["I", "Ib", "Ic", "IVc", "IVb", "IV", "V", "Vb", "Vc"],
+            major: ["I/I", "Ib/I", "Ic/I", "IVc/I", "IVb/I", "IV/I", "V/I", "Vb/I", "Vc/I"],
             minor: []
         },
         common: {

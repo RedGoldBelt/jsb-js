@@ -118,7 +118,6 @@ export default class Piece implements Util.Printable {
             event.setS(cacheEvent.getS()).setA(cacheEvent.getA()).setT(cacheEvent.getT()).setB(cacheEvent.getB());
             const chord = chordOptions[event.map++];
             const resolution = chord.resolve(this.key);
-            console.log(chord.string(), this.getTime());
 
             const target = new Parts<Pitch>(
                 previousEvent?.getS().at(-1).getPitch() ?? Pitch.parse("Gb4"),
@@ -128,7 +127,6 @@ export default class Piece implements Util.Printable {
             );
 
             if (!event.fits(resolution)) {
-                console.log("unfit");
                 continue;
             }
 
@@ -157,7 +155,7 @@ export default class Piece implements Util.Printable {
             if (resolution.getSeventh() === undefined) {
                 if (quotas[0] === 0) {
                     quotas[2] = 1;
-                    if (quotas[2] === 0) {
+                    if (quotas[1] === 0) {
                         continue;
                     }
                 }
