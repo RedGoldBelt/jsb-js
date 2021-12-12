@@ -23,29 +23,29 @@ export default class Parts<T> {
     }
 
     getA() {
-        return this.s;
+        return this.a;
     }
 
-    setA(s: T) {
-        this.s = s;
+    setA(a: T) {
+        this.a = a;
         return this;
     }
 
     getT() {
-        return this.s;
+        return this.t;
     }
 
-    setT(s: T) {
-        this.s = s;
+    setT(t: T) {
+        this.t = t;
         return this;
     }
 
     getB() {
-        return this.s;
+        return this.b;
     }
 
-    setB(s: T) {
-        this.s = s;
+    setB(b: T) {
+        this.b = b;
         return this;
     }
 
