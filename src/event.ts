@@ -7,7 +7,7 @@ import Util from "./util.js";
 export default class Event extends Parts<Group> implements Util.Printable {
     private chord: Chord | undefined;
     private type;
-    private cache: Util.Cache;
+    private cache: Parts<boolean>;
     map = 0;
 
     constructor(s: Group, a: Group, t: Group, b: Group, type: Util.EventType) {
@@ -67,12 +67,12 @@ export default class Event extends Parts<Group> implements Util.Printable {
         return this.cache;
     }
 
-    setCache(cache: Util.Cache) {
+    setCache(cache: Parts<boolean>) {
         this.cache = cache;
     }
 
     cacheState() {
-        this.setCache(new Util.Cache(
+        this.setCache(new Parts<boolean>(
             this.getS().main() !== undefined,
             this.getA().main() !== undefined,
             this.getT().main() !== undefined,

@@ -95,9 +95,7 @@ const p = {
     }
 }
 
-// TO DO: CHECK IF ALL CHORDS ARE POSSIBLE TO HARMONISE, ETC.
-// MAKE ALL PERMUTATIONS OF INVERSION POSSIBLE
-// FLOWCHART!!!!!!!! //////////////////////////////////////////////////////////////
+// FLOWCHART?
 
 p.init();
 

@@ -4,6 +4,7 @@ import Event from "./event.js";
 import Group from "./group.js";
 import Key from "./key.js";
 import Numeral from "./numeral.js";
+import Parts from "./parts.js";
 import Permutation from "./permutation.js";
 import Pitch from "./pitch.js";
 import Tone from "./tone.js";
@@ -100,7 +101,6 @@ export default class Piece implements Util.Printable {
         const event = this.event();
         const previousChord = previousEvent?.getChord() ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
 
-        // Compute chord options and filter if the event type is "cadence" or "end"
         let chordOptions = previousChord.progression(this.dictionary);
         if (event.getType() === "cadence") {
             chordOptions.filter(chord => ["I", "i", "V", "Vb", "VI", "vi"].includes(chord.stringStem()));
@@ -108,13 +108,12 @@ export default class Piece implements Util.Printable {
             chordOptions.filter(chord => ["I/I", "I/i", "V/I"].includes(chord.string()))
         }
 
-        // Try each chord
         while (event.map < chordOptions.length) {
             const chord = chordOptions[event.map++];
             const resolution = chord.resolve(this.key);
             event.clear();
 
-            const target = new Util.Target(
+            const target = new Parts<Pitch>(
                 previousEvent?.getS().at(-1).getPitch() ?? Pitch.parse("Gb4"),
                 previousEvent?.getA().at(-1).getPitch() ?? Pitch.parse("D4"),
                 previousEvent?.getT().at(-1).getPitch() ?? Pitch.parse("B3"),
