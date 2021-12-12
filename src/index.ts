@@ -14,7 +14,7 @@ import Resolution from "./resolution.js";
 import Tone from "./tone.js";
 import Util from "./util.js";
 
-const Version = "1.8.8";
+const Version = "1.8.9";
 
 export {
     Chord,
