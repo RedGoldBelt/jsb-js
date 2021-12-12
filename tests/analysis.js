@@ -1,6 +1,7 @@
 import fs from "fs";
 import {
     Chord,
+    Key,
     Numeral
 } from "../dist/index.js";
 
@@ -94,18 +95,18 @@ const p = {
     }
 }
 
-p.init();
+p.init(); // TO DO: MAKE A VALIDATION METHOD WHICH CHECKS IF ALL EVENTS HAVE VALID DURATIONS, IF ALL CHORDS ARE POSSIBLE TO HARMONISE, ETC.
 
 // BWV 1.6
 p.load(
     true,
     "/I I Vb I vi Ib IV IVb I",
     "I IV viib Ib /V V7b I ii7b V I",
-    "/I I IV iiib IV7b V7b I V Ic V7 I",
+    "/I I IV ii7b iiib IV7b V7b I V Ic V7 I",
     "Vb I",
     "V I",
-    "I Ib V Vb I Ib V Ib ii vi iib V I",
-    "vi iii IV I viib Ib /V ii V7b I /I I"
+    "I Ib I V Vb V I Ib I V Ib ii vi iib V I",
+    "vi iii IV I viib iii7 vi /V V7b I /I I"
 );
 // BWV 2.6
 p.load(
@@ -127,13 +128,22 @@ p.load(
 // BWV 4.8
 p.load(
     false,
-    "/v iv V ib Vc i V7b i V I", // First chord considered in i or v?
-    "/i V i /III Vb I /i V7c i ii7b V i i ivb iv i /III V I /i III I #viib /v IV Vb i V i /VII viib I IV IVb I /i i V7 VI III V7b i VI ii7b V I"
+    "/v iv V ib Vc i V7b i V I",
+    "/i V i /III Vb I /i V7c i ii7b V i",
+    "i i ivb iv #viio7c i /III Vb I",
+    "/i III I #viib /v IV Vb i V i",
+    "/VII viib I IV IVb I /i i V7 VI",
+    "III V7b i VI ii7b V I"
 );
 // BWV 5.7
 p.load(
     false,
-    "/i i iv #viib i iv V V7d ib #viib i iib V V i /III V7 Ib I ii7b V /i Vb V i /III Vb I vi ii7b V I I Vb I /i Vb i /VII V7b V7 I /III V7 I /i V7 VI iv V V7 I"
+    "/i i iv #viib i iv V", // A minor chord in G minor? Implement 'o' and '+' chord modifiers again and make iio/i and viio/I the norm?
+    "V7d ib #viib i iib V",
+    "V i /III V7 Ib I ii7b V /i Vb",
+    "V i /III Vb I vi ii7b V I",
+    "I Vb I /i Vb i /VII V7b V7 I",
+    "/III V7 I /i V7 VI iv V V7 I"
 );
 // BWV 6.6
 p.load(
