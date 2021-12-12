@@ -90,7 +90,6 @@ export default class Piece implements Util.Printable {
                 if (!event.validate()) {
                     throw "Not all parts have the same duration.";
                 }
-                event.reset();
             }
         }
         return this;
@@ -233,7 +232,7 @@ export default class Piece implements Util.Printable {
             }
             continue;
         }
-        event.reset();
+        event.reset().map = 0;
         this.decrementTime();
     }
 

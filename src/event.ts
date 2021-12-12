@@ -39,7 +39,6 @@ export default class Event extends Parts<Group> implements Util.Printable {
                 this.set(part, Group.empty());
             }
         }
-        this.map = 0;
         return this;
     }
 
