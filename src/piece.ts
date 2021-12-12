@@ -71,7 +71,7 @@ export default class Piece implements Util.Printable {
     }
 
     harmonise() {
-        this.validate().setMaxTime({ barIndex: 0, eventIndex: 0 }).setTime({ barIndex: 0, eventIndex: 0 });
+        this.initialize().setMaxTime({ barIndex: 0, eventIndex: 0 }).setTime({ barIndex: 0, eventIndex: 0 });
         while (this.getTime().barIndex < this.getBars().length) {
             if (this.getTime().barIndex < 0) {
                 throw "Failed to harmonise.";
@@ -81,7 +81,7 @@ export default class Piece implements Util.Printable {
         return this;
     }
 
-    private validate() {
+    private initialize() {
         for (let bar = 0; bar < this.getBars().length; ++bar) {
             for (const event of this.getBars()[bar]) {
                 if (!event.getS().main()) {
@@ -90,6 +90,7 @@ export default class Piece implements Util.Printable {
                 if (!event.validate()) {
                     throw "Not all parts have the same duration.";
                 }
+                event.reset();
             }
         }
         return this;
@@ -110,7 +111,7 @@ export default class Piece implements Util.Printable {
         while (event.map < chordOptions.length) {
             const chord = chordOptions[event.map++];
             const resolution = chord.resolve(this.key);
-            event.clear();
+            event.reset();
 
             const target = new Parts<Pitch>(
                 previousEvent?.getS().at(-1).getPitch() ?? Pitch.parse("Gb4"),
@@ -232,7 +233,7 @@ export default class Piece implements Util.Printable {
             }
             continue;
         }
-        event.clear().map = 0;
+        event.reset();
         this.decrementTime();
     }
 

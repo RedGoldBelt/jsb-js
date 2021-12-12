@@ -33,12 +33,13 @@ export default class Event extends Parts<Group> implements Util.Printable {
         return true;
     }
 
-    clear() {
+    reset() {
         for (const part of Util.PARTS) {
             if (!this.getCache().get(part)) {
                 this.set(part, Group.empty());
             }
         }
+        this.map = 0;
         return this;
     }
 
