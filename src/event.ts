@@ -4,7 +4,7 @@ import Resolution from "./resolution.js";
 import Parts from "./parts.js";
 import Util from "./util.js";
 
-export default class Event extends Parts<Group> implements Util.Printable {
+export default class Event extends Parts<Group> {
     private chord: Chord | undefined;
     private type;
     private cache: Parts<boolean>;
@@ -78,9 +78,5 @@ export default class Event extends Parts<Group> implements Util.Printable {
             this.getT().main() !== undefined,
             this.getB().main() !== undefined
         ));
-    }
-
-    string() {
-        return `{${this.getS().string()}} {${this.getA().string()}} {${this.getT().string()}} {${this.getB().string()}}`;
     }
 }

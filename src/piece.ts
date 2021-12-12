@@ -127,6 +127,7 @@ export default class Piece implements Util.Printable {
 
 
             if (!event.fits(resolution)) {
+                event.clear();
                 continue;
             }
 
@@ -134,11 +135,15 @@ export default class Piece implements Util.Printable {
                 const options = resolution.bass().near(target.getB());
                 const pitch = options.filter(tone => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= event.getS().main().getPitch().semitones() - 10)[0];
                 event.setB(pitch.group(event.duration()));
-            } else if (!event.getB().main().getPitch().getTone().equals(resolution.bass())) {
+            }
+
+            if (event.getCache().getB() && !event.getB().main().getPitch().getTone().equals(resolution.bass())) {
+                event.clear();
                 continue;
             }
 
             if (previousChord.getInversion() === 2 && this.previousPreviousEvent()?.getChord()?.string() === chord.string()) {
+                event.clear();
                 continue;
             }
 
@@ -156,6 +161,7 @@ export default class Piece implements Util.Printable {
                 if (quotas[0] === 0) {
                     quotas[2] = 1;
                     if (quotas[2] === 0) {
+                        event.clear();
                         continue;
                     }
                 }
@@ -165,6 +171,7 @@ export default class Piece implements Util.Printable {
             }
 
             if (quotas.some(quota => quota < 0)) {
+                event.clear();
                 continue;
             }
 
@@ -174,9 +181,9 @@ export default class Piece implements Util.Printable {
             const s = event.getS().main().getPitch();
             const b = event.getB().main().getPitch();
 
-
             if (!event.getCache().getA() && !event.getCache().getT()) {
                 let two = resolution.get(quotas.findIndex(quota => quota === 2) as Util.Inversion);
+
                 switch (ones.length as 1 | 2 | 3) {
                     case 1:
                         const permutation1 = new Permutation(s, ones[0].near(target.getA())[0], two.near(target.getT())[0], b);
@@ -217,6 +224,7 @@ export default class Piece implements Util.Printable {
 
             for (const permutation of permutations) {
                 if (permutation.getScore() === Infinity) {
+                    event.clear();
                     continue;
                 }
 
@@ -229,6 +237,7 @@ export default class Piece implements Util.Printable {
                     this.checkParallel(event, previousEvent, "a", "t") ||
                     this.checkParallel(event, previousEvent, "a", "b") ||
                     this.checkParallel(event, previousEvent, "t", "b")) {
+                    event.clear();
                     continue;
                 }
 
@@ -236,10 +245,15 @@ export default class Piece implements Util.Printable {
                 this.incrementTime();
                 return;
             }
+            event.clear();
             continue;
         }
         event.reset().map = 0;
         this.decrementTime();
+        if (this.getTime().barIndex >= 0) {
+            ++event.map;
+        }
+        return;
     }
 
     private checkParallel(event: Event, previousEvent: Event | undefined, upper: Util.Part, lower: Util.Part) {
