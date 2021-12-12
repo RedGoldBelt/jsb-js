@@ -11,6 +11,7 @@ import Tone from "./tone.js";
 import Util from "./util.js";
 
 export default class Piece implements Util.Printable {
+    private cache: Util.Bar[] = [];
     private bars: Util.Bar[] = [];
     private time: Util.Time = { barIndex: 0, eventIndex: 0 };
     private maxTime: Util.Time = { barIndex: 0, eventIndex: 0 };
@@ -82,16 +83,21 @@ export default class Piece implements Util.Printable {
     }
 
     private initialize() {
-        for (let bar = 0; bar < this.getBars().length; ++bar) {
-            for (const event of this.getBars()[bar]) {
+        const cache = [];
+        for (const bar of this.getBars()) {
+            const cacheBar: Util.Bar = [];
+            for (const event of bar) {
                 if (!event.getS().main()) {
                     throw "Soprano line is not defined.";
                 }
                 if (!event.validate()) {
                     throw "Not all parts have the same duration.";
                 }
+                cacheBar.push(new Event(event.getS(), event.getA(), event.getT(), event.getB(), event.getType()));
             }
+            cache.push(cacheBar);
         }
+        this.setCache(cache);
         return this;
     }
 
@@ -247,6 +253,15 @@ export default class Piece implements Util.Printable {
         const previousInterval = (previousUpper - previousLower) % 12;
         const interval = (currentUpper - currentLower) % 12;
         return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && previousUpper !== currentUpper && previousLower !== currentLower;
+    }
+
+    getCache() {
+        return this.cache;
+    }
+
+    setCache(cache: Util.Bar[]) {
+        this.cache = cache;
+        return this;
     }
 
     getBars() {
