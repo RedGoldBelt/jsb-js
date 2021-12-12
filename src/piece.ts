@@ -21,7 +21,7 @@ export default class Piece implements Util.Printable {
     parse(string: string, part: Util.Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
         split.forEach((bar, barIndex) => {
-            this.getBars()[barIndex] ??= [];
+            this.getCache()[barIndex] ??= [];
             bar.forEach((event, eventIndex) => {
                 let type: Util.EventType;
                 switch (event.charAt(event.length - 1)) {
@@ -32,8 +32,8 @@ export default class Piece implements Util.Printable {
                 if (type !== "normal") {
                     event = event.slice(0, -1);
                 }
-                this.getBars()[barIndex][eventIndex] ??= Event.empty(type);
-                this.getBars()[barIndex][eventIndex].set(part, Group.parse(event)).getCache().set(part, true);
+                this.getCache()[barIndex][eventIndex] ??= Event.empty(type);
+                this.getCache()[barIndex][eventIndex].set(part, Group.parse(event)).getCache().set(part, true);
             });
         });
         return this;
@@ -83,21 +83,21 @@ export default class Piece implements Util.Printable {
     }
 
     private initialize() {
-        const cache = [];
-        for (const bar of this.getBars()) {
-            const cacheBar: Util.Bar = [];
-            for (const event of bar) {
-                if (!event.getS().main()) {
+        const bars = [];
+        for (const cacheBar of this.getCache()) {
+            const bar: Util.Bar = [];
+            for (const cacheEvent of cacheBar) {
+                if (!cacheEvent.getS().main()) {
                     throw "Soprano line is not defined.";
                 }
-                if (!event.validate()) {
+                if (!cacheEvent.validate()) {
                     throw "Not all parts have the same duration.";
                 }
-                cacheBar.push(new Event(event.getS(), event.getA(), event.getT(), event.getB(), event.getType()));
+                bar.push(new Event(cacheEvent.getS(), cacheEvent.getA(), cacheEvent.getT(), cacheEvent.getB(), cacheEvent.getType()));
             }
-            cache.push(cacheBar);
+            bars.push(bar);
         }
-        this.setCache(cache);
+        this.setBars(bars);
         return this;
     }
 
