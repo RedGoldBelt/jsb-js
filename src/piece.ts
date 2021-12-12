@@ -23,11 +23,11 @@ export default class Piece implements Util.Printable {
             this.getInput()[bar] ??= [];
 
             for (let event = 0; event < split[bar].length; ++event) {
-                const cadence = split[bar][event].endsWith("@");
-                if (cadence) {
+                const isCadence = split[bar][event].endsWith("@");
+                if (isCadence) {
                     split[bar][event] = split[bar][event].slice(0, -1);
                 }
-                this.getInput()[bar][event] ??= new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), cadence);
+                this.getInput()[bar][event] ??= Event.empty(isCadence);
                 this.getInput()[bar][event][part] = Group.parse(split[bar][event]);
             }
         }
@@ -35,7 +35,7 @@ export default class Piece implements Util.Printable {
     }
 
     private previousPreviousOutputEvent() {
-        let { bar, event } = this.time;
+        let { bar, event } = this.getTime();
         if (--event < 0) {
             if (--bar < 0) {
                 return undefined;
@@ -52,7 +52,7 @@ export default class Piece implements Util.Printable {
     }
 
     private previousOutputEvent() {
-        let { bar, event } = this.time;
+        let { bar, event } = this.getTime();
         if (--event < 0) {
             if (--bar < 0) {
                 return undefined;
@@ -67,18 +67,28 @@ export default class Piece implements Util.Printable {
     }
 
     harmonise() {
-        this.setOutput([]);
-        this.setMaxTime({ bar: 0, event: 0 });
-        for (this.setTime({ bar: 0, event: 0 }); this.getTime().bar !== this.getInput().length; this.step()) {
+        this.initialize().setTime({ bar: 0, event: 0 });
+        while (this.getTime().bar < this.getInput().length) {
             if (this.getTime().bar < 0) {
                 throw "Failed to harmonise.";
             }
-            if (this.getTime().bar > this.getMaxTime().bar) {
-                this.setMaxTime({ bar: this.getTime().bar, event: this.getTime().event });
-            } else if (this.getTime().bar === this.getMaxTime().bar) {
-                if (this.getTime().event >= this.getMaxTime().event) {
-                    this.getMaxTime().event = this.getTime().event;
+            this.calculateMaxTime().step();
+        }
+        return this;
+    }
+
+    private initialize() {
+        this.setMaxTime({ bar: 0, event: 0 }).setOutput([]);
+        for (let barIndex = 0; barIndex < this.getInput().length; ++barIndex) {
+            this.getOutput()[barIndex] = [];
+            for (const inputEvent of this.getInput()[barIndex]) {
+                if (!inputEvent.getS().main()) {
+                    throw "Soprano line is not defined.";
                 }
+                if (!inputEvent.valid()) {
+                    throw "Not all parts have the same duration.";
+                }
+                this.getOutput()[barIndex].push(Event.empty(inputEvent.isCadence()));
             }
         }
         return this;
@@ -86,8 +96,6 @@ export default class Piece implements Util.Printable {
 
     private step() {
         const inputEvent = this.getInput()[this.getTime().bar][this.getTime().event];
-        this.getOutput()[this.time.bar] ??= [];
-        this.getOutput()[this.time.bar][this.time.event] ??= new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), inputEvent.isCadence());
         const previousChord = this.previousOutputEvent()?.getChord() ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
         const chordOptions = previousChord.progression(this.dictionary).filter(chord => !this.outputEvent().isCadence() || ["I", "i", "V"].includes(chord.stringStem()));
         for (; this.outputEvent().map < chordOptions.length; ++this.outputEvent().map) {
@@ -101,20 +109,13 @@ export default class Piece implements Util.Printable {
                 b: inputEvent.getB().main() !== undefined
             };
 
-            if ((["s", "a", "t", "b"] as Util.Part[]).filter(part => defined[part]).map(part => inputEvent.getPart(part).duration()).some((duration, i, array) => duration !== array[0])) {
-                throw "Not all parts have the same duration.";
-            }
-
-            if (!defined.s) {
-                throw "Soprano line is not defined.";
-            }
-
             this.outputEvent().setS(inputEvent.getS());
             this.outputEvent().setA(inputEvent.getA());
             this.outputEvent().setT(inputEvent.getT());
             this.outputEvent().setB(inputEvent.getB());
 
             const target = {
+                s: this.previousOutputEvent()?.getS().at(-1).getPitch() ?? Pitch.parse("Gb"),
                 a: this.previousOutputEvent()?.getA().at(-1).getPitch() ?? Pitch.parse("D4"),
                 t: this.previousOutputEvent()?.getT().at(-1).getPitch() ?? Pitch.parse("B3"),
                 b: this.previousOutputEvent()?.getB().at(-1).getPitch() ?? Pitch.parse("Eb3")
@@ -135,7 +136,7 @@ export default class Piece implements Util.Printable {
                 continue;
             }
 
-            if (inputEvent.getB().main() && !inputEvent.getB().main().getPitch().getTone().equals(resolution.bass())) {
+            if (defined.b && !inputEvent.getB().main().getPitch().getTone().equals(resolution.bass())) {
                 continue;
             }
 
@@ -145,8 +146,8 @@ export default class Piece implements Util.Printable {
 
             const quotas = resolution.getSeventh() ? [1, 1, 1, 1] : [2, 1, 2, 0];
 
-            for (const part of ["s", "a", "t", "b"] as Util.Part[]) {
-                const array = [resolution.getRoot(), resolution.getThird(), resolution.getFifth(), resolution.getSeventh()].filter(tone => tone !== undefined) as Tone[];
+            for (const part of Util.PARTS) {
+                const array = [resolution.getRoot(), resolution.getThird(), resolution.getFifth(), resolution.getSeventh()].filter(tone => tone) as Tone[];
                 const inversion = array.findIndex((tone: Tone) => tone.equals(this.outputEvent().getPart(part).main()?.getPitch().getTone()));
                 if (inversion !== -1) {
                     --quotas[inversion];
@@ -299,22 +300,13 @@ export default class Piece implements Util.Printable {
                 }
 
                 this.outputEvent().setChord(chord);
-                if (++this.getTime().event === this.getInput()[this.getTime().bar].length) {
-                    this.getTime().event = 0;
-                    ++this.getTime().bar;
-                }
+                this.incrementTime();
                 return;
             }
-
             continue;
         }
-
         this.outputEvent().map = 0;
-        if (--this.getTime().event < 0) {
-            if (--this.getTime().bar >= 0) {
-                this.getTime().event = this.getInput()[this.getTime().bar].length - 1;
-            }
-        }
+        this.decrementTime();
         if (this.getTime().bar >= 0) {
             ++this.outputEvent().map;
         }
@@ -392,12 +384,36 @@ export default class Piece implements Util.Printable {
         return this;
     }
 
+    decrementTime() {
+        if (--this.getTime().event < 0) {
+            this.getTime().event = this.getInput()[--this.getTime().bar]?.length - 1;
+        }
+        return this;
+    }
+
+    incrementTime() {
+        if (++this.getTime().event >= this.getInput()[this.getTime().bar].length) {
+            ++this.getTime().bar;
+            this.getTime().event = 0;
+        }
+        return this;
+    }
+
     getMaxTime() {
         return this.maxTime;
     }
 
     setMaxTime(maxTime: Util.Time) {
         this.maxTime = maxTime;
+        return this;
+    }
+
+    calculateMaxTime() {
+        if (this.getTime().bar > this.getMaxTime().bar) {
+            this.setMaxTime({ ...this.getTime() });
+        } else if (this.getTime().bar === this.getMaxTime().bar && this.getTime().event >= this.getMaxTime().event) {
+            this.getMaxTime().event = this.getTime().event;
+        }
         return this;
     }
 
