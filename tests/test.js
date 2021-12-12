@@ -26,5 +26,5 @@ const BWV_1_6_ext = "C5_ A4_|C5_ A4_|A4 A4 G4 G4|A4 A4 G4 A4|Bb4 A4 G4 G4|F4_ F5
 const BWV_1_6 = new Piece().setKey(Key.parse("F major")).parse("[F4|C5 A4 F4 C5|D5_ C5 C5|D5 E5 F5/ F5/ E5|D5 D5 C5 A5|D5 C5 Bb4 A4|G4_ F4_]", "s");
 const BWV_X_6_SB = new Piece().setKey(Key.parse("A major")).parse("[A4|A4 A4 (F#4/,G#4/) A4|(B4/,A4/) G#4 F#4_;|G#4 A4 B4 E4/ F#4/|(G#4/,A4/) F#4 E4;]", "s").parse("[A3|A2 C#3 D3 F#3|D#3 E3 B2_;|G#2 F#2 E2 G#2/ A2/|B2 B2 E3;]", "b");
 
-GOD_SAVE_THE_QUEEN;
+GOD_SAVE_THE_QUEEN.harmonise().string().print();
 BWV_X_6_SB.harmonise().string().print();
