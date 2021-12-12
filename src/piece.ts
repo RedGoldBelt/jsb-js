@@ -115,7 +115,7 @@ export default class Piece implements Util.Printable {
             this.outputEvent().setB(inputEvent.getB());
 
             const target = {
-                s: this.previousOutputEvent()?.getS().at(-1).getPitch() ?? Pitch.parse("Gb"),
+                s: this.previousOutputEvent()?.getS().at(-1).getPitch() ?? Pitch.parse("Gb4"),
                 a: this.previousOutputEvent()?.getA().at(-1).getPitch() ?? Pitch.parse("D4"),
                 t: this.previousOutputEvent()?.getT().at(-1).getPitch() ?? Pitch.parse("B3"),
                 b: this.previousOutputEvent()?.getB().at(-1).getPitch() ?? Pitch.parse("Eb3")

@@ -24,7 +24,7 @@ export default class Event {
     }
 
     valid() {
-        return Util.PARTS.filter(part => this.getPart(part).main()).map(part => this.getPart(part).duration()).some((duration, i, array) => duration !== array[0]);
+        return Util.PARTS.filter(part => this.getPart(part).main()).map(part => this.getPart(part).duration()).every((duration, i, array) => duration === array[0]);
     }
 
     getS() {
