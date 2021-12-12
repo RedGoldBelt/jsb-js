@@ -32,7 +32,7 @@ export default class Piece implements Util.Printable {
                     event = event.slice(0, -1);
                 }
                 this.getBars()[barIndex][eventIndex] ??= Event.empty(type);
-                this.getBars()[barIndex][eventIndex].set(part, Group.parse(event));
+                this.getBars()[barIndex][eventIndex].set(part, Group.parse(event)).getCache().set(part, true);
             });
         });
         return this;
@@ -90,7 +90,6 @@ export default class Piece implements Util.Printable {
                 if (!event.validate()) {
                     throw "Not all parts have the same duration.";
                 }
-                event.cacheState();
             }
         }
         return this;
