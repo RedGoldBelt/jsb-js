@@ -26,7 +26,7 @@ export default class Event extends Parts<Group> {
 
     fits(resolution: Resolution) {
         for (const part of Util.PARTS) {
-            if (this.getCache()[part] && !resolution.includes(this.get(part).main().getPitch().getTone())) {
+            if (this.getCache().get(part) && !resolution.includes(this.get(part).main().getPitch().getTone())) {
                 return false;
             }
         }
@@ -35,7 +35,7 @@ export default class Event extends Parts<Group> {
 
     clear() {
         for (const part of Util.PARTS) {
-            if (!this.getCache()[part]) {
+            if (!this.getCache().get(part)) {
                 this.set(part, Group.empty());
             }
         }

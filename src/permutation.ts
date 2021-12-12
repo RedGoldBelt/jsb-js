@@ -1,8 +1,8 @@
 import Event from "./event.js";
 import Pitch from "./pitch.js";
-import Tetrad from "./parts.js";
+import Parts from "./parts.js";
 
-export class Permutation extends Tetrad<Pitch> {
+export default class Permutation extends Parts<Pitch> {
     private score = 0;
 
     calculateScore(previousEvent: Event | undefined) {

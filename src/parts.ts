@@ -1,6 +1,6 @@
 import Util from "./util";
 
-export default class Tetrad<T> {
+export default class Parts<T> {
     private s: T;
     private a: T;
     private t: T;

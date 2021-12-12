@@ -4,7 +4,7 @@ import Event from "./event.js";
 import Group from "./group.js";
 import Key from "./key.js";
 import Numeral from "./numeral.js";
-import { Permutation } from "./permutation.js";
+import Permutation from "./permutation.js";
 import Pitch from "./pitch.js";
 import Tone from "./tone.js";
 import Util from "./util.js";

@@ -1,10 +1,10 @@
 import Event from "./event.js";
 import Pitch from "./pitch.js";
-import Tetrad from "./parts.js";
+import Parts from "./parts.js";
 
 namespace Util {
     export type Bar = Event[];
-    export class Cache extends Tetrad<boolean> {};
+    export class Cache extends Parts<boolean> {};
     export interface Dictionary {
         start: {
             major: string[];
@@ -35,10 +35,10 @@ namespace Util {
         parallelFifths: boolean;
         parallelOctaves: boolean;
         augmentedSecondInterval: boolean;
-        tessitura : Tetrad<Tessitura>;
+        tessitura : Parts<Tessitura>;
     }
 
-    export class Target extends Tetrad<Pitch> {}
+    export class Target extends Parts<Pitch> {}
 
     export interface Tessitura {
         min: number;

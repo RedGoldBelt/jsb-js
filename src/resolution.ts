@@ -15,7 +15,7 @@ export default class Resolution extends Inversions<Tone> implements Util.Printab
     }
 
     includes(tone: Tone) {
-        return this.getRoot().equals(tone) || this.getThird().equals(tone) || this.getFifth().equals(tone) || this.getSeventh()?.equals(tone);
+        return this.getRoot().equals(tone) || this.getThird().equals(tone) || this.getFifth().equals(tone) || !!this.getSeventh()?.equals(tone);
     }
 
     string() {
