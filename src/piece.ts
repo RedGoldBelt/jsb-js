@@ -9,67 +9,69 @@ import Tone from "./tone.js";
 import Util from "./util.js";
 
 export default class Piece implements Util.Printable {
-    private input: Util.Bar[] = [];
-    private output: Util.Bar[] = [];
-    private time: Util.Time = { bar: 0, event: 0 };
-    private maxTime: Util.Time = { bar: 0, event: 0 };
+    private bars: Util.Bar[] = [];
+    private time: Util.Time = { barIndex: 0, eventIndex: 0 };
+    private maxTime: Util.Time = { barIndex: 0, eventIndex: 0 };
     private key = Key.parse("C major");
     private dictionary = Dict.FULL;
 
     parse(string: string, part: Util.Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
-
-        for (let bar = 0; bar < split.length; ++bar) {
-            this.getInput()[bar] ??= [];
-
-            for (let event = 0; event < split[bar].length; ++event) {
-                const isCadence = split[bar][event].endsWith("@");
-                if (isCadence) {
-                    split[bar][event] = split[bar][event].slice(0, -1);
+        split.forEach((bar, barIndex) => {
+            this.getBars()[barIndex] ??= [];
+            bar.forEach((event, eventIndex) => {
+                let type: Util.EventType;
+                switch (event.charAt(event.length - 1)) {
+                    case ";": type = "cadence"; break;
+                    case ":": type = "end"; break;
+                    default: type = "normal"; break;
                 }
-                this.getInput()[bar][event] ??= Event.empty(isCadence);
-                this.getInput()[bar][event][part] = Group.parse(split[bar][event]);
-            }
-        }
+                if (type !== "normal") {
+                    event = event.slice(0, -1);
+                }
+                this.getBars()[barIndex][eventIndex] ??= Event.empty(type);
+                this.getBars()[barIndex][eventIndex].setPart(part, Group.parse(event));
+            });
+        });
         return this;
     }
 
-    private previousPreviousOutputEvent() {
-        let { bar, event } = this.getTime();
+    private previousPreviousEvent() {
+        let { barIndex: bar, eventIndex: event } = this.getTime();
         if (--event < 0) {
             if (--bar < 0) {
                 return undefined;
             }
-            event = this.getOutput()[bar].length - 1;
+            event = this.getBars()[bar].length - 1;
         }
         if (--event < 0) {
             if (--bar < 0) {
                 return undefined;
             }
-            event = this.getOutput()[bar].length - 1;
+            event = this.getBars()[bar].length - 1;
         }
-        return this.getOutput()[bar][event];
+        return this.getBars()[bar][event];
     }
 
-    private previousOutputEvent() {
-        let { bar, event } = this.getTime();
+    private previousEvent() {
+        let { barIndex: bar, eventIndex: event } = this.getTime();
         if (--event < 0) {
             if (--bar < 0) {
                 return undefined;
             }
-            event = this.getOutput()[bar].length - 1;
+            event = this.getBars()[bar].length - 1;
         }
-        return this.getOutput()[bar][event];
+        return this.getBars()[bar][event];
     }
 
-    private outputEvent() {
-        return this.getOutput()[this.getTime().bar][this.getTime().event];
+    private event() {
+        return this.getBars()[this.getTime().barIndex][this.getTime().eventIndex];
     }
 
     harmonise() {
-        this.initialize().setTime({ bar: 0, event: 0 });
-        while (this.getTime().bar < this.getInput().length) {
-            if (this.getTime().bar < 0) {
+        this.validate().setMaxTime({ barIndex: 0, eventIndex: 0 }).setTime({ barIndex: 0, eventIndex: 0 });
+        while (this.getTime().barIndex < this.getBars().length) {
+            if (this.getTime().barIndex < 0) {
                 throw "Failed to harmonise.";
             }
             this.calculateMaxTime().step();
@@ -77,70 +79,63 @@ export default class Piece implements Util.Printable {
         return this;
     }
 
-    private initialize() {
-        this.setMaxTime({ bar: 0, event: 0 }).setOutput([]);
-        for (let barIndex = 0; barIndex < this.getInput().length; ++barIndex) {
-            this.getOutput()[barIndex] = [];
-            for (const inputEvent of this.getInput()[barIndex]) {
-                if (!inputEvent.getS().main()) {
+    private validate() {
+        for (let bar = 0; bar < this.getBars().length; ++bar) {
+            for (const event of this.getBars()[bar]) {
+                if (!event.getS().main()) {
                     throw "Soprano line is not defined.";
                 }
-                if (!inputEvent.valid()) {
+                if (!event.validate()) {
                     throw "Not all parts have the same duration.";
                 }
-                this.getOutput()[barIndex].push(Event.empty(inputEvent.isCadence()));
+                event.cacheState();
             }
         }
         return this;
     }
 
     private step() {
-        const inputEvent = this.getInput()[this.getTime().bar][this.getTime().event];
-        const previousChord = this.previousOutputEvent()?.getChord() ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
-        const chordOptions = previousChord.progression(this.dictionary).filter(chord => !this.outputEvent().isCadence() || ["I", "i", "V"].includes(chord.stringStem()));
-        for (; this.outputEvent().map < chordOptions.length; ++this.outputEvent().map) {
-            const chord = chordOptions[this.outputEvent().map];
+        const event = this.getBars()[this.getTime().barIndex][this.getTime().eventIndex];
+        const previousChord = this.previousEvent()?.getChord() ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
+
+        // Compute chord options and filter if the event type is "cadence" or "end"
+        let chordOptions = previousChord.progression(this.dictionary);
+        if (this.event().getType() === "cadence") {
+            chordOptions.filter(chord => ["I", "i", "V", "Vb", "VI", "vi"].includes(chord.stringStem()));
+        } else if (this.event().getType() === "end") {
+            chordOptions.filter(chord => ["I/I", "I/i", "V/I"].includes(chord.string()))
+        }
+
+        // Try each chord
+        for (; this.event().map < chordOptions.length; ++this.event().map) {
+            const chord = chordOptions[this.event().map];
             const resolution = chord.resolve(this.key);
 
-            const defined = {
-                s: inputEvent.getS().main() !== undefined,
-                a: inputEvent.getA().main() !== undefined,
-                t: inputEvent.getT().main() !== undefined,
-                b: inputEvent.getB().main() !== undefined
-            };
-
-            this.outputEvent().setS(inputEvent.getS());
-            this.outputEvent().setA(inputEvent.getA());
-            this.outputEvent().setT(inputEvent.getT());
-            this.outputEvent().setB(inputEvent.getB());
-
             const target = {
-                s: this.previousOutputEvent()?.getS().at(-1).getPitch() ?? Pitch.parse("Gb4"),
-                a: this.previousOutputEvent()?.getA().at(-1).getPitch() ?? Pitch.parse("D4"),
-                t: this.previousOutputEvent()?.getT().at(-1).getPitch() ?? Pitch.parse("B3"),
-                b: this.previousOutputEvent()?.getB().at(-1).getPitch() ?? Pitch.parse("Eb3")
+                s: this.previousEvent()?.getS().at(-1).getPitch() ?? Pitch.parse("Gb4"),
+                a: this.previousEvent()?.getA().at(-1).getPitch() ?? Pitch.parse("D4"),
+                t: this.previousEvent()?.getT().at(-1).getPitch() ?? Pitch.parse("B3"),
+                b: this.previousEvent()?.getB().at(-1).getPitch() ?? Pitch.parse("Eb3")
             }
 
-            if (!defined.b) {
+            if (!event.fits(resolution)) {
+                this.event().clear();
+                continue;
+            }
+
+            if (!event.getCache().b) {
                 const options = resolution.bass().near(target.b);
-                const pitch = options.filter(tone => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= this.outputEvent().getS().main().getPitch().semitones() - 10)[0];
-                this.outputEvent().setB(pitch.group(this.outputEvent().duration()));
+                const pitch = options.filter(tone => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= this.event().getS().main().getPitch().semitones() - 10)[0];
+                this.event().setB(pitch.group(this.event().duration()));
             }
 
-            if (
-                resolution.excludes(inputEvent.getS().main()?.getPitch().getTone()) ||
-                resolution.excludes(inputEvent.getA().main()?.getPitch().getTone()) ||
-                resolution.excludes(inputEvent.getT().main()?.getPitch().getTone()) ||
-                resolution.excludes(inputEvent.getB().main()?.getPitch().getTone())
-            ) {
+            if (event.getCache().b && !event.getB().main().getPitch().getTone().equals(resolution.bass())) {
+                this.event().clear();
                 continue;
             }
 
-            if (defined.b && !inputEvent.getB().main().getPitch().getTone().equals(resolution.bass())) {
-                continue;
-            }
-
-            if (previousChord.getInversion() === 2 && this.previousPreviousOutputEvent()?.getChord()?.string() === chord.string()) {
+            if (previousChord.getInversion() === 2 && this.previousPreviousEvent()?.getChord()?.string() === chord.string()) {
+                this.event().clear();
                 continue;
             }
 
@@ -148,7 +143,7 @@ export default class Piece implements Util.Printable {
 
             for (const part of Util.PARTS) {
                 const array = [resolution.getRoot(), resolution.getThird(), resolution.getFifth(), resolution.getSeventh()].filter(tone => tone) as Tone[];
-                const inversion = array.findIndex((tone: Tone) => tone.equals(this.outputEvent().getPart(part).main()?.getPitch().getTone()));
+                const inversion = array.findIndex((tone: Tone) => tone.equals(this.event().getPart(part).main()?.getPitch().getTone()));
                 if (inversion !== -1) {
                     --quotas[inversion];
                 }
@@ -158,6 +153,7 @@ export default class Piece implements Util.Printable {
                 if (quotas[0] === 0) {
                     quotas[2] = 1;
                     if (quotas[2] === 0) {
+                        this.event().clear();
                         continue;
                     }
                 }
@@ -167,6 +163,7 @@ export default class Piece implements Util.Printable {
             }
 
             if (quotas.some(quota => quota < 0)) {
+                this.event().clear();
                 continue;
             }
 
@@ -176,7 +173,7 @@ export default class Piece implements Util.Printable {
             let a: Pitch;
             let t: Pitch;
 
-            if (!defined.a && !defined.t) {
+            if (!event.getCache().a && !event.getCache().t) {
                 let two = resolution.at(quotas.findIndex(quota => quota === 2) as Util.Inversion);
 
                 switch (ones.length as 1 | 2 | 3) {
@@ -235,8 +232,8 @@ export default class Piece implements Util.Printable {
                         permutations = [permutation6, permutation7, permutation8, permutation9].sort((l, r) => l.score - r.score);
                         break;
                 }
-            } else if (defined.a && !defined.t) {
-                a = this.outputEvent().getA().main().getPitch();
+            } else if (event.getCache().a && !event.getCache().t) {
+                a = this.event().getA().main().getPitch();
                 if (ones.length === 1) {
                     permutations = [{
                         a: a,
@@ -254,8 +251,8 @@ export default class Piece implements Util.Printable {
                         score: this.score(a, t)
                     }];
                 }
-            } else if (!defined.a && defined.t) {
-                t = this.outputEvent().getT().main().getPitch();
+            } else if (!event.getCache().a && event.getCache().t) {
+                t = this.event().getT().main().getPitch();
                 if (ones.length === 1) {
                     permutations = [{
                         a: a = ones[0].near(target.a)[0],
@@ -275,19 +272,21 @@ export default class Piece implements Util.Printable {
                 }
             } else {
                 permutations = [{
-                    a: a = this.outputEvent().getA().main().getPitch(),
-                    t: t = this.outputEvent().getT().main().getPitch(),
+                    a: a = this.event().getA().main().getPitch(),
+                    t: t = this.event().getT().main().getPitch(),
                     score: this.score(a, t)
                 }];
             }
 
             for (const permutation of permutations) {
                 if (permutation.score === Infinity) {
+                    this.event().clear();
                     continue;
                 }
 
-                this.outputEvent().setA(permutation.a.group(this.outputEvent().duration()));
-                this.outputEvent().setT(permutation.t.group(this.outputEvent().duration()));
+                this.event()
+                    .setA(permutation.a.group(this.event().duration()))
+                    .setT(permutation.t.group(this.event().duration()));
 
                 if (
                     this.checkParallel("s", "a") ||
@@ -296,30 +295,32 @@ export default class Piece implements Util.Printable {
                     this.checkParallel("a", "t") ||
                     this.checkParallel("a", "b") ||
                     this.checkParallel("t", "b")) {
+                    this.event().clear();
                     continue;
                 }
 
-                this.outputEvent().setChord(chord);
+                this.event().setChord(chord);
                 this.incrementTime();
                 return;
             }
+            this.event().clear();
             continue;
         }
-        this.outputEvent().map = 0;
+        this.event().clear().map = 0;
         this.decrementTime();
-        if (this.getTime().bar >= 0) {
-            ++this.outputEvent().map;
+        if (this.getTime().barIndex >= 0) {
+            ++this.event().map;
         }
         return;
     }
 
     private score(aPitch: Pitch, tPitch: Pitch) {
-        const s = this.outputEvent().getS().main().getPitch().semitones();
+        const s = this.event().getS().main().getPitch().semitones();
         const a = aPitch.semitones();
         const t = tPitch.semitones();
-        const b = this.outputEvent().getB().main().getPitch().semitones();
-        const previousA = this.previousOutputEvent()?.getA().at(-1).getPitch() ?? Pitch.parse("D4");
-        const previousT = this.previousOutputEvent()?.getT().at(-1).getPitch() ?? Pitch.parse("B3");
+        const b = this.event().getB().main().getPitch().semitones();
+        const previousA = this.previousEvent()?.getA().at(-1).getPitch() ?? Pitch.parse("D4");
+        const previousT = this.previousEvent()?.getT().at(-1).getPitch() ?? Pitch.parse("B3");
         const aChange = Math.abs(a - previousA.semitones());
         const tChange = Math.abs(t - previousT.semitones());
 
@@ -344,34 +345,25 @@ export default class Piece implements Util.Printable {
     }
 
     private checkParallel(upper: Util.Part, lower: Util.Part) {
-        const previousEvent = this.previousOutputEvent();
+        const previousEvent = this.previousEvent();
         if (previousEvent === undefined) {
             return false;
         }
         const previousUpper = previousEvent.getPart(upper).at(-1).getPitch().semitones();
         const previousLower = previousEvent.getPart(lower).at(-1).getPitch().semitones()
-        const currentUpper = this.outputEvent().getPart(upper).at(0).getPitch().semitones();
-        const currentLower = this.outputEvent().getPart(lower).at(0).getPitch().semitones();
+        const currentUpper = this.event().getPart(upper).at(0).getPitch().semitones();
+        const currentLower = this.event().getPart(lower).at(0).getPitch().semitones();
         const previousInterval = (previousUpper - previousLower) % 12;
         const interval = (currentUpper - currentLower) % 12;
         return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && previousUpper !== currentUpper && previousLower !== currentLower;
     }
 
-    getInput() {
-        return this.input;
+    getBars() {
+        return this.bars;
     }
 
-    setInput(input: Util.Bar[]) {
-        this.input = input;
-        return this;
-    }
-
-    getOutput() {
-        return this.output;
-    }
-
-    setOutput(output: Util.Bar[]) {
-        this.output = output;
+    setBars(bars: Util.Bar[]) {
+        this.bars = bars;
         return this;
     }
 
@@ -385,16 +377,16 @@ export default class Piece implements Util.Printable {
     }
 
     decrementTime() {
-        if (--this.getTime().event < 0) {
-            this.getTime().event = this.getInput()[--this.getTime().bar]?.length - 1;
+        if (--this.getTime().eventIndex < 0) {
+            this.getTime().eventIndex = this.getBars()[--this.getTime().barIndex]?.length - 1;
         }
         return this;
     }
 
     incrementTime() {
-        if (++this.getTime().event >= this.getInput()[this.getTime().bar].length) {
-            ++this.getTime().bar;
-            this.getTime().event = 0;
+        if (++this.getTime().eventIndex >= this.getBars()[this.getTime().barIndex].length) {
+            ++this.getTime().barIndex;
+            this.getTime().eventIndex = 0;
         }
         return this;
     }
@@ -409,10 +401,10 @@ export default class Piece implements Util.Printable {
     }
 
     calculateMaxTime() {
-        if (this.getTime().bar > this.getMaxTime().bar) {
+        if (this.getTime().barIndex > this.getMaxTime().barIndex) {
             this.setMaxTime({ ...this.getTime() });
-        } else if (this.getTime().bar === this.getMaxTime().bar && this.getTime().event >= this.getMaxTime().event) {
-            this.getMaxTime().event = this.getTime().event;
+        } else if (this.getTime().barIndex === this.getMaxTime().barIndex && this.getTime().eventIndex >= this.getMaxTime().eventIndex) {
+            this.getMaxTime().eventIndex = this.getTime().eventIndex;
         }
         return this;
     }
@@ -436,10 +428,10 @@ export default class Piece implements Util.Printable {
     }
 
     string() {
-        return `[${this.getOutput().map(bar => bar.map(event => event.getS().string().padEnd(8)).join(" ")).join("|")}]
-[${this.getOutput().map(bar => bar.map(event => event.getA().string().padEnd(8)).join(" ")).join("|")}]
-[${this.getOutput().map(bar => bar.map(event => event.getT().string().padEnd(8)).join(" ")).join("|")}]
-[${this.getOutput().map(bar => bar.map(event => event.getB().string().padEnd(8)).join(" ")).join("|")}]
-[${this.getOutput().map(bar => bar.map(event => event.getChord()?.string().padEnd(8)).join(" ")).join("|")}]`
+        return `[${this.getBars().map(bar => bar.map(event => event.getS().string().padEnd(8)).join(" ")).join("|")}]
+[${this.getBars().map(bar => bar.map(event => event.getA().string().padEnd(8)).join(" ")).join("|")}]
+[${this.getBars().map(bar => bar.map(event => event.getT().string().padEnd(8)).join(" ")).join("|")}]
+[${this.getBars().map(bar => bar.map(event => event.getB().string().padEnd(8)).join(" ")).join("|")}]
+[${this.getBars().map(bar => bar.map(event => event.getChord()?.string().padEnd(8)).join(" ")).join("|")}]`
     }
 }

@@ -29,11 +29,8 @@ export default class Resolution implements Util.Printable {
         return this.at(this.inversion);
     }
 
-    excludes(testTone: Tone | undefined) {
-        if (testTone === undefined) {
-            return false;
-        }
-        return !this.root?.equals(testTone) && !this.third?.equals(testTone) && !this.fifth?.equals(testTone) && !this.seventh?.equals(testTone);
+    includes(tone: Tone) {
+        return this.root.equals(tone) || this.third.equals(tone) || this.fifth.equals(tone) || this.seventh?.equals(tone);
     }
 
     getRoot() {
@@ -53,6 +50,7 @@ export default class Resolution implements Util.Printable {
         this.third = third;
         return this;
     }
+
     getFifth() {
         return this.fifth;
     }
@@ -61,6 +59,7 @@ export default class Resolution implements Util.Printable {
         this.fifth = fifth;
         return this;
     }
+
     getSeventh() {
         return this.seventh;
     }

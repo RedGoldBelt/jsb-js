@@ -1,30 +1,56 @@
 import Chord from "./chord.js";
 import Group from "./group.js";
+import Resolution from "./resolution.js";
 import Util from "./util.js";
 
-export default class Event {
-    private s: Group;
-    private a: Group;
-    private t: Group;
-    private b: Group;
+export default class Event implements Util.Parts<Group> {
+    s;
+    a;
+    t;
+    b;
     private chord: Chord | undefined;
-    private cadence: boolean;
-    map: number = 0;
+    private type;
+    private cache: Util.Parts<boolean>;
+    map = 0;
 
-    constructor(s: Group, a: Group, t: Group, b: Group, cadence: boolean) {
+    constructor(s: Group, a: Group, t: Group, b: Group, type: Util.EventType) {
         this.s = s;
         this.a = a;
         this.t = t;
         this.b = b;
-        this.cadence = cadence;
+        this.type = type;
+        this.cache = {
+            s: s.main() !== undefined,
+            a: a.main() !== undefined,
+            t: t.main() !== undefined,
+            b: b.main() !== undefined
+        };
     }
 
-    static empty(cadence: boolean) {
-        return new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), cadence);
+    static empty(type: Util.EventType) {
+        return new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), type);
     }
 
-    valid() {
+    validate() {
         return Util.PARTS.filter(part => this.getPart(part).main()).map(part => this.getPart(part).duration()).every((duration, i, array) => duration === array[0]);
+    }
+
+    fits(resolution: Resolution) {
+        for (const part of Util.PARTS) {
+            if (this.getCache()[part] && !resolution.includes(this.getPart(part).main().getPitch().getTone())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    clear() {
+        for (const part of Util.PARTS) {
+            if (!this.getCache()[part]) {
+                this.setPart(part, Group.empty());
+            }
+        }
+        return this;
     }
 
     getS() {
@@ -94,7 +120,28 @@ export default class Event {
         return this;
     }
 
-    isCadence() {
-        return this.cadence;
+    getType() {
+        return this.type;
+    }
+
+    setType(type: Util.EventType) {
+        this.type = type;
+    }
+
+    getCache() {
+        return this.cache;
+    }
+
+    setCache(cache: Util.Parts<boolean>) {
+        this.cache = cache;
+    }
+
+    cacheState() {
+        this.setCache({
+            s: this.s.main() !== undefined,
+            a: this.a.main() !== undefined,
+            t: this.t.main() !== undefined,
+            b: this.b.main() !== undefined
+        });
     }
 }
