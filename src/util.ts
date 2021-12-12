@@ -1,17 +1,10 @@
 import Event from "./event.js";
 import Pitch from "./pitch.js";
+import Tetrad from "./parts.js";
 
 namespace Util {
-    export type Alteration = "" | "7" | "o7";
     export type Bar = Event[];
-
-    export interface Parts<T> {
-        s: T;
-        a: T;
-        t: T;
-        b: T;
-    }
-
+    export class Cache extends Tetrad<boolean> {};
     export interface Dictionary {
         start: {
             major: string[];
@@ -25,8 +18,16 @@ namespace Util {
     }
     export type EventType = "normal" | "cadence" | "end";
     export type Inversion = 0 | 1 | 2 | 3;
+    export type Modifier = "" | "7" | "o7";
+    export type Part = "s" | "a" | "t" | "b";
+    export const PARTS: Part[] = ["s", "a", "t", "b"];
+
+    export abstract class Printable {
+        abstract string(): string;
+    }
+
     export interface Settings {
-        dictionary: Dictionary; // IMPLEMENT OPTIONS
+        dictionary: Dictionary; // TO DO: IMPLEMENT OPTIONS
         maxJump: number;
         doubledMajorThird: boolean;
         doubledMinorThird: boolean;
@@ -34,20 +35,10 @@ namespace Util {
         parallelFifths: boolean;
         parallelOctaves: boolean;
         augmentedSecondInterval: boolean;
-        tessitura : Parts<Tessitura>;
-    }
-    export type Part = "s" | "a" | "t" | "b";
-    export const PARTS: Part[] = ["s", "a", "t", "b"];
-
-    export interface Permutation {
-        a: Pitch;
-        t: Pitch;
-        score: number;
+        tessitura : Tetrad<Tessitura>;
     }
 
-    export abstract class Printable {
-        abstract string(): string;
-    }
+    export class Target extends Tetrad<Pitch> {}
 
     export interface Tessitura {
         min: number;

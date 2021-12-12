@@ -8,13 +8,13 @@ export default class Chord implements Util.Printable {
     private static INVERSIONS = ["a", "b", "c", "d"];
 
     private base;
-    private alteration;
+    private modifier;
     private inversion;
     private relativeKey;
 
-    constructor(base: Numeral | undefined, alteration: Util.Alteration, inversion: Util.Inversion, relativeKey: Numeral) {
+    constructor(base: Numeral | undefined, modifier: Util.Modifier, inversion: Util.Inversion, relativeKey: Numeral) {
         this.base = base;
-        this.alteration = alteration;
+        this.modifier = modifier;
         this.inversion = inversion;
         this.relativeKey = relativeKey;
     }
@@ -26,7 +26,7 @@ export default class Chord implements Util.Printable {
         }
         return new Chord(
             Numeral.parse(result[1]),
-            result[4] as Util.Alteration,
+            result[4] as Util.Modifier,
             (result[5] ? Chord.INVERSIONS.indexOf(result[5]) : 0) as Util.Inversion,
             Numeral.parse(result[6] ? result[7] : "I")
         );
@@ -45,7 +45,7 @@ export default class Chord implements Util.Printable {
         let fifth: Tone;
         let seventh: Tone | undefined;
 
-        switch (this.alteration) {
+        switch (this.modifier) {
             case "":
                 fifth = key.degree(this.base.getDegree() + 4);
                 break;
@@ -83,12 +83,12 @@ export default class Chord implements Util.Printable {
         return this;
     }
 
-    getAlteration() {
-        return this.alteration;
+    getModifier() {
+        return this.modifier;
     }
 
-    setAlteration(alteration: Util.Alteration) {
-        this.alteration = alteration;
+    setModifier(modifier: Util.Modifier) {
+        this.modifier = modifier;
         return this;
     }
 
@@ -111,7 +111,7 @@ export default class Chord implements Util.Printable {
     }
 
     stringStem() {
-        return this.base?.string() + this.alteration + (this.inversion ? Chord.INVERSIONS[this.inversion] : "");
+        return this.base?.string() + this.modifier + (this.inversion ? Chord.INVERSIONS[this.inversion] : "");
     }
 
     string() {

@@ -1,76 +1,25 @@
+import Inversions from "./inversions.js";
 import Tone from "./tone.js";
 import Util from "./util.js";
 
-export default class Resolution implements Util.Printable {
-    private root;
-    private third;
-    private fifth;
-    private seventh;
+export default class Resolution extends Inversions<Tone> implements Util.Printable {
     private inversion: Util.Inversion;
 
     constructor(root: Tone, third: Tone, fifth: Tone, seventh: Tone | undefined, inversion: Util.Inversion) {
-        this.root = root;
-        this.third = third;
-        this.fifth = fifth;
-        this.seventh = seventh;
+        super(root, third, fifth, seventh);
         this.inversion = inversion;
     }
 
-    at(inversion: Util.Inversion) {
-        switch (inversion) {
-            case 0: return this.root;
-            case 1: return this.third;
-            case 2: return this.fifth;
-            case 3: return this.seventh as Tone;
-        }
-    }
-
     bass() {
-        return this.at(this.inversion);
+        return this.get(this.inversion);
     }
 
     includes(tone: Tone) {
-        return this.root.equals(tone) || this.third.equals(tone) || this.fifth.equals(tone) || this.seventh?.equals(tone);
-    }
-
-    getRoot() {
-        return this.root;
-    }
-
-    setRoot(root: Tone) {
-        this.root = root;
-        return this;
-    }
-
-    getThird() {
-        return this.third;
-    }
-
-    setThird(third: Tone) {
-        this.third = third;
-        return this;
-    }
-
-    getFifth() {
-        return this.fifth;
-    }
-
-    setFifth(fifth: Tone) {
-        this.fifth = fifth;
-        return this;
-    }
-
-    getSeventh() {
-        return this.seventh;
-    }
-
-    setSeventh(seventh: Tone) {
-        this.seventh = seventh;
-        return this;
+        return this.getRoot().equals(tone) || this.getThird().equals(tone) || this.getFifth().equals(tone) || this.getSeventh()?.equals(tone);
     }
 
     string() {
-        const array = [this.root, this.third, this.fifth, this.seventh].filter(tone => tone).map(tone => tone?.string());
+        const array = [this.getRoot(), this.getThird(), this.getFifth(), this.getSeventh()].filter(tone => tone).map(tone => tone?.string());
         array[this.inversion] = `{${array[this.inversion]}}`;
         return array.join(" ");
     }
