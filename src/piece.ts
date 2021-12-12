@@ -33,7 +33,7 @@ export default class Piece implements Util.Printable {
                     event = event.slice(0, -1);
                 }
                 this.getCache()[barIndex][eventIndex] ??= Event.empty(type);
-                this.getCache()[barIndex][eventIndex].set(part, Group.parse(event)).getCache().set(part, true);
+                this.getCache()[barIndex][eventIndex].set(part, Group.parse(event));
             });
         });
         return this;
@@ -102,6 +102,7 @@ export default class Piece implements Util.Printable {
     }
 
     private step() {
+        const cacheEvent = this.getCache()[this.getTime().barIndex][this.getTime().eventIndex];;
         const previousEvent = this.previousEvent();
         const event = this.event();
         const previousChord = previousEvent?.getChord() ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
@@ -113,18 +114,11 @@ export default class Piece implements Util.Printable {
             chordOptions.filter(chord => ["I/I", "I/i", "V/I"].includes(chord.string()))
         }
 
-<<<<<<< HEAD
         while (event.map < chordOptions.length) {
+            event.setS(cacheEvent.getS()).setA(cacheEvent.getA()).setT(cacheEvent.getT()).setB(cacheEvent.getB());
             const chord = chordOptions[event.map++];
             const resolution = chord.resolve(this.key);
-            event.reset();
-=======
-        // Try each chord
-        while (event.map < chordOptions.length) {
-            const chord = chordOptions[event.map++];
-            const resolution = chord.resolve(this.key);
-            event.clear();
->>>>>>> parent of 3da99da (Revert "Fixed bug")
+            console.log(chord.string(), this.getTime());
 
             const target = new Parts<Pitch>(
                 previousEvent?.getS().at(-1).getPitch() ?? Pitch.parse("Gb4"),
@@ -133,12 +127,12 @@ export default class Piece implements Util.Printable {
                 previousEvent?.getB().at(-1).getPitch() ?? Pitch.parse("Eb3")
             );
 
-
             if (!event.fits(resolution)) {
+                console.log("unfit");
                 continue;
             }
 
-            if (!event.getCache().getB()) {
+            if (!cacheEvent.getB().main()) {
                 const options = resolution.bass().near(target.getB());
                 const pitch = options.filter(tone => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= event.getS().main().getPitch().semitones() - 10)[0];
                 event.setB(pitch.group(event.duration()));
@@ -182,8 +176,7 @@ export default class Piece implements Util.Printable {
             const s = event.getS().main().getPitch();
             const b = event.getB().main().getPitch();
 
-
-            if (!event.getCache().getA() && !event.getCache().getT()) {
+            if (!cacheEvent.getA().main() && !cacheEvent.getT().main()) {
                 let two = resolution.get(quotas.findIndex(quota => quota === 2) as Util.Inversion);
                 switch (ones.length as 1 | 2 | 3) {
                     case 1:
@@ -205,14 +198,14 @@ export default class Piece implements Util.Printable {
                         permutations = [permutation6, permutation7, permutation8, permutation9].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
                         break;
                 }
-            } else if (event.getCache().getA() && !event.getCache().getT()) {
+            } else if (cacheEvent.getA().main() && !cacheEvent.getT().main()) {
                 const a = event.getA().main().getPitch();
                 if (ones.length === 1) {
                     permutations = [new Permutation(s, a, ones[0].near(target.getT())[0], b)];
                 } else {
                     permutations = [new Permutation(s, a, ones[0].near(target.getT())[0], b), new Permutation(s, a, ones[1].near(target.getT())[0], b)].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
                 }
-            } else if (!event.getCache().getA() && event.getCache().getT()) {
+            } else if (!cacheEvent.getA().main() && cacheEvent.getT().main()) {
                 const t = event.getT().main().getPitch();
                 if (ones.length === 1) {
                     permutations = [new Permutation(s, ones[0].near(target.getA())[0], t, b)];
@@ -246,7 +239,7 @@ export default class Piece implements Util.Printable {
             }
             continue;
         }
-        event.reset().map = 0;
+        event.map = 0;
         this.decrementTime();
     }
 

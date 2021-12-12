@@ -7,13 +7,11 @@ import Util from "./util.js";
 export default class Event extends Parts<Group> implements Util.Printable {
     private chord: Chord | undefined;
     private type;
-    private cache: Parts<boolean>;
     map = 0;
 
     constructor(s: Group, a: Group, t: Group, b: Group, type: Util.EventType) {
         super(s, a, t, b);
         this.type = type;
-        this.cache = new Parts<boolean>(s.main() !== undefined, a.main() !== undefined, t.main() !== undefined, b.main() !== undefined);
     }
 
     static empty(type: Util.EventType) {
@@ -26,20 +24,11 @@ export default class Event extends Parts<Group> implements Util.Printable {
 
     fits(resolution: Resolution) {
         for (const part of Util.PARTS) {
-            if (this.getCache().get(part) && !resolution.includes(this.get(part).main().getPitch().getTone())) {
+            if (this.get(part).main() && !resolution.includes(this.get(part).main().getPitch().getTone())) {
                 return false;
             }
         }
         return true;
-    }
-
-    reset() {
-        for (const part of Util.PARTS) {
-            if (!this.getCache().get(part)) {
-                this.set(part, Group.empty());
-            }
-        }
-        return this;
     }
 
     duration() {
@@ -61,23 +50,6 @@ export default class Event extends Parts<Group> implements Util.Printable {
 
     setType(type: Util.EventType) {
         this.type = type;
-    }
-
-    getCache() {
-        return this.cache;
-    }
-
-    setCache(cache: Parts<boolean>) {
-        this.cache = cache;
-    }
-
-    cacheState() {
-        this.setCache(new Parts<boolean>(
-            this.getS().main() !== undefined,
-            this.getA().main() !== undefined,
-            this.getT().main() !== undefined,
-            this.getB().main() !== undefined
-        ));
     }
 
     string() {
