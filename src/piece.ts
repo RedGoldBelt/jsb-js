@@ -4,12 +4,14 @@ import Event from "./event.js";
 import Group from "./group.js";
 import Key from "./key.js";
 import Numeral from "./numeral.js";
+import Parts from "./parts.js";
 import Permutation from "./permutation.js";
 import Pitch from "./pitch.js";
 import Tone from "./tone.js";
 import Util from "./util.js";
 
 export default class Piece implements Util.Printable {
+    private cache: Util.Bar[] = [];
     private bars: Util.Bar[] = [];
     private time: Util.Time = { barIndex: 0, eventIndex: 0 };
     private maxTime: Util.Time = { barIndex: 0, eventIndex: 0 };
@@ -19,7 +21,7 @@ export default class Piece implements Util.Printable {
     parse(string: string, part: Util.Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
         split.forEach((bar, barIndex) => {
-            this.getBars()[barIndex] ??= [];
+            this.getCache()[barIndex] ??= [];
             bar.forEach((event, eventIndex) => {
                 let type: Util.EventType;
                 switch (event.charAt(event.length - 1)) {
@@ -30,8 +32,8 @@ export default class Piece implements Util.Printable {
                 if (type !== "normal") {
                     event = event.slice(0, -1);
                 }
-                this.getBars()[barIndex][eventIndex] ??= Event.empty(type);
-                this.getBars()[barIndex][eventIndex].set(part, Group.parse(event));
+                this.getCache()[barIndex][eventIndex] ??= Event.empty(type);
+                this.getCache()[barIndex][eventIndex].set(part, Group.parse(event)).getCache().set(part, true);
             });
         });
         return this;
@@ -70,7 +72,7 @@ export default class Piece implements Util.Printable {
     }
 
     harmonise() {
-        this.validate().setMaxTime({ barIndex: 0, eventIndex: 0 }).setTime({ barIndex: 0, eventIndex: 0 });
+        this.initialize().setMaxTime({ barIndex: 0, eventIndex: 0 }).setTime({ barIndex: 0, eventIndex: 0 });
         while (this.getTime().barIndex < this.getBars().length) {
             if (this.getTime().barIndex < 0) {
                 throw "Failed to harmonise.";
@@ -80,18 +82,22 @@ export default class Piece implements Util.Printable {
         return this;
     }
 
-    private validate() {
-        for (let bar = 0; bar < this.getBars().length; ++bar) {
-            for (const event of this.getBars()[bar]) {
-                if (!event.getS().main()) {
+    private initialize() {
+        const bars = [];
+        for (const cacheBar of this.getCache()) {
+            const bar: Util.Bar = [];
+            for (const cacheEvent of cacheBar) {
+                if (!cacheEvent.getS().main()) {
                     throw "Soprano line is not defined.";
                 }
-                if (!event.validate()) {
+                if (!cacheEvent.validate()) {
                     throw "Not all parts have the same duration.";
                 }
-                event.cacheState();
+                bar.push(new Event(cacheEvent.getS(), cacheEvent.getA(), cacheEvent.getT(), cacheEvent.getB(), cacheEvent.getType()));
             }
+            bars.push(bar);
         }
+        this.setBars(bars);
         return this;
     }
 
@@ -100,7 +106,6 @@ export default class Piece implements Util.Printable {
         const event = this.event();
         const previousChord = previousEvent?.getChord() ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
 
-        // Compute chord options and filter if the event type is "cadence" or "end"
         let chordOptions = previousChord.progression(this.dictionary);
         if (event.getType() === "cadence") {
             chordOptions.filter(chord => ["I", "i", "V", "Vb", "VI", "vi"].includes(chord.stringStem()));
@@ -108,12 +113,12 @@ export default class Piece implements Util.Printable {
             chordOptions.filter(chord => ["I/I", "I/i", "V/I"].includes(chord.string()))
         }
 
-        // Try each chord
-        for (; event.map < chordOptions.length; ++event.map) {
-            const chord = chordOptions[event.map];
+        while (event.map < chordOptions.length) {
+            const chord = chordOptions[event.map++];
             const resolution = chord.resolve(this.key);
+            event.reset();
 
-            const target = new Util.Target(
+            const target = new Parts<Pitch>(
                 previousEvent?.getS().at(-1).getPitch() ?? Pitch.parse("Gb4"),
                 previousEvent?.getA().at(-1).getPitch() ?? Pitch.parse("D4"),
                 previousEvent?.getT().at(-1).getPitch() ?? Pitch.parse("B3"),
@@ -243,7 +248,7 @@ export default class Piece implements Util.Printable {
             event.clear();
             continue;
         }
-        event.clear().map = 0;
+        event.reset().map = 0;
         this.decrementTime();
         if (this.getTime().barIndex >= 0) {
             ++event.map;
@@ -262,6 +267,15 @@ export default class Piece implements Util.Printable {
         const previousInterval = (previousUpper - previousLower) % 12;
         const interval = (currentUpper - currentLower) % 12;
         return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && previousUpper !== currentUpper && previousLower !== currentLower;
+    }
+
+    getCache() {
+        return this.cache;
+    }
+
+    setCache(cache: Util.Bar[]) {
+        this.cache = cache;
+        return this;
     }
 
     getBars() {

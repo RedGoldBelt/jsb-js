@@ -7,7 +7,7 @@ import Util from "./util.js";
 export default class Event extends Parts<Group> {
     private chord: Chord | undefined;
     private type;
-    private cache: Util.Cache;
+    private cache: Parts<boolean>;
     map = 0;
 
     constructor(s: Group, a: Group, t: Group, b: Group, type: Util.EventType) {
@@ -33,7 +33,7 @@ export default class Event extends Parts<Group> {
         return true;
     }
 
-    clear() {
+    reset() {
         for (const part of Util.PARTS) {
             if (!this.getCache().get(part)) {
                 this.set(part, Group.empty());
@@ -67,12 +67,12 @@ export default class Event extends Parts<Group> {
         return this.cache;
     }
 
-    setCache(cache: Util.Cache) {
+    setCache(cache: Parts<boolean>) {
         this.cache = cache;
     }
 
     cacheState() {
-        this.setCache(new Util.Cache(
+        this.setCache(new Parts<boolean>(
             this.getS().main() !== undefined,
             this.getA().main() !== undefined,
             this.getT().main() !== undefined,

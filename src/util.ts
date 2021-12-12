@@ -4,7 +4,6 @@ import Parts from "./parts.js";
 
 namespace Util {
     export type Bar = Event[];
-    export class Cache extends Parts<boolean> {};
     export interface Dictionary {
         start: {
             major: string[];
@@ -26,24 +25,22 @@ namespace Util {
         abstract string(): string;
     }
 
-    export interface Settings {
-        dictionary: Dictionary; // TO DO: IMPLEMENT OPTIONS
-        maxJump: number;
-        doubledMajorThird: boolean;
-        doubledMinorThird: boolean;
-        absentFifth: boolean;
-        parallelFifths: boolean;
-        parallelOctaves: boolean;
-        augmentedSecondInterval: boolean;
-        tessitura : Parts<Tessitura>;
-    }
+    // export interface Settings {
+    //     dictionary: Dictionary;
+    //     maxJump: number;
+    //     doubledMajorThird: boolean;
+    //     doubledMinorThird: boolean;
+    //     absentFifth: boolean;
+    //     parallelFifths: boolean;
+    //     parallelOctaves: boolean;
+    //     augmentedSecondInterval: boolean;
+    //     tessitura : Parts<Tessitura>;
+    // }
 
-    export class Target extends Parts<Pitch> {}
-
-    export interface Tessitura {
-        min: number;
-        max: number;
-    }
+    // export interface Tessitura {
+    //     min: number;
+    //     max: number;
+    // }
 
     export interface Time {
         barIndex: number;
