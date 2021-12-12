@@ -10,7 +10,7 @@ Object.defineProperty(String.prototype, 'print', {
     }
 });
 
-const GOD_SAVE_THE_QUEEN = new Piece().setKey(Key.parse("G major")).parse("[G4 G4 A4|F#4. G4/ A4@|B4 B4 C5|B4. A4/ G4@|A4 G4 F#4|G4_.@]", "s");
+const GOD_SAVE_THE_QUEEN = new Piece().setKey(Key.parse("G major")).parse("[G4 G4 A4|F#4. G4/ A4@|B4 B4 C5|B4. A4/ G4|A4 G4 F#4|G4_.@]", "s");
 const HARK_THE_HERALD_ANGELS_SING = new Piece().setKey(Key.parse("G major")).parse("[D4 G4 G4. F#4/|G4@ B4 B4 A4@|D5 D5 (C5.,C5/)|B4 A4 B4_@]", "s");
 const EXERCISE_V1 = new Piece().setKey(Key.parse("C major")).parse("[C5|A4 F4 G4 C5|C5 B4 C5@ D5|E5 C5 D5 B4|C5_.@]", "s");
 const EXERCISE_V2 = new Piece().setKey(Key.parse("C major")).parse("[C5|A4 F4 G4 C5|C5 B4 C5@ D5|E5 C5 D5 B4|C5_.@]", "s").setDictionary(Dict.PRIMARY_AB);
@@ -27,3 +27,4 @@ const BWV_1_6 = new Piece().setKey(Key.parse("F major")).parse("[F4|C5 A4 F4 C5|
 const BWV_X_6_SB = new Piece().setKey(Key.parse("A major")).parse("[A4|A4 A4 (F#4/,G#4/) A4|(B4/,A4/) G#4 F#4_@|G#4 A4 B4 E4/ F#4/|(G#4/,A4/) F#4 E4@]", "s").parse("[A3|A2 C#3 D3 F#3|D#3 E3 B2_@|G#2 F#2 E2 G#2/ A2/|B2 B2 E3@]", "b");
 
 GOD_SAVE_THE_QUEEN.harmonise().string().print();
+BWV_X_6_SB.harmonise().string().print();

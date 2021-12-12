@@ -17,6 +17,7 @@ namespace Util {
     }
     export type Inversion = 0 | 1 | 2 | 3
     export type Part = "s" | "a" | "t" | "b"
+    export const PARTS: Part[] = ["s", "a", "t", "b"];
 
     export interface Permutation {
         a: Pitch;

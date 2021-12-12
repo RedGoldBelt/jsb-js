@@ -19,6 +19,14 @@ export default class Event {
         this.cadence = cadence;
     }
 
+    static empty(cadence: boolean) {
+        return new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), cadence);
+    }
+
+    valid() {
+        return Util.PARTS.filter(part => this.getPart(part).main()).map(part => this.getPart(part).duration()).every((duration, i, array) => duration === array[0]);
+    }
+
     getS() {
         return this.s;
     }
