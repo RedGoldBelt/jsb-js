@@ -1,10 +1,10 @@
 import Util from "./util";
 
 export default class Tetrad<T> {
-    s: T;
-    a: T;
-    t: T;
-    b: T;
+    private s: T;
+    private a: T;
+    private t: T;
+    private b: T;
 
     constructor(s: T, a: T, t: T, b: T) {
         this.s = s;

@@ -126,13 +126,13 @@ export default class Piece implements Util.Printable {
                 continue;
             }
 
-            if (!event.getCache().b) {
-                const options = resolution.bass().near(target.b);
+            if (!event.getCache().getB()) {
+                const options = resolution.bass().near(target.getB());
                 const pitch = options.filter(tone => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= event.getS().main().getPitch().semitones() - 10)[0];
                 event.setB(pitch.group(event.duration()));
             }
 
-            if (event.getCache().b && !event.getB().main().getPitch().getTone().equals(resolution.bass())) {
+            if (event.getCache().getB() && !event.getB().main().getPitch().getTone().equals(resolution.bass())) {
                 event.clear();
                 continue;
             }
@@ -176,42 +176,42 @@ export default class Piece implements Util.Printable {
             const s = event.getS().main().getPitch();
             const b = event.getB().main().getPitch();
 
-            if (!event.getCache().a && !event.getCache().t) {
+            if (!event.getCache().getA() && !event.getCache().getT()) {
                 let two = resolution.get(quotas.findIndex(quota => quota === 2) as Util.Inversion);
 
                 switch (ones.length as 1 | 2 | 3) {
                     case 1:
-                        const permutation1 = new Permutation(s, ones[0].near(target.a)[0], two.near(target.t)[0], b);
-                        const permutation2 = new Permutation(s, two.near(target.a)[0], ones[0].near(target.t)[0], b);
-                        const permutation3 = new Permutation(s, two.near(target.a)[0], two.near(target.t)[0], b);
+                        const permutation1 = new Permutation(s, ones[0].near(target.getA())[0], two.near(target.getT())[0], b);
+                        const permutation2 = new Permutation(s, two.near(target.getA())[0], ones[0].near(target.getT())[0], b);
+                        const permutation3 = new Permutation(s, two.near(target.getA())[0], two.near(target.getT())[0], b);
                         permutations = [permutation1, permutation2, permutation3].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
                         break;
                     case 2:
-                        const permutation4 = new Permutation(s, ones[0].near(target.a)[0], ones[1].near(target.t)[0], b);
-                        const permutation5 = new Permutation(s, ones[1].near(target.a)[0], ones[0].near(target.t)[0], b);
+                        const permutation4 = new Permutation(s, ones[0].near(target.getA())[0], ones[1].near(target.getT())[0], b);
+                        const permutation5 = new Permutation(s, ones[1].near(target.getA())[0], ones[0].near(target.getT())[0], b);
                         permutations = [permutation4, permutation5].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
                         break;
                     case 3:
-                        const permutation6 = new Permutation(s, ones[0].near(target.a)[0], ones[1].near(target.t)[0], b);
-                        const permutation7 = new Permutation(s, ones[1].near(target.a)[0], ones[0].near(target.t)[0], b);
-                        const permutation8 = new Permutation(s, ones[1].near(target.a)[0], ones[2].near(target.t)[0], b);
-                        const permutation9 = new Permutation(s, ones[2].near(target.a)[0], ones[1].near(target.t)[0], b);
+                        const permutation6 = new Permutation(s, ones[0].near(target.getA())[0], ones[1].near(target.getT())[0], b);
+                        const permutation7 = new Permutation(s, ones[1].near(target.getA())[0], ones[0].near(target.getT())[0], b);
+                        const permutation8 = new Permutation(s, ones[1].near(target.getA())[0], ones[2].near(target.getT())[0], b);
+                        const permutation9 = new Permutation(s, ones[2].near(target.getA())[0], ones[1].near(target.getT())[0], b);
                         permutations = [permutation6, permutation7, permutation8, permutation9].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
                         break;
                 }
-            } else if (event.getCache().a && !event.getCache().t) {
+            } else if (event.getCache().getA() && !event.getCache().getT()) {
                 const a = event.getA().main().getPitch();
                 if (ones.length === 1) {
-                    permutations = [new Permutation(s, a, ones[0].near(target.t)[0], b)];
+                    permutations = [new Permutation(s, a, ones[0].near(target.getT())[0], b)];
                 } else {
-                    permutations = [new Permutation(s, a, ones[0].near(target.t)[0], b), new Permutation(s, a, ones[1].near(target.t)[0], b)].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
+                    permutations = [new Permutation(s, a, ones[0].near(target.getT())[0], b), new Permutation(s, a, ones[1].near(target.getT())[0], b)].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
                 }
-            } else if (!event.getCache().a && event.getCache().t) {
+            } else if (!event.getCache().getA() && event.getCache().getT()) {
                 const t = event.getT().main().getPitch();
                 if (ones.length === 1) {
-                    permutations = [new Permutation(s, ones[0].near(target.a)[0], t, b)];
+                    permutations = [new Permutation(s, ones[0].near(target.getA())[0], t, b)];
                 } else {
-                    permutations = [new Permutation(s, ones[0].near(target.a)[0], t, b), new Permutation(s, ones[1].near(target.a)[0], t, b)].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
+                    permutations = [new Permutation(s, ones[0].near(target.getA())[0], t, b), new Permutation(s, ones[1].near(target.getA())[0], t, b)].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
                 }
             } else {
                 permutations = [new Permutation(s, event.getA().main().getPitch(), event.getT().main().getPitch(), b)];
@@ -223,7 +223,7 @@ export default class Piece implements Util.Printable {
                     continue;
                 }
 
-                event.setA(permutation.a.group(event.duration())).setT(permutation.t.group(event.duration()));
+                event.setA(permutation.getA().group(event.duration())).setT(permutation.getT().group(event.duration()));
 
                 if (
                     this.checkParallel(event, previousEvent, "s", "a") ||

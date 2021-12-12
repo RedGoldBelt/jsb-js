@@ -72,10 +72,11 @@ export default class Event extends Parts<Group> {
     }
 
     cacheState() {
-        this.setCache(new Util.Cache(this.s.main() !== undefined,
-            this.a.main() !== undefined,
-            this.t.main() !== undefined,
-            this.b.main() !== undefined
+        this.setCache(new Util.Cache(
+            this.getS().main() !== undefined,
+            this.getA().main() !== undefined,
+            this.getT().main() !== undefined,
+            this.getB().main() !== undefined
         ));
     }
 }
