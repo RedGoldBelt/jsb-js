@@ -16,7 +16,21 @@ export default class Piece implements Util.Printable {
     private time: Util.Time = { barIndex: 0, eventIndex: 0 };
     private maxTime: Util.Time = { barIndex: 0, eventIndex: 0 };
     private key = Key.parse("C major");
-    private dictionary = Dict.FULL;
+    private settings: Util.Settings = {
+        dictionary: Dict.FULL,
+        maxJump: 7,
+        doubledMajorThird: false,
+        doubledMinorThird: true,
+        absentFifth: false,
+        parallelFifths: false,
+        parallelOctaves: false,
+        tessiture: new Parts<Util.Tessitura>(
+            { min: 0, max: 0 },
+            { min: 0, max: 0 },
+            { min: 0, max: 0 },
+            { min: 0, max: 0 }
+        )
+    };
 
     parse(string: string, part: Util.Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
@@ -93,7 +107,7 @@ export default class Piece implements Util.Printable {
                 if (!cacheEvent.validate()) {
                     throw "Not all parts have the same duration.";
                 }
-                bar.push(new Event(cacheEvent.getS(), cacheEvent.getA(), cacheEvent.getT(), cacheEvent.getB(), cacheEvent.getType()));
+                bar.push(Event.empty(cacheEvent.getType()));
             }
             bars.push(bar);
         }
@@ -107,12 +121,7 @@ export default class Piece implements Util.Printable {
         const event = this.event();
         const previousChord = previousEvent?.getChord() ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
 
-        let chordOptions = previousChord.progression(this.dictionary);
-        if (event.getType() === "cadence") {
-            chordOptions.filter(chord => ["I", "i", "V", "Vb", "VI", "vi"].includes(chord.stringStem()));
-        } else if (event.getType() === "end") {
-            chordOptions.filter(chord => ["I/I", "I/i", "V/I"].includes(chord.string()))
-        }
+        let chordOptions = previousChord.progression(this.settings.dictionary, event.getType());
 
         while (event.map < chordOptions.length) {
             event.setS(cacheEvent.getS()).setA(cacheEvent.getA()).setT(cacheEvent.getT()).setB(cacheEvent.getB());
@@ -323,12 +332,12 @@ export default class Piece implements Util.Printable {
         return this;
     }
 
-    getDictionary() {
-        return this.dictionary;
+    getSettings() {
+        return this.settings;
     }
 
-    setDictionary(dictionary: Util.Dictionary) {
-        this.dictionary = dictionary;
+    setSettings(settings: Util.Settings) {
+        this.settings = {...this.getSettings(), ...settings};
         return this;
     }
 

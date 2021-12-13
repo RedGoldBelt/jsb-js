@@ -62,7 +62,7 @@ export default class Chord implements Util.Printable {
         return new Resolution(key.degree(this.base.getDegree()).alterAccidental(this.base.getAccidental()), third, fifth, seventh, this.inversion);
     }
 
-    progression(dictionary: Util.Dictionary) {
+    progression(dictionary: Util.Dictionary, type: Util.EventType) {
         if (this.base === undefined) {
             return dictionary.start[this.relativeKey.getTonality() ? "major" : "minor"].map(Chord.parse);
         }
@@ -71,7 +71,12 @@ export default class Chord implements Util.Printable {
         const common = dictionary.common[this.relativeKey.getTonality() ? "major" : "minor"][this.stringStem()] as string[];
         const commonOptions = common?.map(string => Chord.parse(string).setRelativeKey(this.relativeKey)) ?? [];
 
-        return specificOptions?.concat(commonOptions) ?? commonOptions;
+        const options = specificOptions?.concat(commonOptions) ?? commonOptions;
+        switch (type) {
+            case "normal": return options;
+            case "cadence": return options.filter(chord => ["I", "i", "V", "Vb", "VI", "vi"].includes(chord.stringStem()));
+            case "end": return options.filter(chord => ["I/I", "I/i", "V/I"].includes(chord.string()));
+        }
     }
 
     getBase() {

@@ -25,22 +25,21 @@ namespace Util {
         abstract string(): string;
     }
 
-    // export interface Settings {
-    //     dictionary: Dictionary;
-    //     maxJump: number;
-    //     doubledMajorThird: boolean;
-    //     doubledMinorThird: boolean;
-    //     absentFifth: boolean;
-    //     parallelFifths: boolean;
-    //     parallelOctaves: boolean;
-    //     augmentedSecondInterval: boolean;
-    //     tessitura : Parts<Tessitura>;
-    // }
+    export interface Settings {
+        dictionary: Dictionary;
+        maxJump: number;
+        doubledMajorThird: boolean;
+        doubledMinorThird: boolean;
+        absentFifth: boolean;
+        parallelFifths: boolean;
+        parallelOctaves: boolean;
+        tessiture: Parts<Tessitura>;
+    }
 
-    // export interface Tessitura {
-    //     min: number;
-    //     max: number;
-    // }
+    export interface Tessitura {
+        min: number;
+        max: number;
+    }
 
     export interface Time {
         barIndex: number;
