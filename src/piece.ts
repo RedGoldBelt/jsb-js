@@ -215,7 +215,7 @@ export default class Piece implements Util.Printable {
             }
 
             for (const permutation of permutations) {
-                if (permutation.getScore() === Infinity) {
+                if (!Number.isFinite(permutation.getScore())) {
                     continue;
                 }
 

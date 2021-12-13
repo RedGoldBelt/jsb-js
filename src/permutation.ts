@@ -3,7 +3,7 @@ import Pitch from "./pitch.js";
 import Parts from "./parts.js";
 
 export default class Permutation extends Parts<Pitch> {
-    private score = 0;
+    private score = Infinity;
 
     calculateScore(previousEvent: Event | undefined) {
         const s = this.getS().semitones();
@@ -32,7 +32,7 @@ export default class Permutation extends Parts<Pitch> {
         const at = a - t;
         const stdDev = Math.sqrt((sa * sa + at * at) / 2 - (sa + at) ** 2 / 4);
         const score = aChange + tChange + stdDev;
-        return score;
+        return this.score = score;
     }
 
     getScore() {
