@@ -1,10 +1,11 @@
 import Key from "./key.js";
 import Numeral from "./numeral.js";
+import Printable from "./printable.js";
 import Resolution from "./resolution.js";
 import Tone from "./tone.js";
 import Util from "./util.js";
 
-export default class Chord implements Util.Printable {
+export default class Chord implements Printable {
     private static INVERSIONS = ["a", "b", "c", "d"];
 
     private base;

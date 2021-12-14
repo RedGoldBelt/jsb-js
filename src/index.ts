@@ -10,6 +10,7 @@ import Parts from "./parts.js";
 import Permutation from "./permutation.js";
 import Piece from "./piece.js";
 import Pitch from "./pitch.js";
+import Realisation from "./realisation.js";
 import Resolution from "./resolution.js";
 import Tone from "./tone.js";
 import Util from "./util.js";
@@ -29,6 +30,7 @@ export {
     Permutation,
     Piece,
     Pitch,
+    Realisation,
     Resolution,
     Tone,
     Util,

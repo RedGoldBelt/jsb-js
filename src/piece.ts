@@ -1,36 +1,24 @@
 import Chord from "./chord.js";
-import Dict from "./dictionary.js";
+import Config from "./config.js";
+import Configurable from "./configurable.js";
 import Event from "./event.js";
 import Group from "./group.js";
 import Key from "./key.js";
 import Numeral from "./numeral.js";
 import Parts from "./parts.js";
-import Permutation from "./permutation.js";
+import Realisation from "./realisation.js";
 import Pitch from "./pitch.js";
-import Tone from "./tone.js";
 import Util from "./util.js";
+import Printable from "./printable.js";
+import Permutation from "./permutation.js";
 
-export default class Piece implements Util.Printable {
+export default class Piece extends Configurable implements Printable, Configurable {
     private cache: Util.Bar[] = [];
     private bars: Util.Bar[] = [];
     private time: Util.Time = { barIndex: 0, eventIndex: 0 };
     private maxTime: Util.Time = { barIndex: 0, eventIndex: 0 };
     private key = Key.parse("C major");
-    private settings: Util.Settings = {
-        dictionary: Dict.FULL,
-        maxJump: 7,
-        doubledMajorThird: false,
-        doubledMinorThird: true,
-        absentFifth: false,
-        parallelFifths: false,
-        parallelOctaves: false,
-        tessiture: new Parts<Util.Tessitura>(
-            { min: 0, max: 0 },
-            { min: 0, max: 0 },
-            { min: 0, max: 0 },
-            { min: 0, max: 0 }
-        )
-    };
+    private config = new Config();
 
     parse(string: string, part: Util.Part) {
         const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
@@ -86,7 +74,7 @@ export default class Piece implements Util.Printable {
     }
 
     harmonise() {
-        this.initialize().setMaxTime({ barIndex: 0, eventIndex: 0 }).setTime({ barIndex: 0, eventIndex: 0 });
+        this.initialize().setTime({ barIndex: 0, eventIndex: 0 }).setMaxTime({ barIndex: 0, eventIndex: 0 });
         while (this.getTime().barIndex < this.getBars().length) {
             if (this.getTime().barIndex < 0) {
                 throw "Failed to harmonise.";
@@ -101,9 +89,6 @@ export default class Piece implements Util.Printable {
         for (const cacheBar of this.getCache()) {
             const bar: Util.Bar = [];
             for (const cacheEvent of cacheBar) {
-                if (!cacheEvent.getS().main()) {
-                    throw "Soprano line is not defined.";
-                }
                 if (!cacheEvent.validate()) {
                     throw "Not all parts have the same duration.";
                 }
@@ -116,34 +101,20 @@ export default class Piece implements Util.Printable {
     }
 
     private step() {
-        const cacheEvent = this.getCache()[this.getTime().barIndex][this.getTime().eventIndex];;
+        const cacheEvent = this.getCache()[this.getTime().barIndex][this.getTime().eventIndex];
         const previousEvent = this.previousEvent();
         const event = this.event();
         const previousChord = previousEvent?.getChord() ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
-
-        let chordOptions = previousChord.progression(this.settings.dictionary, event.getType());
+        const chordOptions = previousChord.progression(this.getConfig().dictionary, event.getType());
 
         while (event.map < chordOptions.length) {
             event.setS(cacheEvent.getS()).setA(cacheEvent.getA()).setT(cacheEvent.getT()).setB(cacheEvent.getB());
+            console.log(this.getBars().flat().map(event => event.map.toString().padEnd(2)).join(" "));
             const chord = chordOptions[event.map++];
             const resolution = chord.resolve(this.key);
 
-            const target = new Parts<Pitch>(
-                previousEvent?.getS().at(-1).getPitch() ?? Pitch.parse("Gb4"),
-                previousEvent?.getA().at(-1).getPitch() ?? Pitch.parse("D4"),
-                previousEvent?.getT().at(-1).getPitch() ?? Pitch.parse("B3"),
-                previousEvent?.getB().at(-1).getPitch() ?? Pitch.parse("Eb3")
-            );
 
             if (!event.fits(resolution)) {
-                continue;
-            }
-
-            if (!cacheEvent.getB().main()) {
-                const options = resolution.bass().near(target.getB());
-                const pitch = options.filter(tone => tone.semitones() >= 28 && tone.semitones() <= 48 && tone.semitones() <= event.getS().main().getPitch().semitones() - 10)[0];
-                event.setB(pitch.group(event.duration()));
-            } else if (!event.getB().main().getPitch().getTone().equals(resolution.bass())) {
                 continue;
             }
 
@@ -151,116 +122,54 @@ export default class Piece implements Util.Printable {
                 continue;
             }
 
-            const quotas = resolution.getSeventh() ? [1, 1, 1, 1] : [2, 1, 2, 0];
+            const defined = new Parts<boolean>(
+                event.getS().main() !== undefined,
+                event.getA().main() !== undefined,
+                event.getT().main() !== undefined,
+                event.getB().main() !== undefined,
+            );
 
-            for (const part of Util.PARTS) {
-                const array = [resolution.getRoot(), resolution.getThird(), resolution.getFifth(), resolution.getSeventh()].filter(tone => tone) as Tone[];
-                const inversion = array.findIndex((tone: Tone) => tone.equals(event.get(part).main()?.getPitch().getTone()));
-                if (inversion !== -1) {
-                    --quotas[inversion];
-                }
-            }
+            const target = previousEvent ? new Realisation(
+                previousEvent.getS().at(-1).getPitch(),
+                previousEvent.getA().at(-1).getPitch(),
+                previousEvent.getT().at(-1).getPitch(),
+                previousEvent.getB().at(-1).getPitch(),
+                this.getConfig(),
+                undefined
+            ) : new Realisation(Pitch.parse("Gb4"), Pitch.parse("D4"), Pitch.parse("B3"), Pitch.parse("Eb3"), this.getConfig(), undefined);
 
-            if (resolution.getSeventh() === undefined) {
-                if (quotas[0] === 0) {
-                    quotas[2] = 1;
-                    if (quotas[1] === 0) {
-                        continue;
-                    }
-                }
-                if (quotas[2] === 0) {
-                    quotas[0] = 1;
-                }
-            }
-
-            if (quotas.some(quota => quota < 0)) {
+            if (defined.getB() && !event.getB().main().getPitch().getTone().equals(resolution.get(resolution.getInversion()))) {
                 continue;
             }
 
-            let permutations: Permutation[];
-            const ones = quotas.map((quota, inversion) => quota === 1 ? resolution.get(inversion as Util.Inversion) : undefined).filter(tone => tone !== undefined) as Tone[];
+            const s = resolution.findInversion(event.getS().main().getPitch().getTone());
+            const b = resolution.getInversion();
 
-            const s = event.getS().main().getPitch();
-            const b = event.getB().main().getPitch();
+            const permutations: Permutation[] = [];
 
-            if (!cacheEvent.getA().main() && !cacheEvent.getT().main()) {
-                let two = resolution.get(quotas.findIndex(quota => quota === 2) as Util.Inversion);
-                switch (ones.length as 1 | 2 | 3) {
-                    case 1:
-                        const permutation1 = new Permutation(s, ones[0].near(target.getA())[0], two.near(target.getT())[0], b);
-                        const permutation2 = new Permutation(s, two.near(target.getA())[0], ones[0].near(target.getT())[0], b);
-                        const permutation3 = new Permutation(s, two.near(target.getA())[0], two.near(target.getT())[0], b);
-                        permutations = [permutation1, permutation2, permutation3].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
-                        break;
-                    case 2:
-                        const permutation4 = new Permutation(s, ones[0].near(target.getA())[0], ones[1].near(target.getT())[0], b);
-                        const permutation5 = new Permutation(s, ones[1].near(target.getA())[0], ones[0].near(target.getT())[0], b);
-                        permutations = [permutation4, permutation5].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
-                        break;
-                    case 3:
-                        const permutation6 = new Permutation(s, ones[0].near(target.getA())[0], ones[1].near(target.getT())[0], b);
-                        const permutation7 = new Permutation(s, ones[1].near(target.getA())[0], ones[0].near(target.getT())[0], b);
-                        const permutation8 = new Permutation(s, ones[1].near(target.getA())[0], ones[2].near(target.getT())[0], b);
-                        const permutation9 = new Permutation(s, ones[2].near(target.getA())[0], ones[1].near(target.getT())[0], b);
-                        permutations = [permutation6, permutation7, permutation8, permutation9].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
-                        break;
+            for (const a of Util.INVERSIONS) {
+                for (const t of Util.INVERSIONS) {
+                    permutations.push(new Permutation(s, a, t, b));
                 }
-            } else if (cacheEvent.getA().main() && !cacheEvent.getT().main()) {
-                const a = event.getA().main().getPitch();
-                if (ones.length === 1) {
-                    permutations = [new Permutation(s, a, ones[0].near(target.getT())[0], b)];
-                } else {
-                    permutations = [new Permutation(s, a, ones[0].near(target.getT())[0], b), new Permutation(s, a, ones[1].near(target.getT())[0], b)].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
-                }
-            } else if (!cacheEvent.getA().main() && cacheEvent.getT().main()) {
-                const t = event.getT().main().getPitch();
-                if (ones.length === 1) {
-                    permutations = [new Permutation(s, ones[0].near(target.getA())[0], t, b)];
-                } else {
-                    permutations = [new Permutation(s, ones[0].near(target.getA())[0], t, b), new Permutation(s, ones[1].near(target.getA())[0], t, b)].sort((l, r) => l.calculateScore(this.previousEvent()) - r.calculateScore(this.previousEvent()));
-                }
-            } else {
-                permutations = [new Permutation(s, event.getA().main().getPitch(), event.getT().main().getPitch(), b)];
             }
 
-            for (const permutation of permutations) {
-                if (!Number.isFinite(permutation.getScore())) {
-                    continue;
-                }
+            const tonality = (chord.getBase() as Numeral).getTonality();
 
-                event.setA(permutation.getA().group(event.duration())).setT(permutation.getT().group(event.duration()));
-
-                if (
-                    this.checkParallel(event, previousEvent, "s", "a") ||
-                    this.checkParallel(event, previousEvent, "s", "t") ||
-                    this.checkParallel(event, previousEvent, "s", "b") ||
-                    this.checkParallel(event, previousEvent, "a", "t") ||
-                    this.checkParallel(event, previousEvent, "a", "b") ||
-                    this.checkParallel(event, previousEvent, "t", "b")) {
-                    continue;
-                }
-
-                event.setChord(chord);
-                this.incrementTime();
-                return;
+            permutations.forEach(permutation => permutation.calculateScore(tonality, target, event, resolution));
+            
+            const permutation = permutations.sort((l, r) => l.getScore() - r.getScore())[0];
+            if (!Number.isFinite(permutation.getScore())) {
+                continue;
             }
-            continue;
+            const realisation = permutation.getRealisation();
+            event.setA(realisation.getA().group(event.duration())).setT(realisation.getT().group(event.duration())).setB(realisation.getB().group(event.duration()));
+
+            event.setChord(chord);
+            this.incrementTime();
+            return;
         }
         event.map = 0;
         this.decrementTime();
-    }
-
-    private checkParallel(event: Event, previousEvent: Event | undefined, upper: Util.Part, lower: Util.Part) {
-        if (previousEvent === undefined) {
-            return false;
-        }
-        const previousUpper = previousEvent.get(upper).at(-1).getPitch().semitones();
-        const previousLower = previousEvent.get(lower).at(-1).getPitch().semitones()
-        const currentUpper = event.get(upper).at(0).getPitch().semitones();
-        const currentLower = event.get(lower).at(0).getPitch().semitones();
-        const previousInterval = (previousUpper - previousLower) % 12;
-        const interval = (currentUpper - currentLower) % 12;
-        return (previousInterval === 0 && interval === 0 || previousInterval === 7 && interval === 7) && previousUpper !== currentUpper && previousLower !== currentLower;
     }
 
     getCache() {
@@ -332,12 +241,17 @@ export default class Piece implements Util.Printable {
         return this;
     }
 
-    getSettings() {
-        return this.settings;
+    getConfig() {
+        return this.config;
     }
 
-    setSettings(settings: Util.Settings) {
-        this.settings = {...this.getSettings(), ...settings};
+    setConfig(config: Config) {
+        this.config = config;
+        return this;
+    }
+
+    editConfig(property: keyof Config, value: any) {
+        this.getConfig()[property] = value;
         return this;
     }
 

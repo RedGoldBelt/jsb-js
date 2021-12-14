@@ -1,7 +1,7 @@
+import Printable from "./printable.js";
 import Tone from "./tone.js";
-import Util from "./util.js";
 
-export default class Numeral implements Util.Printable {
+export default class Numeral implements Printable {
     static NUMERALS = ["i", "ii", "iii", "iv", "v", "vi", "vii"];
 
     private accidental;

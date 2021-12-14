@@ -3,8 +3,9 @@ import Group from "./group.js";
 import Resolution from "./resolution.js";
 import Parts from "./parts.js";
 import Util from "./util.js";
+import Printable from "./printable.js";
 
-export default class Event extends Parts<Group> implements Util.Printable {
+export default class Event extends Parts<Group> implements Printable {
     private chord: Chord | undefined;
     private type;
     map = 0;

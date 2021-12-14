@@ -1,9 +1,10 @@
 import Group from "./group.js";
 import Note from "./note.js";
+import Printable from "./printable.js";
 import Tone from "./tone.js";
 import Util from "./util.js";
 
-export default class Pitch implements Util.Printable {
+export default class Pitch implements Printable {
     private tone: Tone;
     private octave;
 
