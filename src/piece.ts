@@ -109,7 +109,6 @@ export default class Piece extends Configurable implements Printable, Configurab
 
         while (event.map < chordOptions.length) {
             event.setS(cacheEvent.getS()).setA(cacheEvent.getA()).setT(cacheEvent.getT()).setB(cacheEvent.getB());
-            console.log(this.getBars().flat().map(event => event.map.toString().padEnd(2)).join(" "));
             const chord = chordOptions[event.map++];
             const resolution = chord.resolve(this.key);
 
@@ -149,16 +148,16 @@ export default class Piece extends Configurable implements Printable, Configurab
 
             for (const a of Util.INVERSIONS) {
                 for (const t of Util.INVERSIONS) {
-                    permutations.push(new Permutation(s, a, t, b));
+                    permutations.push(new Permutation(s, a, t, b).setConfig(this.getConfig()));
                 }
             }
-
             const tonality = (chord.getBase() as Numeral).getTonality();
-
-            permutations.forEach(permutation => permutation.calculateScore(tonality, target, event, resolution));
             
-            const permutation = permutations.sort((l, r) => l.getScore() - r.getScore())[0];
-            if (!Number.isFinite(permutation.getScore())) {
+            for (const permutation of permutations) {
+                permutation.calculateScore(tonality, target, event, resolution);
+            }
+            const permutation = permutations.filter(permutation => Number.isFinite(permutation.getScore())).sort((l, r) => l.getScore() - r.getScore())[0];
+            if (permutation === undefined) {
                 continue;
             }
             const realisation = permutation.getRealisation();
