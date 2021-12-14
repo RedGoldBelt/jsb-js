@@ -3,8 +3,8 @@ import Printable from "./printable.js";
 import Util from "./util.js";
 
 export default class Group implements Printable {
-    private notes: Note[];
-    private index: number;
+    notes: Note[];
+    index: number;
 
     constructor(notes: Note[], index: number) {
         this.notes = notes;
@@ -24,39 +24,21 @@ export default class Group implements Printable {
     }
 
     main() {
-        return this.getNotes()[this.getIndex()];
+        return this.notes[this.index];
     }
 
     at(index: number) {
         if (index < 0) {
-            index = this.getNotes().length + index;
+            index = this.notes.length + index;
         }
-        return this.getNotes()[index] as Note;
+        return this.notes[index] as Note;
     }
 
     duration() {
-        return this.getNotes().map(note => note.getDuration()).reduce((l, r) => l + r);
-    }
-
-    getNotes() {
-        return this.notes;
-    }
-
-    setNotes(notes: Note[]) {
-        this.notes = notes;
-        return this;
-    }
-
-    getIndex() {
-        return this.index;
-    }
-
-    setIndex(index: number) {
-        this.index = index;
-        return this;
+        return this.notes.map(note => note.duration).reduce((l, r) => l + r);
     }
 
     string() {
-        return this.getNotes().map(note => note.string()).join(" ");
+        return this.notes.map(note => note.string()).join(" ");
     }
 }

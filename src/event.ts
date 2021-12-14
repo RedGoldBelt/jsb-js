@@ -24,16 +24,16 @@ export default class Event extends Parts<Group> implements Printable {
     }
 
     fits(resolution: Resolution) {
-        if (this.s.main() && !resolution.includes(this.s.main().getPitch().getTone())) {
+        if (this.s.main() && !resolution.includes(this.s.main().pitch.tone)) {
             return false;
         }
-        if (this.a.main() && !resolution.includes(this.a.main().getPitch().getTone())) {
+        if (this.a.main() && !resolution.includes(this.a.main().pitch.tone)) {
             return false;
         }
-        if (this.t.main() && !resolution.includes(this.t.main().getPitch().getTone())) {
+        if (this.t.main() && !resolution.includes(this.t.main().pitch.tone)) {
             return false;
         }
-        if (this.b.main() && !resolution.includes(this.b.main().getPitch().getTone())) {
+        if (this.b.main() && !resolution.includes(this.b.main().pitch.tone)) {
             return false;
         }
         return true;

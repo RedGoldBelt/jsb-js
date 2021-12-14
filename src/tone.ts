@@ -8,10 +8,10 @@ export default class Tone implements Printable {
         Tone.ACCIDENTALS[-1] = "b";
     }
     static LETTERS = ["C", "D", "E", "F", "G", "A", "B"];
-    private static PITCHES = [0, 2, 4, 5, 7, 9, 11];
+    static PITCHES = [0, 2, 4, 5, 7, 9, 11];
 
-    private letter;
-    private accidental;
+    letter;
+    accidental;
 
     constructor(letter: number, accidental: number) {
         this.letter = letter;
@@ -38,9 +38,9 @@ export default class Tone implements Printable {
     }
 
     near(pitch: Pitch) {
-        const tone1 = new Pitch(this, pitch.getOctave() - 1);
-        const tone2 = new Pitch(this, pitch.getOctave());
-        const tone3 = new Pitch(this, pitch.getOctave() + 1);
+        const tone1 = new Pitch(this, pitch.octave - 1);
+        const tone2 = new Pitch(this, pitch.octave);
+        const tone3 = new Pitch(this, pitch.octave + 1);
         return [tone1, tone2, tone3].sort((l, r) => Math.abs(pitch.semitones() - l.semitones()) - Math.abs(pitch.semitones() - r.semitones()));
     }
 
@@ -50,17 +50,6 @@ export default class Tone implements Printable {
 
     setLetter(letter: number) {
         this.letter = letter;
-        return this;
-    }
-
-    getAccidental() {
-        return this.accidental;
-    }
-
-    setAccidental(accidental: number) {
-        if (accidental >= -2 && accidental <= 2) {
-            this.accidental = accidental;
-        }
         return this;
     }
 

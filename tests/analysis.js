@@ -24,7 +24,7 @@ const p = {
         this.previous = this.chord;
         this.chord = Chord.parse(string);
         if (this.previous.base === undefined) {
-            const buffer = this.dict.start[this.previous.getRelativeKey().getTonality() ? "major" : "minor"];
+            const buffer = this.dict.start[this.previous.getRelativeKey().tonality ? "major" : "minor"];
             const progression = this.chord.string();
             const datum = buffer.find(datum => datum[0] == progression);
             if (datum === undefined) {
@@ -34,7 +34,7 @@ const p = {
             }
         }
         if (this.chord.getRelativeKey().string() === this.previous.getRelativeKey().string()) {
-            const buffer = this.dict.common[this.previous.getRelativeKey().getTonality() ? "major" : "minor"];
+            const buffer = this.dict.common[this.previous.getRelativeKey().tonality ? "major" : "minor"];
             const previous = this.previous.stringStem();
             if (buffer[previous] === undefined) {
                 buffer[previous] = [];

@@ -4,8 +4,8 @@ import Printable from "./printable.js";
 import Tone from "./tone.js";
 
 export default class Pitch implements Printable {
-    private tone: Tone;
-    private octave;
+    tone: Tone;
+    octave;
 
     constructor(tone: Tone, octave: number) {
         this.tone = tone;
@@ -21,36 +21,18 @@ export default class Pitch implements Printable {
     }
 
     semitones() {
-        return this.getTone().semitones() + 12 * this.getOctave();
+        return this.tone.semitones() + 12 * this.octave;
     }
 
     near(tone: Tone) {
-        const tone1 = new Pitch(tone, this.getOctave() - 1);
-        const tone2 = new Pitch(tone, this.getOctave());
-        const tone3 = new Pitch(tone, this.getOctave() + 1);
+        const tone1 = new Pitch(tone, this.octave - 1);
+        const tone2 = new Pitch(tone, this.octave);
+        const tone3 = new Pitch(tone, this.octave + 1);
         return [tone1, tone2, tone3].sort((l, r) => Math.abs(this.semitones() - l.semitones()) - Math.abs(this.semitones() - r.semitones()));
     }
 
-    getTone() {
-        return this.tone;
-    }
-
-    setTone(tone: Tone) {
-        this.tone = tone;
-        return this;
-    }
-
-    getOctave() {
-        return this.octave;
-    }
-
-    setOctave(octave: number) {
-        this.octave = octave;
-        return this;
-    }
-
     string() {
-        return this.getTone().string() + this.getOctave();
+        return this.tone.string() + this.octave;
     }
 
     group(duration: number) {

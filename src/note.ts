@@ -2,8 +2,8 @@ import Pitch from "./pitch.js";
 import Printable from "./printable.js";
 
 export default class Note implements Printable{
-    private pitch: Pitch;
-    private duration: number;
+    pitch: Pitch;
+    duration: number;
 
     constructor(pitch: Pitch, duration: number) {
         this.pitch = pitch;
@@ -25,27 +25,9 @@ export default class Note implements Printable{
         return this.pitch.semitones();
     }
 
-    getPitch() {
-        return this.pitch;
-    }
-
-    setPitch(pitch: Pitch) {
-        this.pitch = pitch;
-        return this;
-    }
-
-    getDuration() {
-        return this.duration;
-    }
-
-    setDuration(duration: number) {
-        this.duration = duration;
-        return this;
-    }
-
     string() {
-        let string = this.getPitch().string();
-        switch (this.getDuration()) {
+        let string = this.pitch.string();
+        switch (this.duration) {
             case 0.25: string += "𝅘𝅥𝅯"; break;
             case 0.5: string += "♪"; break;
             case 0.75: string += "♪."; break;

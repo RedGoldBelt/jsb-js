@@ -1,8 +1,8 @@
 import Pitch from "./pitch.js";
 
 export default class Tessitura {
-    private min;
-    private max;
+    min;
+    max;
 
     constructor(min: number, max: number) {
         this.min = min;
@@ -10,24 +10,6 @@ export default class Tessitura {
     }
 
     includes(pitch: Pitch) {
-        return pitch.semitones() >= this.getMin() && pitch.semitones() < this.getMax();
-    }
-
-    getMin() {
-        return this.min;
-    }
-
-    setMin(min: number) {
-        this.min = min;
-        return this;
-    }
-
-    getMax() {
-        return this.max;
-    }
-
-    setMax(max: number) {
-        this.max = max;
-        return this;
+        return pitch.semitones() >= this.min && pitch.semitones() < this.max;
     }
 }

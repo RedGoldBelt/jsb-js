@@ -38,38 +38,38 @@ export default class Chord implements Printable {
             throw "Cannot resolve null chord.";
         }
         if (this.relativeKey) {
-            key = new Key(key.degree(this.relativeKey.getDegree()), this.relativeKey.getTonality());
+            key = new Key(key.degree(this.relativeKey.degree), this.relativeKey.tonality);
         }
 
-        const rootPitch = key.degree(this.base.getDegree()).alterAccidental(this.base.getAccidental()).semitones() - key.degree(0).semitones();
-        const third = key.degree(this.base.getDegree() + 2, rootPitch + (this.base.getTonality() ? 4 : 3));
+        const rootPitch = key.degree(this.base.degree).alterAccidental(this.base.accidental).semitones() - key.degree(0).semitones();
+        const third = key.degree(this.base.degree + 2, rootPitch + (this.base.tonality ? 4 : 3));
         let fifth: Tone;
         let seventh: Tone | undefined;
 
         switch (this.modifier) {
             case "":
-                fifth = key.degree(this.base.getDegree() + 4);
+                fifth = key.degree(this.base.degree + 4);
                 break;
             case "o7":
-                fifth = key.degree(this.base.getDegree() + 4, rootPitch + 6);
-                seventh = key.degree(this.base.getDegree() + 6, rootPitch + 9);
+                fifth = key.degree(this.base.degree + 4, rootPitch + 6);
+                seventh = key.degree(this.base.degree + 6, rootPitch + 9);
                 break;
             case "7":
-                fifth = key.degree(this.base.getDegree() + 4);
-                seventh = key.degree(this.base.getDegree() + 6);
+                fifth = key.degree(this.base.degree + 4);
+                seventh = key.degree(this.base.degree + 6);
                 break;
         }
 
-        return new Resolution(key.degree(this.base.getDegree()).alterAccidental(this.base.getAccidental()), third, fifth, seventh, this.inversion);
+        return new Resolution(key.degree(this.base.degree).alterAccidental(this.base.accidental), third, fifth, seventh, this.inversion);
     }
 
     progression(dictionary: Util.Dictionary, type: Util.EventType) {
         if (this.base === undefined) {
-            return dictionary.start[this.relativeKey.getTonality() ? "major" : "minor"].map(Chord.parse);
+            return dictionary.start[this.relativeKey.tonality ? "major" : "minor"].map(Chord.parse);
         }
         const specific = dictionary.specific?.[this.relativeKey.string()]?.[this.stringStem()] as string[];
         const specificOptions = specific?.map(Chord.parse) ?? [];
-        const common = dictionary.common[this.relativeKey.getTonality() ? "major" : "minor"][this.stringStem()] as string[];
+        const common = dictionary.common[this.relativeKey.tonality ? "major" : "minor"][this.stringStem()] as string[];
         const commonOptions = common?.map(string => {
             const chord = Chord.parse(string);
             chord.relativeKey = this.relativeKey;

@@ -103,7 +103,7 @@ export default class Piece implements Printable {
         const cacheEvent = this.cache[this.time.barIndex][this.time.eventIndex];
         const previousEvent = this.previousEvent();
         const event = this.event();
-        const previousChord = previousEvent?.chord ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
+        const previousChord = previousEvent?.chord ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.tonality));
         const chordOptions = previousChord.progression(this.config.dictionary, event.type);
 
         while (event.map < chordOptions.length) {
@@ -121,7 +121,7 @@ export default class Piece implements Printable {
                 event.b.main() !== undefined,
             );
 
-            if (defined.b && !event.b.main().getPitch().getTone().equals(resolution.get(resolution.inversion))) {
+            if (defined.b && !event.b.main().pitch.tone.equals(resolution.get(resolution.inversion))) {
                 continue;
             }
 
@@ -134,17 +134,17 @@ export default class Piece implements Printable {
             }
 
             const target = previousEvent ? new Realisation(
-                previousEvent.s.at(-1).getPitch(),
-                previousEvent.a.at(-1).getPitch(),
-                previousEvent.t.at(-1).getPitch(),
-                previousEvent.b.at(-1).getPitch()
+                previousEvent.s.at(-1).pitch,
+                previousEvent.a.at(-1).pitch,
+                previousEvent.t.at(-1).pitch,
+                previousEvent.b.at(-1).pitch
             ) : new Realisation(Pitch.parse("Gb4"), Pitch.parse("D4"), Pitch.parse("B3"), Pitch.parse("Eb3"));
 
-            const sInversion = resolution.findInversion(event.s.main().getPitch().getTone());
+            const sInversion = resolution.findInversion(event.s.main().pitch.tone);
             const bInversion = resolution.inversion;
 
             const realisations: Realisation[] = [];
-            const tonality = (chord.base as Numeral).getTonality();
+            const tonality = (chord.base as Numeral).tonality;
             const hasSeventh = resolution.seventh !== undefined;
 
             for (let aInversion = 0; aInversion < 4; ++aInversion) {
