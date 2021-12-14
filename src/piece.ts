@@ -6,11 +6,11 @@ import Group from "./group.js";
 import Key from "./key.js";
 import Numeral from "./numeral.js";
 import Parts from "./parts.js";
-import Realisation from "./realisation.js";
-import Pitch from "./pitch.js";
 import Util from "./util.js";
 import Printable from "./printable.js";
 import Permutation from "./permutation.js";
+import Realisation from "./realisation.js";
+import Pitch from "./pitch.js";
 
 export default class Piece extends Configurable implements Printable, Configurable {
     private cache: Util.Bar[] = [];
@@ -112,6 +112,16 @@ export default class Piece extends Configurable implements Printable, Configurab
             const chord = chordOptions[event.map++];
             const resolution = chord.resolve(this.key);
 
+            const defined = new Parts<boolean>(
+                event.getS().main() !== undefined,
+                event.getA().main() !== undefined,
+                event.getT().main() !== undefined,
+                event.getB().main() !== undefined,
+            );
+
+            if (defined.getB() && !event.getB().main().getPitch().getTone().equals(resolution.get(resolution.getInversion()))) {
+                continue;
+            }
 
             if (!event.fits(resolution)) {
                 continue;
@@ -121,47 +131,42 @@ export default class Piece extends Configurable implements Printable, Configurab
                 continue;
             }
 
-            const defined = new Parts<boolean>(
-                event.getS().main() !== undefined,
-                event.getA().main() !== undefined,
-                event.getT().main() !== undefined,
-                event.getB().main() !== undefined,
-            );
-
             const target = previousEvent ? new Realisation(
                 previousEvent.getS().at(-1).getPitch(),
                 previousEvent.getA().at(-1).getPitch(),
                 previousEvent.getT().at(-1).getPitch(),
                 previousEvent.getB().at(-1).getPitch(),
-                this.getConfig(),
-                undefined
-            ) : new Realisation(Pitch.parse("Gb4"), Pitch.parse("D4"), Pitch.parse("B3"), Pitch.parse("Eb3"), this.getConfig(), undefined);
-
-            if (defined.getB() && !event.getB().main().getPitch().getTone().equals(resolution.get(resolution.getInversion()))) {
-                continue;
-            }
+            ) : new Realisation(Pitch.parse("Gb4"), Pitch.parse("D4"), Pitch.parse("B3"), Pitch.parse("Eb3"));
 
             const s = resolution.findInversion(event.getS().main().getPitch().getTone());
             const b = resolution.getInversion();
 
-            const permutations: Permutation[] = [];
+            const permutations: Permutation[] = [];      
+            const tonality = (chord.getBase() as Numeral).getTonality();
+            const hasSeventh = resolution.getSeventh() !== undefined;
 
             for (const a of Util.INVERSIONS) {
                 for (const t of Util.INVERSIONS) {
-                    permutations.push(new Permutation(s, a, t, b).setConfig(this.getConfig()));
+                    const permutation = new Permutation(s, a, t, b);
+                    if (permutation.valid(this.getConfig(), tonality, hasSeventh)) {
+                        permutations.push(permutation);
+                    }
                 }
             }
-            const tonality = (chord.getBase() as Numeral).getTonality();
-            
-            for (const permutation of permutations) {
-                permutation.calculateScore(tonality, target, event, resolution);
-            }
-            const permutation = permutations.filter(permutation => Number.isFinite(permutation.getScore())).sort((l, r) => l.getScore() - r.getScore())[0];
-            if (permutation === undefined) {
+
+            if (permutations.length === 0) {
                 continue;
             }
-            const realisation = permutation.getRealisation();
-            event.setA(realisation.getA().group(event.duration())).setT(realisation.getT().group(event.duration())).setB(realisation.getB().group(event.duration()));
+            
+            const realisations = permutations.map(permutation => permutation.realise(this.getConfig(), target, event, resolution).score(this.getConfig(), target, !previousEvent));
+            const realisation = realisations.reduce((l, r) => (l.getCache() < r.getCache()) ? l : r);
+
+            const duration = event.duration();
+            for (const part of Util.PARTS) {
+                if (!defined.get(part)) {
+                    event.set(part, realisation.get(part).group(duration));
+                }
+            }
 
             event.setChord(chord);
             this.incrementTime();

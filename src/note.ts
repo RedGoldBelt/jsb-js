@@ -21,6 +21,10 @@ export default class Note implements Printable{
         );
     }
 
+    semitones() {
+        return this.pitch.semitones();
+    }
+
     getPitch() {
         return this.pitch;
     }

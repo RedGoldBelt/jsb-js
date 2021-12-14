@@ -1,23 +1,15 @@
 import Config from "./config.js";
-import Configurable from "./configurable.js";
 import Parts from "./parts.js";
 import Pitch from "./pitch.js";
 import Util from "./util.js";
 
-export default class Realisation extends Parts<Pitch> implements Configurable {
-    private config;
-    private target;
+export default class Realisation extends Parts<Pitch> {
+    private cache = Infinity;
 
-    constructor(s: Pitch, a: Pitch, t: Pitch, b: Pitch, config: Config, target: Realisation | undefined) {
-        super(s, a, t, b);
-        this.config = config;
-        this.target = target;
-    }
-
-    score() {
+    score(config: Config, target: Realisation, start: boolean) {
         for (const part of Util.PARTS) {
-            if (!this.getConfig().tessiture.get(part).includes(this.get(part))) {
-                return Infinity;
+            if (!config.tessiture.get(part).includes(this.get(part))) {
+                return this.setCache(Infinity);
             }
         }
 
@@ -31,32 +23,33 @@ export default class Realisation extends Parts<Pitch> implements Configurable {
         const tb = t - b;
 
         if (sa < 0 || at < 0 || tb < 0) {
-            return Infinity;
+            return this.setCache(Infinity);
         }
 
-        if (this.getTarget().getTarget()) {
+        if (!start) {
             if (
-                this.parallel("s", "a") ||
-                this.parallel("s", "t") ||
-                this.parallel("s", "b") ||
-                this.parallel("a", "t") ||
-                this.parallel("a", "b") ||
-                this.parallel("t", "b")
+                this.parallel(target, "s", "a") ||
+                this.parallel(target, "s", "t") ||
+                this.parallel(target, "s", "b") ||
+                this.parallel(target, "a", "t") ||
+                this.parallel(target, "a", "b") ||
+                this.parallel(target, "t", "b")
             ) {
-                return Infinity;
+                return this.setCache(Infinity);
             }
         }
 
-        return Math.max(sa, at, tb) - Math.min(sa, at, tb) +
-            Math.abs(s - this.getTarget().getS().semitones()) +
-            Math.abs(a - this.getTarget().getA().semitones()) +
-            Math.abs(t - this.getTarget().getT().semitones()) +
-            Math.abs(b - this.getTarget().getB().semitones());
+        const score = Math.max(sa, at, tb) - Math.min(sa, at, tb) +
+            Math.abs(s - target.getS().semitones()) +
+            Math.abs(a - target.getA().semitones()) +
+            Math.abs(t - target.getT().semitones()) +
+            Math.abs(b - target.getB().semitones());
+        return this.setCache(score);
     }
 
-    parallel(upper: Util.Part, lower: Util.Part) {
-        const previousUpper = this.getTarget().get(upper).semitones();
-        const previousLower = this.getTarget().get(lower).semitones()
+    parallel(target: Realisation, upper: Util.Part, lower: Util.Part) {
+        const previousUpper = target.get(upper).semitones();
+        const previousLower = target.get(lower).semitones()
         const currentUpper = this.get(upper).semitones();
         const currentLower = this.get(lower).semitones();
         const previousInterval = previousUpper - previousLower;
@@ -77,21 +70,12 @@ export default class Realisation extends Parts<Pitch> implements Configurable {
         return false;
     }
 
-    getConfig() {
-        return this.config;
+    getCache() {
+        return this.cache;
     }
 
-    setConfig(config: Config) {
-        this.config = config;
-        return this;
-    }
-
-    getTarget() {
-        return this.target as Realisation;
-    }
-
-    setTarget(target: Realisation | undefined) {
-        this.target = target;
+    setCache(cache: number) {
+        this.cache = cache;
         return this;
     }
 }
