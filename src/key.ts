@@ -21,14 +21,14 @@ export default class Key implements Printable {
     degree(degree: number, relativePitch?: number) {
         degree %= 7;
         relativePitch ??= (this.tonality ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10])[degree];
-        const top = new Tone((this.tone.getLetter() + degree) % 7, 0);
+        const top = new Tone((this.tone.letter + degree) % 7, 0);
         top.accidental = (relativePitch - top.semitones() + this.tone.semitones() + 18) % 12 - 6;
         return top;
     }
 
     accidentals() {
-        let accidentals = (2 * this.tone.getLetter()) % 7 + 7 * this.tone.accidental;
-        if (this.tone.getLetter() === 3) {
+        let accidentals = (2 * this.tone.letter) % 7 + 7 * this.tone.accidental;
+        if (this.tone.letter === 3) {
             accidentals -= 7;
         }
         if (!this.tonality) {

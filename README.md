@@ -50,6 +50,6 @@ To harmonise the piece, call the harmonise() method on it.
 
 You can change the dictionary that is used.
 
-`const myPiece = new JSB.Piece().setKey(...).load(...).setDictionary(JSB.Dict.PRIMARY_AB).harmonise();`
+`const myPiece = new JSB.Piece().setKey(...).load(...).configure("dictionary", JSB.Dict.PRIMARY_AB).harmonise();`
 
 Copyright Jeremy Chen

@@ -44,15 +44,6 @@ export default class Tone implements Printable {
         return [tone1, tone2, tone3].sort((l, r) => Math.abs(pitch.semitones() - l.semitones()) - Math.abs(pitch.semitones() - r.semitones()));
     }
 
-    getLetter() {
-        return this.letter;
-    }
-
-    setLetter(letter: number) {
-        this.letter = letter;
-        return this;
-    }
-
     alterAccidental(accidental: number) {
         const altered = this.accidental + accidental;
         if (altered >= -2 && altered <= 2) {
