@@ -25,7 +25,17 @@ console.timeEnd("Parsing");
 console.time("Harmonisation");
 
 GOD_SAVE_THE_QUEEN.harmonise();
+HARK_THE_HERALD_ANGELS_SING.harmonise();
+EXERCISE_V1.harmonise();
+EXERCISE_V2.harmonise();
+KMSR_EXERCISE.harmonise();
+COURSEWORK_2.harmonise();
+CHORALE_1.harmonise();
+CHORALE_2.harmonise();
+CHORALE_3.harmonise();
+PRIMARY_AB_TEST.harmonise();
 CHOPIN.harmonise();
+BWV_1_6.harmonise();
 BWV_X_6_SB.harmonise();
 
 console.timeEnd("Harmonisation");

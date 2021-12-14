@@ -22,7 +22,8 @@
   ],
   "scripts": {
     "build": "npm run compile && npx webpack",
-    "compile": "tsc --project tsconfig.json"
+    "compile": "tsc --project tsconfig.json",
+    "test": "node tests/test.js"
   },
   "devDependencies": {
     "typescript": "^4.5.2",
