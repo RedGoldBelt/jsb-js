@@ -4,8 +4,6 @@ import Resolution from "./resolution.js";
 import Parts from "./parts.js";
 import Util from "./util.js";
 import Printable from "./printable.js";
-import Config from "./config.js";
-import Permutation from "./permutation.js";
 
 export default class Event extends Parts<Group> implements Printable {
     private chord: Chord | undefined;

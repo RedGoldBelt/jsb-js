@@ -138,28 +138,43 @@ export default class Piece extends Configurable implements Printable, Configurab
                 previousEvent.getB().at(-1).getPitch(),
             ) : new Realisation(Pitch.parse("Gb4"), Pitch.parse("D4"), Pitch.parse("B3"), Pitch.parse("Eb3"));
 
-            const s = resolution.findInversion(event.getS().main().getPitch().getTone());
-            const b = resolution.getInversion();
+            const sInversion = resolution.findInversion(event.getS().main().getPitch().getTone());
+            const bInversion = resolution.getInversion();
 
-            const permutations: Permutation[] = [];      
+            const permutations: Realisation[] = [];
             const tonality = (chord.getBase() as Numeral).getTonality();
             const hasSeventh = resolution.getSeventh() !== undefined;
 
-            for (const a of Util.INVERSIONS) {
-                for (const t of Util.INVERSIONS) {
-                    const permutation = new Permutation(s, a, t, b);
-                    if (permutation.valid(this.getConfig(), tonality, hasSeventh)) {
-                        permutations.push(permutation);
+            for (const aInversion of Util.INVERSIONS) {
+                for (const tInversion of Util.INVERSIONS) {
+                    const distribution = [0, 0, 0, 0];
+                    ++distribution[sInversion];
+                    ++distribution[aInversion];
+                    ++distribution[tInversion];
+                    ++distribution[bInversion];
+
+                    if (distribution[0] === 0 || distribution[1] === 0 || distribution[2] === 0 && !this.getConfig().absentFifth || distribution[3] === 0 && hasSeventh) {
+                        continue;
                     }
+
+                    if (tonality) {
+                        if (distribution[1] >= (this.getConfig().doubledMajorThird ? 3 : 2)) {
+                            continue;
+                        }
+                    } else {
+                        if (distribution[1] >= (this.getConfig().doubledMinorThird ? 3 : 2)) {
+                            continue;
+                        }
+                    }
+                    permutations.push(new Permutation(sInversion, aInversion, tInversion, bInversion).realise(this.getConfig(), defined, target, event, resolution).score(this.getConfig(), target, !previousEvent));
                 }
             }
 
             if (permutations.length === 0) {
                 continue;
             }
-            
-            const realisations = permutations.map(permutation => permutation.realise(this.getConfig(), target, event, resolution).score(this.getConfig(), target, !previousEvent));
-            const realisation = realisations.reduce((l, r) => (l.getCache() < r.getCache()) ? l : r);
+
+            const realisation = permutations.reduce((l, r) => (l.getCache() < r.getCache()) ? l : r);
 
             const duration = event.duration();
             for (const part of Util.PARTS) {
