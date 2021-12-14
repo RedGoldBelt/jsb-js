@@ -6,8 +6,8 @@ import Util from "./util.js";
 import Printable from "./printable.js";
 
 export default class Event extends Parts<Group> implements Printable {
-    private chord: Chord | undefined;
-    private type;
+    chord: Chord | undefined;
+    type;
     map = 0;
 
     constructor(s: Group, a: Group, t: Group, b: Group, type: Util.EventType) {
@@ -20,40 +20,30 @@ export default class Event extends Parts<Group> implements Printable {
     }
 
     validate() {
-        return Util.PARTS.filter(part => this.get(part).main()).map(part => this.get(part).duration()).every((duration, i, array) => duration === array[0]);
+        return (["s", "a", "t", "b"] as Util.Part[]).filter(part => this.get(part).main()).map(part => this.get(part).duration()).every((duration, i, array) => duration === array[0]);
     }
 
     fits(resolution: Resolution) {
-        for (const part of Util.PARTS) {
-            if (this.get(part).main() && !resolution.includes(this.get(part).main().getPitch().getTone())) {
-                return false;
-            }
+        if (this.s.main() && !resolution.includes(this.s.main().getPitch().getTone())) {
+            return false;
+        }
+        if (this.a.main() && !resolution.includes(this.a.main().getPitch().getTone())) {
+            return false;
+        }
+        if (this.t.main() && !resolution.includes(this.t.main().getPitch().getTone())) {
+            return false;
+        }
+        if (this.b.main() && !resolution.includes(this.b.main().getPitch().getTone())) {
+            return false;
         }
         return true;
     }
 
     duration() {
-        return this.getS().duration() ?? this.getA().duration ?? this.getT().duration ?? this.getB().duration ?? 1;
-    }
-
-    getChord() {
-        return this.chord;
-    }
-
-    setChord(chord: Chord | undefined) {
-        this.chord = chord;
-        return this;
-    }
-
-    getType() {
-        return this.type;
-    }
-
-    setType(type: Util.EventType) {
-        this.type = type;
+        return this.s.duration() ?? this.a.duration ?? this.t.duration ?? this.b.duration ?? 1;
     }
 
     string() {
-        return `{${this.getS().string()}} {${this.getA().string()}} {${this.getT().string()}} {${this.getB().string()}}`;
+        return `{${this.s.string()}} {${this.a.string()}} {${this.t.string()}} {${this.b.string()}}`;
     }
 }

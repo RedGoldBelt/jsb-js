@@ -15,10 +15,8 @@ namespace Util {
     }
     export type EventType = "normal" | "cadence" | "end";
     export type Inversion = 0 | 1 | 2 | 3;
-    export const INVERSIONS: Util.Inversion[] = [0, 1, 2, 3];
     export type Modifier = "" | "7" | "o7";
     export type Part = "s" | "a" | "t" | "b";
-    export const PARTS: Part[] = ["s", "a", "t", "b"];
 
     export interface Time {
         barIndex: number;

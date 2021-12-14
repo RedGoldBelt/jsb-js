@@ -1,6 +1,5 @@
 import Chord from "./chord.js";
 import Config from "./config.js";
-import Configurable from "./configurable.js";
 import Event from "./event.js";
 import Group from "./group.js";
 import Key from "./key.js";
@@ -12,7 +11,7 @@ import Permutation from "./permutation.js";
 import Realisation from "./realisation.js";
 import Pitch from "./pitch.js";
 
-export default class Piece extends Configurable implements Printable, Configurable {
+export default class Piece implements Printable {
     private cache: Util.Bar[] = [];
     private bars: Util.Bar[] = [];
     private time: Util.Time = { barIndex: 0, eventIndex: 0 };
@@ -21,62 +20,63 @@ export default class Piece extends Configurable implements Printable, Configurab
     private config = new Config();
 
     parse(string: string, part: Util.Part) {
-        const split = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
-        split.forEach((bar, barIndex) => {
-            this.getCache()[barIndex] ??= [];
-            bar.forEach((event, eventIndex) => {
+        const bars = string.split(/[[|\]]/).filter(bar => bar !== "").map(bar => bar.split(" ").filter(group => group !== ""));
+        for (let barIndex = 0; barIndex < bars.length; ++barIndex) {
+            const bar = bars[barIndex];
+            this.cache[barIndex] ??= [];
+            for (let eventIndex = 0; eventIndex < bar.length; ++eventIndex) {
+                const event = bar[eventIndex];
                 let type: Util.EventType;
                 switch (event.charAt(event.length - 1)) {
                     case ";": type = "cadence"; break;
                     case ":": type = "end"; break;
                     default: type = "normal"; break;
                 }
-                if (type !== "normal") {
-                    event = event.slice(0, -1);
-                }
-                this.getCache()[barIndex][eventIndex] ??= Event.empty(type);
-                this.getCache()[barIndex][eventIndex].set(part, Group.parse(event));
-            });
-        });
+                this.cache[barIndex][eventIndex] ??= Event.empty(type);
+                this.cache[barIndex][eventIndex].set(part, Group.parse(type === "normal" ? event : event.slice(0, -1)));
+            }
+        }
         return this;
     }
 
     private previousPreviousEvent() {
-        let { barIndex: bar, eventIndex: event } = this.getTime();
+        let { barIndex: bar, eventIndex: event } = this.time;
         if (--event < 0) {
             if (--bar < 0) {
                 return undefined;
             }
-            event = this.getBars()[bar].length - 1;
+            event = this.bars[bar].length - 1;
         }
         if (--event < 0) {
             if (--bar < 0) {
                 return undefined;
             }
-            event = this.getBars()[bar].length - 1;
+            event = this.bars[bar].length - 1;
         }
-        return this.getBars()[bar][event];
+        return this.bars[bar][event];
     }
 
     private previousEvent() {
-        let { barIndex: bar, eventIndex: event } = this.getTime();
+        let { barIndex: bar, eventIndex: event } = this.time;
         if (--event < 0) {
             if (--bar < 0) {
                 return undefined;
             }
-            event = this.getBars()[bar].length - 1;
+            event = this.bars[bar].length - 1;
         }
-        return this.getBars()[bar][event];
+        return this.bars[bar][event];
     }
 
     private event() {
-        return this.getBars()[this.getTime().barIndex][this.getTime().eventIndex];
+        return this.bars[this.time.barIndex][this.time.eventIndex];
     }
 
     harmonise() {
-        this.initialize().setTime({ barIndex: 0, eventIndex: 0 }).setMaxTime({ barIndex: 0, eventIndex: 0 });
-        while (this.getTime().barIndex < this.getBars().length) {
-            if (this.getTime().barIndex < 0) {
+        this.initialize()
+        this.time = { barIndex: 0, eventIndex: 0 };
+        this.maxTime = { barIndex: 0, eventIndex: 0 };
+        while (this.time.barIndex < this.bars.length) {
+            if (this.time.barIndex < 0) {
                 throw "Failed to harmonise.";
             }
             this.calculateMaxTime().step();
@@ -85,41 +85,43 @@ export default class Piece extends Configurable implements Printable, Configurab
     }
 
     private initialize() {
-        const bars = [];
-        for (const cacheBar of this.getCache()) {
+        this.bars = [];
+        for (const cacheBar of this.cache) {
             const bar: Util.Bar = [];
             for (const cacheEvent of cacheBar) {
                 if (!cacheEvent.validate()) {
                     throw "Not all parts have the same duration.";
                 }
-                bar.push(Event.empty(cacheEvent.getType()));
+                bar.push(Event.empty(cacheEvent.type));
             }
-            bars.push(bar);
+            this.bars.push(bar);
         }
-        this.setBars(bars);
         return this;
     }
 
     private step() {
-        const cacheEvent = this.getCache()[this.getTime().barIndex][this.getTime().eventIndex];
+        const cacheEvent = this.cache[this.time.barIndex][this.time.eventIndex];
         const previousEvent = this.previousEvent();
         const event = this.event();
-        const previousChord = previousEvent?.getChord() ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
-        const chordOptions = previousChord.progression(this.getConfig().dictionary, event.getType());
+        const previousChord = previousEvent?.chord ?? new Chord(undefined, "", 0, new Numeral(0, 0, this.key.getTonality()));
+        const chordOptions = previousChord.progression(this.config.dictionary, event.type);
 
         while (event.map < chordOptions.length) {
-            event.setS(cacheEvent.getS()).setA(cacheEvent.getA()).setT(cacheEvent.getT()).setB(cacheEvent.getB());
+            event.s = cacheEvent.s;
+            event.a = cacheEvent.a;
+            event.t = cacheEvent.t;
+            event.b = cacheEvent.b;
             const chord = chordOptions[event.map++];
             const resolution = chord.resolve(this.key);
 
             const defined = new Parts<boolean>(
-                event.getS().main() !== undefined,
-                event.getA().main() !== undefined,
-                event.getT().main() !== undefined,
-                event.getB().main() !== undefined,
+                event.s.main() !== undefined,
+                event.a.main() !== undefined,
+                event.t.main() !== undefined,
+                event.b.main() !== undefined,
             );
 
-            if (defined.getB() && !event.getB().main().getPitch().getTone().equals(resolution.get(resolution.getInversion()))) {
+            if (defined.b && !event.b.main().getPitch().getTone().equals(resolution.get(resolution.inversion))) {
                 continue;
             }
 
@@ -127,63 +129,74 @@ export default class Piece extends Configurable implements Printable, Configurab
                 continue;
             }
 
-            if (previousChord.getInversion() === 2 && this.previousPreviousEvent()?.getChord()?.string() === chord.string()) {
+            if (previousChord.inversion === 2 && this.previousPreviousEvent()?.chord?.string() === chord.string()) {
                 continue;
             }
 
             const target = previousEvent ? new Realisation(
-                previousEvent.getS().at(-1).getPitch(),
-                previousEvent.getA().at(-1).getPitch(),
-                previousEvent.getT().at(-1).getPitch(),
-                previousEvent.getB().at(-1).getPitch(),
+                previousEvent.s.at(-1).getPitch(),
+                previousEvent.a.at(-1).getPitch(),
+                previousEvent.t.at(-1).getPitch(),
+                previousEvent.b.at(-1).getPitch()
             ) : new Realisation(Pitch.parse("Gb4"), Pitch.parse("D4"), Pitch.parse("B3"), Pitch.parse("Eb3"));
 
-            const sInversion = resolution.findInversion(event.getS().main().getPitch().getTone());
-            const bInversion = resolution.getInversion();
+            const sInversion = resolution.findInversion(event.s.main().getPitch().getTone());
+            const bInversion = resolution.inversion;
 
-            const permutations: Realisation[] = [];
-            const tonality = (chord.getBase() as Numeral).getTonality();
-            const hasSeventh = resolution.getSeventh() !== undefined;
+            const realisations: Realisation[] = [];
+            const tonality = (chord.base as Numeral).getTonality();
+            const hasSeventh = resolution.seventh !== undefined;
 
-            for (const aInversion of Util.INVERSIONS) {
-                for (const tInversion of Util.INVERSIONS) {
+            for (let aInversion = 0; aInversion < 4; ++aInversion) {
+                for (let tInversion = 0; tInversion < 4; ++tInversion) {
                     const distribution = [0, 0, 0, 0];
                     ++distribution[sInversion];
                     ++distribution[aInversion];
                     ++distribution[tInversion];
                     ++distribution[bInversion];
 
-                    if (distribution[0] === 0 || distribution[1] === 0 || distribution[2] === 0 && !this.getConfig().absentFifth || distribution[3] === 0 && hasSeventh) {
+                    if (distribution[0] === 0 || distribution[1] === 0 || distribution[2] === 0 && !this.config.absentFifth || distribution[3] === 0 && hasSeventh || distribution[3] !== 0 && !hasSeventh) {
                         continue;
                     }
 
                     if (tonality) {
-                        if (distribution[1] >= (this.getConfig().doubledMajorThird ? 3 : 2)) {
+                        if (distribution[1] >= (this.config.doubledMajorThird ? 3 : 2)) {
                             continue;
                         }
                     } else {
-                        if (distribution[1] >= (this.getConfig().doubledMinorThird ? 3 : 2)) {
+                        if (distribution[1] >= (this.config.doubledMinorThird ? 3 : 2)) {
                             continue;
                         }
                     }
-                    permutations.push(new Permutation(sInversion, aInversion, tInversion, bInversion).realise(this.getConfig(), defined, target, event, resolution).score(this.getConfig(), target, !previousEvent));
+
+                    const realisation = new Permutation(sInversion, aInversion as Util.Inversion, tInversion as Util.Inversion, bInversion).realise(this.config, defined, target, event, resolution);
+                    realisation.score(this.config, target, !previousEvent);
+                    realisations.push(realisation);
                 }
             }
 
-            if (permutations.length === 0) {
+            if (realisations.length === 0) {
                 continue;
             }
 
-            const realisation = permutations.reduce((l, r) => (l.getCache() < r.getCache()) ? l : r);
+            const realisation = realisations.reduce((l, r) => (l.cache < r.cache) ? l : r);
 
             const duration = event.duration();
-            for (const part of Util.PARTS) {
-                if (!defined.get(part)) {
-                    event.set(part, realisation.get(part).group(duration));
-                }
+
+            if (!defined.s) {
+                event.s = realisation.s.group(duration);
+            }
+            if (!defined.a) {
+                event.a = realisation.a.group(duration);
+            }
+            if (!defined.t) {
+                event.t = realisation.t.group(duration);
+            }
+            if (!defined.b) {
+                event.b = realisation.b.group(duration);
             }
 
-            event.setChord(chord);
+            event.chord = chord;
             this.incrementTime();
             return;
         }
@@ -191,68 +204,33 @@ export default class Piece extends Configurable implements Printable, Configurab
         this.decrementTime();
     }
 
-    getCache() {
-        return this.cache;
-    }
-
-    setCache(cache: Util.Bar[]) {
-        this.cache = cache;
-        return this;
-    }
-
-    getBars() {
-        return this.bars;
-    }
-
-    setBars(bars: Util.Bar[]) {
-        this.bars = bars;
-        return this;
-    }
-
-    getTime() {
-        return this.time;
-    }
-
-    setTime(time: Util.Time) {
-        this.time = time;
-        return this;
-    }
-
     decrementTime() {
-        if (--this.getTime().eventIndex < 0) {
-            this.getTime().eventIndex = this.getBars()[--this.getTime().barIndex]?.length - 1;
+        if (--this.time.eventIndex < 0) {
+            this.time.eventIndex = this.bars[--this.time.barIndex]?.length - 1;
         }
         return this;
     }
 
     incrementTime() {
-        if (++this.getTime().eventIndex >= this.getBars()[this.getTime().barIndex].length) {
-            ++this.getTime().barIndex;
-            this.getTime().eventIndex = 0;
+        if (++this.time.eventIndex >= this.bars[this.time.barIndex].length) {
+            ++this.time.barIndex;
+            this.time.eventIndex = 0;
         }
-        return this;
-    }
-
-    getMaxTime() {
-        return this.maxTime;
-    }
-
-    setMaxTime(maxTime: Util.Time) {
-        this.maxTime = maxTime;
         return this;
     }
 
     calculateMaxTime() {
-        if (this.getTime().barIndex > this.getMaxTime().barIndex) {
-            this.setMaxTime({ ...this.getTime() });
-        } else if (this.getTime().barIndex === this.getMaxTime().barIndex && this.getTime().eventIndex >= this.getMaxTime().eventIndex) {
-            this.getMaxTime().eventIndex = this.getTime().eventIndex;
+        if (this.time.barIndex > this.maxTime.barIndex) {
+            this.maxTime = { ...this.time };
+        } else if (this.time.barIndex === this.maxTime.barIndex && this.time.eventIndex >= this.maxTime.eventIndex) {
+            this.maxTime.eventIndex = this.time.eventIndex;
         }
         return this;
     }
 
-    getKey() {
-        return this.key;
+    configure(property: keyof Config, value: any) {
+        this.config[property] = value;
+        return this;
     }
 
     setKey(key: Key) {
@@ -260,25 +238,11 @@ export default class Piece extends Configurable implements Printable, Configurab
         return this;
     }
 
-    getConfig() {
-        return this.config;
-    }
-
-    setConfig(config: Config) {
-        this.config = config;
-        return this;
-    }
-
-    editConfig(property: keyof Config, value: any) {
-        this.getConfig()[property] = value;
-        return this;
-    }
-
     string() {
-        return `[${this.getBars().map(bar => bar.map(event => event.getS().string().padEnd(8)).join(" ")).join("|")}]
-[${this.getBars().map(bar => bar.map(event => event.getA().string().padEnd(8)).join(" ")).join("|")}]
-[${this.getBars().map(bar => bar.map(event => event.getT().string().padEnd(8)).join(" ")).join("|")}]
-[${this.getBars().map(bar => bar.map(event => event.getB().string().padEnd(8)).join(" ")).join("|")}]
-[${this.getBars().map(bar => bar.map(event => event.getChord()?.string().padEnd(8)).join(" ")).join("|")}]`
+        return `[${this.bars.map(bar => bar.map(event => event.s.string().padEnd(8)).join(" ")).join("|")}]
+[${this.bars.map(bar => bar.map(event => event.a.string().padEnd(8)).join(" ")).join("|")}]
+[${this.bars.map(bar => bar.map(event => event.t.string().padEnd(8)).join(" ")).join("|")}]
+[${this.bars.map(bar => bar.map(event => event.b.string().padEnd(8)).join(" ")).join("|")}]
+[${this.bars.map(bar => bar.map(event => event.chord?.string().padEnd(8)).join(" ")).join("|")}]`
     }
 }

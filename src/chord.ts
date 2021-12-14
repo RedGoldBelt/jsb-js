@@ -8,10 +8,10 @@ import Util from "./util.js";
 export default class Chord implements Printable {
     private static INVERSIONS = ["a", "b", "c", "d"];
 
-    private base;
-    private modifier;
-    private inversion;
-    private relativeKey;
+    base;
+    modifier;
+    inversion;
+    relativeKey;
 
     constructor(base: Numeral | undefined, modifier: Util.Modifier, inversion: Util.Inversion, relativeKey: Numeral) {
         this.base = base;
@@ -70,7 +70,11 @@ export default class Chord implements Printable {
         const specific = dictionary.specific?.[this.relativeKey.string()]?.[this.stringStem()] as string[];
         const specificOptions = specific?.map(Chord.parse) ?? [];
         const common = dictionary.common[this.relativeKey.getTonality() ? "major" : "minor"][this.stringStem()] as string[];
-        const commonOptions = common?.map(string => Chord.parse(string).setRelativeKey(this.relativeKey)) ?? [];
+        const commonOptions = common?.map(string => {
+            const chord = Chord.parse(string);
+            chord.relativeKey = this.relativeKey;
+            return chord;
+        }) ?? [];
 
         const options = specificOptions?.concat(commonOptions) ?? commonOptions;
         switch (type) {
@@ -78,42 +82,6 @@ export default class Chord implements Printable {
             case "cadence": return options.filter(chord => ["I", "i", "V", "Vb", "VI", "vi"].includes(chord.stringStem()));
             case "end": return options.filter(chord => ["I/I", "I/i", "V/I"].includes(chord.string()));
         }
-    }
-
-    getBase() {
-        return this.base;
-    }
-
-    setBase(base: Numeral) {
-        this.base = base;
-        return this;
-    }
-
-    getModifier() {
-        return this.modifier;
-    }
-
-    setModifier(modifier: Util.Modifier) {
-        this.modifier = modifier;
-        return this;
-    }
-
-    getInversion() {
-        return this.inversion;
-    }
-
-    setInversion(inversion: Util.Inversion) {
-        this.inversion = inversion;
-        return this;
-    }
-
-    getRelativeKey() {
-        return this.relativeKey;
-    }
-
-    setRelativeKey(relativeKey: Numeral) {
-        this.relativeKey = relativeKey;
-        return this;
     }
 
     stringStem() {

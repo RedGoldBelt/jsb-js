@@ -4,26 +4,33 @@ import Pitch from "./pitch.js";
 import Util from "./util.js";
 
 export default class Realisation extends Parts<Pitch> {
-    private cache = Infinity;
+    cache = Infinity;
 
     score(config: Config, target: Realisation, start: boolean) {
-        for (const part of Util.PARTS) {
-            if (!config.tessiture.get(part).includes(this.get(part))) {
-                return this.setCache(Infinity);
-            }
+        if (!config.tessiture.s.includes(this.s)) {
+            return this.cache = Infinity;
+        }
+        if (!config.tessiture.a.includes(this.a)) {
+            return this.cache = Infinity;
+        }
+        if (!config.tessiture.t.includes(this.t)) {
+            return this.cache = Infinity;
+        }
+        if (!config.tessiture.b.includes(this.b)) {
+            return this.cache = Infinity;
         }
 
-        const s = this.getS().semitones();
-        const a = this.getA().semitones();
-        const t = this.getT().semitones();
-        const b = this.getB().semitones();
+        const s = this.s.semitones();
+        const a = this.a.semitones();
+        const t = this.t.semitones();
+        const b = this.b.semitones();
 
         const sa = s - a;
         const at = a - t;
         const tb = t - b;
 
         if (sa < 0 || at < 0 || tb < 0) {
-            return this.setCache(Infinity);
+            return this.cache = Infinity;
         }
 
         if (!start) {
@@ -35,16 +42,16 @@ export default class Realisation extends Parts<Pitch> {
                 this.parallel(target, "a", "b") ||
                 this.parallel(target, "t", "b")
             ) {
-                return this.setCache(Infinity);
+                return this.cache = Infinity;
             }
         }
 
         const score = Math.max(sa, at, tb) - Math.min(sa, at, tb) +
-            Math.abs(s - target.getS().semitones()) +
-            Math.abs(a - target.getA().semitones()) +
-            Math.abs(t - target.getT().semitones()) +
-            Math.abs(b - target.getB().semitones());
-        return this.setCache(score);
+            Math.abs(s - target.s.semitones()) +
+            Math.abs(a - target.a.semitones()) +
+            Math.abs(t - target.t.semitones()) +
+            Math.abs(b - target.b.semitones());
+        return this.cache = score;
     }
 
     parallel(target: Realisation, upper: Util.Part, lower: Util.Part) {
@@ -68,14 +75,5 @@ export default class Realisation extends Parts<Pitch> {
         }
 
         return false;
-    }
-
-    getCache() {
-        return this.cache;
-    }
-
-    setCache(cache: number) {
-        this.cache = cache;
-        return this;
     }
 }
