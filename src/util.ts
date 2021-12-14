@@ -1,7 +1,4 @@
-import Event from "./event.js";
-import Pitch from "./pitch.js";
-import Parts from "./parts.js";
-import Tessitura from "./tessitura.js";
+import Event from "./event.js"
 
 namespace Util {
     export type Bar = Event[];
