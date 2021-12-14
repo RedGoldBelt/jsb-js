@@ -1,7 +1,7 @@
 import {
-    Dict,
-    Key,
-    Piece
+  Dict,
+  Key,
+  Piece
 } from "../dist/index.js";
 
 console.time("Parsing");

@@ -1,17 +1,18 @@
 # JSB.js
+
 JSB.js is a JavaScript application for harmonising music in the style of Bach Chorales.
 
 It takes a soprano part (and optionally other parts), and assign chords to each note. Simultaneously, it creates a realisation of the chords.
 JSB.js follows common principles of good harmonisation and part writing:
 
-* Chords leading up to cadences follow certain defined patterns. 
-* Notes of parts which have been specified should fit the chord.
-* Second inversion chords should only be used in passing or in cadences.
-* The proportions of notes in a chord should be valid. An example of this rule is the fact that the third in a chord must never be doubled.
-* There will be no parallel fifths or octaves between parts.
-* Melodies must be as conjunct as possible.
-* Parts must not cross.
-* Notes must not exceed the tessitura of the part.
+- Chords leading up to cadences follow certain defined patterns.
+- Notes of parts which have been specified should fit the chord.
+- Second inversion chords should only be used in passing or in cadences.
+- The proportions of notes in a chord should be valid. An example of this rule is the fact that the third in a chord must never be doubled.
+- There will be no parallel fifths or octaves between parts.
+- Melodies must be as conjunct as possible.
+- Parts must not cross.
+- Notes must not exceed the tessitura of the part.
 
 Importantly, JSB.js employs a heuristic algorithm, which is not based on machine learning. The database that determines which chord to try is manually calculated and compiled.
 

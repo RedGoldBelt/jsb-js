@@ -1,3 +1,3 @@
 export default abstract class Printable {
-    abstract string(): string;
+  abstract string(): string;
 }

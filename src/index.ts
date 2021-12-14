@@ -14,23 +14,23 @@ import Resolution from "./resolution.js";
 import Tone from "./tone.js";
 import Util from "./util.js";
 
-const Version = "1.9.0";
+const Version = "1.9.1";
 
 export {
-    Chord,
-    Dict,
-    Event,
-    Group,
-    Inversions,
-    Key,
-    Note,
-    Numeral,
-    Parts,
-    Permutation,
-    Piece,
-    Pitch,
-    Resolution,
-    Tone,
-    Util,
-    Version
-}
+  Chord,
+  Dict,
+  Event,
+  Group,
+  Inversions,
+  Key,
+  Note,
+  Numeral,
+  Parts,
+  Permutation,
+  Piece,
+  Pitch,
+  Resolution,
+  Tone,
+  Util,
+  Version,
+};
