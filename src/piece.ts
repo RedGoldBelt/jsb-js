@@ -92,6 +92,9 @@ export default class Piece implements Printable {
                 if (!cacheEvent.validate()) {
                     throw "Not all parts have the same duration.";
                 }
+                if (cacheEvent.s.main() === undefined) {
+                    throw "Soprano is not defined.";
+                }
                 bar.push(Event.empty(cacheEvent.type));
             }
             this.bars.push(bar);
