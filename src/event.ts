@@ -43,7 +43,7 @@ export default class Event extends Parts<Group> implements Printable {
   }
 
   duration() {
-    return this.s.duration() ?? this.a.duration ?? this.t.duration ?? this.b.duration ?? 1;
+    return Math.max(this.s.duration(), this.a.duration(), this.t.duration(), this.b.duration());
   }
 
   string() {

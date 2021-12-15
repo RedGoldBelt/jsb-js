@@ -38,7 +38,7 @@ export default class Group implements Printable {
   }
 
   duration() {
-    return this.notes.map(note => note.duration).reduce((l, r) => l + r);
+    return this.notes.map(note => note.duration).reduce((l, r) => l + r, 0);
   }
 
   string() {
