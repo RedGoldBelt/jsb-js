@@ -1,4 +1,4 @@
-import Event from "./event.js";
+import Event from './event.js';
 
 namespace Util {
   export type Bar = Event[];
@@ -13,10 +13,10 @@ namespace Util {
     };
     specific?: any;
   }
-  export type EventType = "normal" | "cadence" | "end";
+  export type EventType = 'normal' | 'cadence' | 'end';
   export type Inversion = 0 | 1 | 2 | 3;
-  export type Modifier = "" | "7" | "o7";
-  export type Part = "s" | "a" | "t" | "b";
+  export type Modifier = '' | '7' | 'o7';
+  export type Part = 's' | 'a' | 't' | 'b';
 
   export interface Time {
     barIndex: number;

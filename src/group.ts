@@ -1,6 +1,6 @@
-import Note from "./note.js";
-import Printable from "./printable.js";
-import Util from "./util.js";
+import Note from './note.js';
+import Printable from './printable.js';
+import Util from './util.js';
 
 export default class Group implements Printable {
   notes: Note[];
@@ -12,11 +12,11 @@ export default class Group implements Printable {
   }
 
   static parse(string: string) {
-    if (string.startsWith("(") && string.endsWith(")")) {
+    if (string.startsWith('(') && string.endsWith(')')) {
       const array = string
         .slice(1, -1)
-        .split(",")
-        .map((string) => Note.parse(string));
+        .split(',')
+        .map(string => Note.parse(string));
       return new Group(array, 0);
     }
     return new Group([Note.parse(string)], 0);
@@ -38,10 +38,10 @@ export default class Group implements Printable {
   }
 
   duration() {
-    return this.notes.map((note) => note.duration).reduce((l, r) => l + r);
+    return this.notes.map(note => note.duration).reduce((l, r) => l + r);
   }
 
   string() {
-    return this.notes.map((note) => note.string()).join(" ");
+    return this.notes.map(note => note.string()).join(' ');
   }
 }

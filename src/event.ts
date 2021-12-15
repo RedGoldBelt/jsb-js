@@ -1,9 +1,9 @@
-import Chord from "./chord.js";
-import Group from "./group.js";
-import Resolution from "./resolution.js";
-import Parts from "./parts.js";
-import Util from "./util.js";
-import Printable from "./printable.js";
+import Chord from './chord.js';
+import Group from './group.js';
+import Resolution from './resolution.js';
+import Parts from './parts.js';
+import Util from './util.js';
+import Printable from './printable.js';
 
 export default class Event extends Parts<Group> implements Printable {
   chord: Chord | undefined;
@@ -16,19 +16,13 @@ export default class Event extends Parts<Group> implements Printable {
   }
 
   static empty(type: Util.EventType) {
-    return new Event(
-      Group.empty(),
-      Group.empty(),
-      Group.empty(),
-      Group.empty(),
-      type
-    );
+    return new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), type);
   }
 
   validate() {
-    return (["s", "a", "t", "b"] as Util.Part[])
-      .filter((part) => this.get(part).main())
-      .map((part) => this.get(part).duration())
+    return (['s', 'a', 't', 'b'] as Util.Part[])
+      .filter(part => this.get(part).main())
+      .map(part => this.get(part).duration())
       .every((duration, i, array) => duration === array[0]);
   }
 
@@ -49,13 +43,7 @@ export default class Event extends Parts<Group> implements Printable {
   }
 
   duration() {
-    return (
-      this.s.duration() ??
-      this.a.duration ??
-      this.t.duration ??
-      this.b.duration ??
-      1
-    );
+    return this.s.duration() ?? this.a.duration ?? this.t.duration ?? this.b.duration ?? 1;
   }
 
   string() {

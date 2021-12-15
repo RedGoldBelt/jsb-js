@@ -1,4 +1,4 @@
-import Pitch from "./pitch.js";
+import Pitch from './pitch.js';
 
 export default class Tessitura {
   min;

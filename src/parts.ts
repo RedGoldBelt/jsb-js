@@ -1,4 +1,4 @@
-import Util from "./util";
+import Util from './util';
 
 export default class Parts<T> {
   s: T;
@@ -15,26 +15,26 @@ export default class Parts<T> {
 
   get(part: Util.Part) {
     switch (part) {
-      case "s":
+      case 's':
         return this.s;
-      case "a":
+      case 'a':
         return this.a;
-      case "t":
+      case 't':
         return this.t;
-      case "b":
+      case 'b':
         return this.b;
     }
   }
 
   set(part: Util.Part, value: T) {
     switch (part) {
-      case "s":
+      case 's':
         return (this.s = value);
-      case "a":
+      case 'a':
         return (this.a = value);
-      case "t":
+      case 't':
         return (this.t = value);
-      case "b":
+      case 'b':
         return (this.b = value);
     }
   }

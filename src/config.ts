@@ -1,6 +1,6 @@
-import Dict from "./dictionary.js";
-import Parts from "./parts.js";
-import Tessitura from "./tessitura.js";
+import Dict from './dictionary.js';
+import Parts from './parts.js';
+import Tessitura from './tessitura.js';
 
 export default class Config {
   dictionary = Dict.FULL;

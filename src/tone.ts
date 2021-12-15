@@ -1,13 +1,13 @@
-import Pitch from "./pitch.js";
-import Printable from "./printable.js";
+import Pitch from './pitch.js';
+import Printable from './printable.js';
 
 export default class Tone implements Printable {
-  static ACCIDENTALS = ["", "#", "x"];
+  static ACCIDENTALS = ['', '#', 'x'];
   static {
-    Tone.ACCIDENTALS[-2] = "bb";
-    Tone.ACCIDENTALS[-1] = "b";
+    Tone.ACCIDENTALS[-2] = 'bb';
+    Tone.ACCIDENTALS[-1] = 'b';
   }
-  static LETTERS = ["C", "D", "E", "F", "G", "A", "B"];
+  static LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
   static PITCHES = [0, 2, 4, 5, 7, 9, 11];
 
   letter;
@@ -23,10 +23,7 @@ export default class Tone implements Printable {
     if (result === null) {
       throw `Could not parse tone '${string}'.`;
     }
-    return new Tone(
-      Tone.LETTERS.indexOf(result[1]),
-      Tone.ACCIDENTALS.indexOf(result[2])
-    );
+    return new Tone(Tone.LETTERS.indexOf(result[1]), Tone.ACCIDENTALS.indexOf(result[2]));
   }
 
   semitones() {
@@ -45,9 +42,7 @@ export default class Tone implements Printable {
     const tone2 = new Pitch(this, pitch.octave);
     const tone3 = new Pitch(this, pitch.octave + 1);
     return [tone1, tone2, tone3].sort(
-      (l, r) =>
-        Math.abs(pitch.semitones() - l.semitones()) -
-        Math.abs(pitch.semitones() - r.semitones())
+      (l, r) => Math.abs(pitch.semitones() - l.semitones()) - Math.abs(pitch.semitones() - r.semitones())
     );
   }
 

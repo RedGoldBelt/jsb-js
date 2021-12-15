@@ -1,5 +1,5 @@
-import Printable from "./printable.js";
-import Tone from "./tone.js";
+import Printable from './printable.js';
+import Tone from './tone.js';
 
 export default class Key implements Printable {
   tone;
@@ -15,17 +15,14 @@ export default class Key implements Printable {
     if (result === null) {
       throw `Could not parse key '${string}'.`;
     }
-    return new Key(Tone.parse(result[1] + result[2]), result[3] === "major");
+    return new Key(Tone.parse(result[1] + result[2]), result[3] === 'major');
   }
 
   degree(degree: number, relativePitch?: number) {
     degree %= 7;
-    relativePitch ??= (
-      this.tonality ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10]
-    )[degree];
+    relativePitch ??= (this.tonality ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10])[degree];
     const top = new Tone((this.tone.letter + degree) % 7, 0);
-    top.accidental =
-      ((relativePitch - top.semitones() + this.tone.semitones() + 18) % 12) - 6;
+    top.accidental = ((relativePitch - top.semitones() + this.tone.semitones() + 18) % 12) - 6;
     return top;
   }
 
@@ -54,6 +51,6 @@ export default class Key implements Printable {
   }
 
   string() {
-    return this.tone.string() + " " + (this.tonality ? "major" : "minor");
+    return this.tone.string() + ' ' + (this.tonality ? 'major' : 'minor');
   }
 }

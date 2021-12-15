@@ -1,8 +1,8 @@
-import Printable from "./printable.js";
-import Tone from "./tone.js";
+import Printable from './printable.js';
+import Tone from './tone.js';
 
 export default class Numeral implements Printable {
-  static NUMERALS = ["i", "ii", "iii", "iv", "v", "vi", "vii"];
+  static NUMERALS = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'];
 
   accidental;
   degree;
@@ -15,9 +15,7 @@ export default class Numeral implements Printable {
   }
 
   static parse(string: string) {
-    const result = string.match(
-      /^(b|#|)(III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v)$/
-    );
+    const result = string.match(/^(b|#|)(III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v)$/);
     if (result === null) {
       throw `Could not parse numeral '${string}'.`;
     }
@@ -30,10 +28,7 @@ export default class Numeral implements Printable {
 
   string() {
     return (
-      Tone.ACCIDENTALS[this.accidental] +
-      Numeral.NUMERALS[this.degree][
-        this.tonality ? "toUpperCase" : "toLowerCase"
-      ]()
+      Tone.ACCIDENTALS[this.accidental] + Numeral.NUMERALS[this.degree][this.tonality ? 'toUpperCase' : 'toLowerCase']()
     );
   }
 }

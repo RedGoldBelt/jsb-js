@@ -1,5 +1,5 @@
-import Pitch from "./pitch.js";
-import Printable from "./printable.js";
+import Pitch from './pitch.js';
+import Printable from './printable.js';
 
 export default class Note implements Printable {
   pitch: Pitch;
@@ -15,10 +15,7 @@ export default class Note implements Printable {
     if (result === null) {
       throw `Could not parse note '${string}',`;
     }
-    return new Note(
-      Pitch.parse(result[1]),
-      2 ** (result[3].length - result[4].length) * 1.5 ** result[5].length
-    );
+    return new Note(Pitch.parse(result[1]), 2 ** (result[3].length - result[4].length) * 1.5 ** result[5].length);
   }
 
   semitones() {
@@ -29,31 +26,31 @@ export default class Note implements Printable {
     let string = this.pitch.string();
     switch (this.duration) {
       case 0.25:
-        string += "𝅘𝅥𝅯";
+        string += '𝅘𝅥𝅯';
         break;
       case 0.5:
-        string += "♪";
+        string += '♪';
         break;
       case 0.75:
-        string += "♪.";
+        string += '♪.';
         break;
       case 1:
-        string += "♩";
+        string += '♩';
         break;
       case 1.5:
-        string += "♩.";
+        string += '♩.';
         break;
       case 2:
-        string += "𝅗𝅥";
+        string += '𝅗𝅥';
         break;
       case 3:
-        string += "𝅗𝅥.";
+        string += '𝅗𝅥.';
         break;
       case 4:
-        string += "𝅝";
+        string += '𝅝';
         break;
       case 6:
-        string += "𝅝.";
+        string += '𝅝.';
         break;
     }
     return string;

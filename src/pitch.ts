@@ -1,7 +1,7 @@
-import Group from "./group.js";
-import Note from "./note.js";
-import Printable from "./printable.js";
-import Tone from "./tone.js";
+import Group from './group.js';
+import Note from './note.js';
+import Printable from './printable.js';
+import Tone from './tone.js';
 
 export default class Pitch implements Printable {
   tone: Tone;
@@ -29,9 +29,7 @@ export default class Pitch implements Printable {
     const tone2 = new Pitch(tone, this.octave);
     const tone3 = new Pitch(tone, this.octave + 1);
     return [tone1, tone2, tone3].sort(
-      (l, r) =>
-        Math.abs(this.semitones() - l.semitones()) -
-        Math.abs(this.semitones() - r.semitones())
+      (l, r) => Math.abs(this.semitones() - l.semitones()) - Math.abs(this.semitones() - r.semitones())
     );
   }
 
