@@ -53,7 +53,7 @@ export default class Note implements Printable {
         string += '𝅝.';
         break;
       case 8:
-        string += '𝅜.';
+        string += '𝅜';
         break;
       case 12:
         string += '𝅜.';
