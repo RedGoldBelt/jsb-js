@@ -80,7 +80,7 @@ export default class Piece implements Printable {
   }
 
   harmonise() {
-    this.initialize();
+    this.bars = this.cache.map(bar => bar.map(event => Event.empty(event.type)));
     this.time = { barIndex: 0, eventIndex: 0 };
     this.maxTime = { barIndex: 0, eventIndex: 0 };
     while (this.time.barIndex < this.bars.length) {
@@ -88,22 +88,6 @@ export default class Piece implements Printable {
         throw 'Failed to harmonise.';
       }
       this.calculateMaxTime().step();
-    }
-    return this;
-  }
-
-  private initialize() {
-    this.bars = [];
-    for (const cacheBar of this.cache) {
-      const bar: Util.Bar = [];
-      for (const cacheEvent of cacheBar) {
-        if (!cacheEvent.validate()) {
-          this.maxTime = { ...this.time };
-          throw 'Not all parts have the same duration.';
-        }
-        bar.push(Event.empty(cacheEvent.type));
-      }
-      this.bars.push(bar);
     }
     return this;
   }

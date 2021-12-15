@@ -1,21 +1,14 @@
 import fs from "fs";
 import {
     Chord,
-    Key,
     Numeral
 } from "../dist/index.js";
 
 const p = {
     init() {
         this.dict = {
-            start: {
-                major: [],
-                minor: []
-            },
-            common: {
-                major: {},
-                minor: {}
-            },
+            start: { major: [], minor: [] },
+            common: { major: {}, minor: {} },
             specific: {}
         }
     },
@@ -95,8 +88,6 @@ const p = {
     }
 }
 
-// FLOWCHART?
-
 p.init();
 
 // BWV 1.6 //
@@ -160,4 +151,4 @@ p.load(
 
 p.sort();
 
-fs.writeFile("./tests/data.json", JSON.stringify(p.dict), e => 0);
+fs.writeFile("./tests/data.json", JSON.stringify(p.dict), () => void 0);
