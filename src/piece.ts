@@ -75,10 +75,6 @@ export default class Piece implements Printable {
     return this.bars[bar][event];
   }
 
-  private event() {
-    return this.bars[this.time.barIndex][this.time.eventIndex];
-  }
-
   harmonise() {
     this.bars = this.cache.map(bar => bar.map(event => Event.empty(event.type)));
     this.time = { barIndex: 0, eventIndex: 0 };
@@ -95,7 +91,7 @@ export default class Piece implements Printable {
   private step() {
     const cacheEvent = this.cache[this.time.barIndex][this.time.eventIndex];
     const previousEvent = this.previousEvent();
-    const event = this.event();
+    const event = this.bars[this.time.barIndex][this.time.eventIndex];
     const previousChord = previousEvent?.chord ?? new Chord(undefined, '', 0, new Numeral(0, 0, this.key.tonality));
     const chordOptions = previousChord.progression(this.config.dictionary, event.type);
 
@@ -135,7 +131,7 @@ export default class Piece implements Printable {
           )
         : new Permutation(Pitch.parse('Gb4'), Pitch.parse('D4'), Pitch.parse('B3'), Pitch.parse('Eb3'));
 
-      const defaultInversions = [0, 1, 2, 3];
+      const defaultInversions = [0, 1, 2, 3] as Util.Inversion[];
       const sInversions = defined.s ? [resolution.findInversion(event.s.main().pitch.tone)] : defaultInversions;
       const aInversions = defined.a ? [resolution.findInversion(event.a.main().pitch.tone)] : defaultInversions;
       const tInversions = defined.t ? [resolution.findInversion(event.t.main().pitch.tone)] : defaultInversions;
@@ -148,35 +144,35 @@ export default class Piece implements Printable {
       for (const sInversion of sInversions) {
         for (const aInversion of aInversions) {
           for (const tInversion of tInversions) {
-            const distribution = [0, 0, 0, 0];
-            ++distribution[sInversion];
-            ++distribution[aInversion];
-            ++distribution[tInversion];
-            ++distribution[bInversion];
+            const frequencies = [0, 0, 0, 0];
+            ++frequencies[sInversion];
+            ++frequencies[aInversion];
+            ++frequencies[tInversion];
+            ++frequencies[bInversion];
 
             if (
-              distribution[0] === 0 ||
-              distribution[1] === 0 ||
-              (distribution[2] === 0 && !this.config.absentFifth) ||
-              (distribution[3] === 0 && hasSeventh) ||
-              (distribution[3] !== 0 && !hasSeventh)
+              frequencies[0] === 0 ||
+              frequencies[1] === 0 ||
+              (frequencies[2] === 0 && !this.config.absentFifth) ||
+              (frequencies[3] === 0 && hasSeventh) ||
+              (frequencies[3] !== 0 && !hasSeventh)
             ) {
               continue;
             }
 
             if (tonality) {
-              if (distribution[1] >= (this.config.doubledMajorThird ? 3 : 2)) {
+              if (frequencies[1] >= (this.config.doubledMajorThird ? 3 : 2)) {
                 continue;
               }
             } else {
-              if (distribution[1] >= (this.config.doubledMinorThird ? 3 : 2)) {
+              if (frequencies[1] >= (this.config.doubledMinorThird ? 3 : 2)) {
                 continue;
               }
             }
 
-            const s = defined.s ? event.s.main().pitch : resolution.get(sInversion as Util.Inversion).near(target.s)[0];
-            const a = defined.a ? event.a.main().pitch : resolution.get(aInversion as Util.Inversion).near(target.a)[0];
-            const t = defined.t ? event.t.main().pitch : resolution.get(tInversion as Util.Inversion).near(target.t)[0];
+            const s = defined.s ? event.s.main().pitch : resolution.get(sInversion).near(target.s)[0];
+            const a = defined.a ? event.a.main().pitch : resolution.get(aInversion).near(target.a)[0];
+            const t = defined.t ? event.t.main().pitch : resolution.get(tInversion).near(target.t)[0];
             const b = defined.b
               ? event.b.main().pitch
               : resolution
