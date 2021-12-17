@@ -106,15 +106,15 @@ $.load(
     "bIIb /v #viio7 I #viio7b /i V7b i V i",
     "/v iv Vb i V ib i ivb V",
     "/III iii IV Ib V /i ii7c V ib iv V i",
-    "i Vb i /iv ib V7b i /v iv V7 ic V I"
+    "i Vb i /iv ib V7b i /v iv V I"
 );
 // BWV 3.6
 $.load(
     true,
     "/I I I Ib IV vi /V V I V",
     "V Ib viib I V7c Ib ii7b Ic V I",
-    "/I V I /vi Vb I /ii #viib i /I Ib V",
-    "/I vi Vb I /V vii7c /I V vi /V V7b /I V7 I"
+    "/I V I /vi Vb i /I V7 /ii #viib i /I Ib V",
+    "/I vi Vb I V vi /V V7b /I V7 I"
 );
 // BWV 4.8
 $.load(
@@ -140,13 +140,19 @@ $.load(
 $.load(
     false,
     "/i i i iib V ib #viib i iv7 V i",
-    "/III vi Vb V I /i i ivb iic ivb V",
-    "/III vi ii viib I Vb I V7 Ic V I /i V i #viib ib V VI iv7 V i"
+    "/III vi Vb V I /i i ivb ivb V",
+    "/III vi ii I Vb I V7 V7 I",
+    "/i V i #viib ib V VI V i"
 );
 // BWV 7.7
 $.load(
     false,
-    "/i iv iv III VI III i VI ii7b V i /v i iv VIb ib /iv ib #viib i V i i ivb iv VII /i VI ii7b V I /iv i ib /VI ii7 V7 I /i iv V i V i /III viib iii7 IV vii7c Ib /iv ii7d Vb i V i VI ic iv /VI viib I"
+    "/VI vi vi V I V /i i VI ii7b V i",
+    "/v i iv ib /iv ib #viib i V i",
+    "/VI vi iib ii V I /i ii7b V I",
+    "/iv i ib /VI ii7 V7 I /i iv V7 i",
+    "V i /III viib IV Ib /iv Vb i V",
+    "/VI vi IV viib I /VI viib I"
 );
 
 $.sort();
