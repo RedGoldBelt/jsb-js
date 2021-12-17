@@ -1,1 +1,75 @@
-{"start":{"major":["I/I"],"minor":["i/i","V/i","iv/v","iv/i"]},"common":{"major":{"NaN":["I"],"I":["V","Vb","I","vi","IV","Ib","ii7b","viib","V7c","ii","V7"],"Vb":["I","V"],"vi":["Ib","iib","iii","ii7b","Vb","ii"],"Ib":["IV","I","ii","viib","ii7b","V"],"IV":["IVb","vii7c","viib","ii7b","I","Ib"],"IVb":["I"],"viib":["I","iii7","Ib"],"V7b":["I","V7"],"ii7b":["V","iiib","Ic"],"V":["I","Ib","Ic","Vb","V"],"iiib":["IV7b"],"IV7b":["V7b"],"Ic":["V","V7"],"V7":["I","Ib","Ic"],"ii":["vi","V","Ib","V7b","viib"],"iib":["V"],"iii":["IV"],"iii7":["vi","IV"],"vii7":["I"],"V7c":["Ib"],"vii7c":["I","Ib"],"ii7":["V7"]},"minor":{"NaN":["i","V","iv"],"V":["i","ib","I","bIIb","V7d","V","V7","VI"],"i":["V","i","ivb","VI","iv","#viib","Vb","iib","V7b","ii7b","V7","iv7","ib"],"#viib":["i","ib"],"ib":["#viib","Vc","i","iv","V7b","V"],"Vb":["i","I","V"],"#viio7":["I"],"I":["#viio7b","#viib"],"V7b":["i"],"Vc":["i"],"ivb":["iv","V","iic"],"ii7c":["V"],"iv":["V","V7","#viio7c","#viib","iv","III","VIb","VII"],"V7":["VI","ic","I"],"ic":["V","iv"],"V7c":["i"],"ii7b":["V"],"#viio7c":["i"],"III":["I","V7b","VI","i"],"IV":["Vb"],"VI":["ii7b","III","iv","iv7","ic"],"V7d":["ib"],"iib":["V","iv7"],"iv7":["V"],"iic":["ivb"],"VIb":["ib"],"ii7d":["Vb"]}},"specific":{"I":{"Ib":["V7b/V"],"vi":["V7b/V"],"IV":["ii/V"],"I":["Vb/vi"],"V":["ii/V"]},"V":{"I":["I/I","V/I"],"V7b":["V7/I"]},"i":{"bIIb":["#viio7/v"],"i":["Vb/III","Vb/v","ib/iv","V7/III","V7b/VII","vi/III","i/v","viib/III"],"NaN":["iv/v"],"#viib":["IV/v"],"ivb":["vi/III"],"I":["i/iv"]},"v":{"#viio7b":["V7b/i"],"V":["iii/III"],"I":["V/i"],"i":["viib/VII"],"ib":["ib/iv"]},"III":{"Ib":["vii7/VII","ii7d/iv"],"I":["V7c/i","III/i","Vb/i","V7/i","i/i","V/i"],"V":["Vb/i"]},"VII":{"I":["ii7c/i","i/i","V7/III"]},"iv":{"i":["iv/v"],"VII":["VI/i"],"ib":["ii7/VI"],"iv":["viib/VI"]},"vi":{"I":["#viib/ii"]},"ii":{"i":["Ib/I"]},"VI":{"I":["iv/i"]}}}
+{
+  "start": { "major": ["I/I"], "minor": ["i/i", "V/i", "iv/v", "iv/i"] },
+  "common": {
+    "major": {
+      "I": ["V", "Vb", "I", "vi", "IV", "Ib", "ii7b", "viib", "V7c", "V7"],
+      "Vb": ["I", "V"],
+      "vi": ["Vb", "Ib", "iib", "iii", "ii7b", "ii"],
+      "Ib": ["I", "IV", "ii", "viib", "ii7b", "V"],
+      "IV": ["IVb", "viib", "ii7b", "I", "Ib", "vi", "vii7c"],
+      "IVb": ["I"],
+      "viib": ["I", "iii7", "Ib"],
+      "V7b": ["I", "V7"],
+      "ii7b": ["V", "iiib", "Ic"],
+      "V": ["I", "Ib", "vi", "Ic", "Vb", "V"],
+      "iiib": ["IV7b"],
+      "IV7b": ["V7b"],
+      "Ic": ["V", "V7"],
+      "V7": ["I", "Ib", "Ic"],
+      "ii": ["vi", "viib"],
+      "iib": ["V"],
+      "iii": ["IV"],
+      "iii7": ["vi", "IV"],
+      "vii7": ["I"],
+      "V7c": ["Ib"],
+      "ii7": ["V7"],
+      "vii7c": ["Ib"]
+    },
+    "minor": {
+      "V": ["i", "ib", "I", "bIIb", "V7d", "V", "V7", "VI"],
+      "i": ["V", "i", "ivb", "VI", "iv", "#viib", "Vb", "iib", "V7b", "ii7b", "V7", "iv7", "ib"],
+      "#viib": ["i", "ib"],
+      "ib": ["#viib", "i", "iv", "V7b", "Vc", "V"],
+      "Vb": ["i", "I", "V"],
+      "#viio7": ["I"],
+      "I": ["#viio7b", "#viib"],
+      "V7b": ["i"],
+      "iv": ["V", "Vb", "V7", "#viio7c", "#viib", "iv", "III", "VIb", "VII"],
+      "ivb": ["iv", "V", "iic"],
+      "ii7c": ["V"],
+      "V7": ["VI", "ic", "I"],
+      "ic": ["V", "iv"],
+      "Vc": ["i"],
+      "V7c": ["i"],
+      "ii7b": ["V"],
+      "#viio7c": ["i"],
+      "III": ["I", "V7b", "VI", "i"],
+      "IV": ["Vb"],
+      "VI": ["ii7b", "III", "iv", "iv7", "ic"],
+      "V7d": ["ib"],
+      "iib": ["V", "iv7"],
+      "iv7": ["V"],
+      "iic": ["ivb"],
+      "VIb": ["ib"],
+      "ii7d": ["Vb"]
+    }
+  },
+  "specific": {
+    "I": { "Ib": ["V7b/V"], "vi": ["V7b/V", "V/V"], "I": ["Vb/vi", "vii7c/V"] },
+    "V": { "I": ["I/I", "V/I"], "vii7c": ["V/I"], "V7b": ["V7/I"] },
+    "i": {
+      "bIIb": ["#viio7/v"],
+      "i": ["Vb/III", "iv/v", "ib/iv", "V7/III", "V7b/VII", "vi/III", "i/v", "viib/III"],
+      "#viib": ["IV/v"],
+      "ivb": ["vi/III"],
+      "I": ["i/iv"]
+    },
+    "v": { "#viio7b": ["V7b/i"], "V": ["iii/III"], "I": ["V/i"], "i": ["viib/VII"], "ib": ["ib/iv"] },
+    "III": { "Ib": ["vii7/VII", "ii7d/iv"], "I": ["V7c/i", "III/i", "Vb/i", "V7/i", "i/i", "V/i"], "V": ["Vb/i"] },
+    "VII": { "I": ["ii7c/i", "i/i", "V/III"] },
+    "iv": { "i": ["iv/v"], "VII": ["VI/i"], "ib": ["ii7/VI"], "iv": ["viib/VI"] },
+    "vi": { "I": ["#viib/ii"] },
+    "ii": { "i": ["Ib/I"] },
+    "VI": { "I": ["iv/i"] }
+  }
+}
