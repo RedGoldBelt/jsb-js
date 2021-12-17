@@ -1,41 +1,81 @@
-import Event from "./event.js";
-import Pitch from "./pitch.js";
-import Parts from "./parts.js";
+import Config from './config.js';
+import Parts from './parts.js';
+import Pitch from './pitch.js';
+import Util from './util.js';
 
 export default class Permutation extends Parts<Pitch> {
-    private score = Infinity;
+  cache = Infinity;
 
-    calculateScore(previousEvent: Event | undefined) {
-        const s = this.getS().semitones();
-        const a = this.getA().semitones();
-        const t = this.getT().semitones();
-        const b = this.getB().semitones();
-        const previousA = previousEvent?.getA().at(-1).getPitch() ?? Pitch.parse("D4");
-        const previousT = previousEvent?.getT().at(-1).getPitch() ?? Pitch.parse("B3");
-        const aChange = Math.abs(a - previousA.semitones());
-        const tChange = Math.abs(t - previousT.semitones());
-
-        if (
-            aChange > 7 ||
-            tChange > 7 ||
-            a > s ||
-            t > a ||
-            b > t ||
-            a > 64 ||
-            a < 43 ||
-            t < 40 ||
-            t > 52
-        ) {
-            return Infinity;
-        }
-        const sa = s - a;
-        const at = a - t;
-        const stdDev = Math.sqrt((sa * sa + at * at) / 2 - (sa + at) ** 2 / 4);
-        const score = aChange + tChange + stdDev;
-        return this.score = score;
+  score(config: Config, target: Permutation, start: boolean) {
+    if (!config.tessiture.s.includes(this.s)) {
+      return (this.cache = Infinity);
+    }
+    if (!config.tessiture.a.includes(this.a)) {
+      return (this.cache = Infinity);
+    }
+    if (!config.tessiture.t.includes(this.t)) {
+      return (this.cache = Infinity);
+    }
+    if (!config.tessiture.b.includes(this.b)) {
+      return (this.cache = Infinity);
     }
 
-    getScore() {
-        return this.score;
+    const s = this.s.semitones();
+    const a = this.a.semitones();
+    const t = this.t.semitones();
+    const b = this.b.semitones();
+
+    const sa = s - a;
+    const at = a - t;
+    const tb = t - b;
+
+    if (sa < 0 || at < 0 || tb < 0) {
+      return (this.cache = Infinity);
     }
+
+    if (!start) {
+      if (
+        this.parallel(target, 's', 'a') ||
+        this.parallel(target, 's', 't') ||
+        this.parallel(target, 's', 'b') ||
+        this.parallel(target, 'a', 't') ||
+        this.parallel(target, 'a', 'b') ||
+        this.parallel(target, 't', 'b')
+      ) {
+        return (this.cache = Infinity);
+      }
+    }
+
+    const score =
+      Math.max(sa, at, tb) -
+      Math.min(sa, at, tb) +
+      Math.abs(s - target.s.semitones()) +
+      Math.abs(a - target.a.semitones()) +
+      Math.abs(t - target.t.semitones()) +
+      Math.abs(b - target.b.semitones());
+    return (this.cache = score);
+  }
+
+  parallel(target: Permutation, upper: Util.Part, lower: Util.Part) {
+    const previousUpper = target.get(upper).semitones();
+    const previousLower = target.get(lower).semitones();
+    const currentUpper = this.get(upper).semitones();
+    const currentLower = this.get(lower).semitones();
+    const previousInterval = previousUpper - previousLower;
+    const interval = currentUpper - currentLower;
+
+    if (previousUpper === currentUpper) {
+      return false;
+    }
+
+    if ((previousInterval === 12 && interval === 12) || (previousInterval === 24 && interval === 24)) {
+      return true;
+    }
+
+    if ((previousInterval === 7 && interval === 7) || (previousInterval === 19 && interval === 19)) {
+      return true;
+    }
+
+    return false;
+  }
 }

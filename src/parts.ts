@@ -1,69 +1,41 @@
-import Util from "./util";
+import Util from './util';
 
 export default class Parts<T> {
-    private s: T;
-    private a: T;
-    private t: T;
-    private b: T;
+  s: T;
+  a: T;
+  t: T;
+  b: T;
 
-    constructor(s: T, a: T, t: T, b: T) {
-        this.s = s;
-        this.a = a;
-        this.t = t;
-        this.b = b;
-    }
+  constructor(s: T, a: T, t: T, b: T) {
+    this.s = s;
+    this.a = a;
+    this.t = t;
+    this.b = b;
+  }
 
-    getS() {
+  get(part: Util.Part) {
+    switch (part) {
+      case 's':
         return this.s;
-    }
-
-    setS(s: T) {
-        this.s = s;
-        return this;
-    }
-
-    getA() {
+      case 'a':
         return this.a;
-    }
-
-    setA(a: T) {
-        this.a = a;
-        return this;
-    }
-
-    getT() {
+      case 't':
         return this.t;
-    }
-
-    setT(t: T) {
-        this.t = t;
-        return this;
-    }
-
-    getB() {
+      case 'b':
         return this.b;
     }
+  }
 
-    setB(b: T) {
-        this.b = b;
-        return this;
+  set(part: Util.Part, value: T) {
+    switch (part) {
+      case 's':
+        return (this.s = value);
+      case 'a':
+        return (this.a = value);
+      case 't':
+        return (this.t = value);
+      case 'b':
+        return (this.b = value);
     }
-
-    get(part: Util.Part) {
-        switch (part) {
-            case "s": return this.getS();
-            case "a": return this.getA();
-            case "t": return this.getT();
-            case "b": return this.getB();
-        }
-    }
-
-    set(part: Util.Part, value: T) {
-        switch (part) {
-            case "s": return this.setS(value);
-            case "a": return this.setA(value);
-            case "t": return this.setT(value);
-            case "b": return this.setB(value);
-        }
-    }
+  }
 }

@@ -1,58 +1,52 @@
-import Chord from "./chord.js";
-import Group from "./group.js";
-import Resolution from "./resolution.js";
-import Parts from "./parts.js";
-import Util from "./util.js";
+import Chord from './chord.js';
+import Group from './group.js';
+import Resolution from './resolution.js';
+import Parts from './parts.js';
+import Util from './util.js';
+import Printable from './printable.js';
 
-export default class Event extends Parts<Group> implements Util.Printable {
-    private chord: Chord | undefined;
-    private type;
-    map = 0;
+export default class Event extends Parts<Group> implements Printable {
+  chord: Chord | undefined;
+  type;
+  map = 0;
 
-    constructor(s: Group, a: Group, t: Group, b: Group, type: Util.EventType) {
-        super(s, a, t, b);
-        this.type = type;
+  constructor(s: Group, a: Group, t: Group, b: Group, type: Util.EventType) {
+    super(s, a, t, b);
+    this.type = type;
+  }
+
+  static empty(type: Util.EventType) {
+    return new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), type);
+  }
+
+  validate() {
+    return (['s', 'a', 't', 'b'] as Util.Part[])
+      .filter(part => this.get(part).main())
+      .map(part => this.get(part).duration())
+      .every((duration, i, array) => duration === array[0]);
+  }
+
+  fits(resolution: Resolution) {
+    if (this.s.main() && !resolution.includes(this.s.main().pitch.tone)) {
+      return false;
     }
-
-    static empty(type: Util.EventType) {
-        return new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), type);
+    if (this.a.main() && !resolution.includes(this.a.main().pitch.tone)) {
+      return false;
     }
-
-    validate() {
-        return Util.PARTS.filter(part => this.get(part).main()).map(part => this.get(part).duration()).every((duration, i, array) => duration === array[0]);
+    if (this.t.main() && !resolution.includes(this.t.main().pitch.tone)) {
+      return false;
     }
-
-    fits(resolution: Resolution) {
-        for (const part of Util.PARTS) {
-            if (this.get(part).main() && !resolution.includes(this.get(part).main().getPitch().getTone())) {
-                return false;
-            }
-        }
-        return true;
+    if (this.b.main() && !resolution.includes(this.b.main().pitch.tone)) {
+      return false;
     }
+    return true;
+  }
 
-    duration() {
-        return this.getS().duration() ?? this.getA().duration ?? this.getT().duration ?? this.getB().duration ?? 0;
-    }
+  duration() {
+    return Math.max(this.s.duration(), this.a.duration(), this.t.duration(), this.b.duration()) || 1;
+  }
 
-    getChord() {
-        return this.chord;
-    }
-
-    setChord(chord: Chord | undefined) {
-        this.chord = chord;
-        return this;
-    }
-
-    getType() {
-        return this.type;
-    }
-
-    setType(type: Util.EventType) {
-        this.type = type;
-    }
-
-    string() {
-        return `{${this.getS().string()}} {${this.getA().string()}} {${this.getT().string()}} {${this.getB().string()}}`;
-    }
+  string() {
+    return `{${this.s.string()}} {${this.a.string()}} {${this.t.string()}} {${this.b.string()}}`;
+  }
 }
