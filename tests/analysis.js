@@ -151,4 +151,4 @@ $.load(
 
 $.sort();
 
-fs.writeFile("./tests/data.json", JSON.stringify($.dict), () => void 0);
+fs.writeFile("./tests/data.json", JSON.stringify($.dict), e => console.log(e));
