@@ -94,6 +94,8 @@ export default class Chord implements Printable {
         return options.filter(chord => ['I', 'i', 'V', 'VI', 'vi'].includes(chord.stringStem()));
       case 'end':
         return options.filter(chord => ['I/I', 'I/i', 'V/I'].includes(chord.string()));
+      default:
+        throw `Invalid event type '${type}'.`;
     }
   }
 

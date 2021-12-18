@@ -15,7 +15,7 @@ export default class Event extends Parts<Group> implements Printable {
     this.type = type;
   }
 
-  static empty(type: Util.EventType) {
+  static empty(type: Util.EventType = 'normal') {
     return new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), type);
   }
 
