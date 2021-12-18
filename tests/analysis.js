@@ -97,13 +97,13 @@ $.load(
     "Vb I",
     "V I",
     "I Ib I V Vb V I Ib I V Ib ii vi iib V I",
-    "vi iii IV I viib iii7 vi /V V7b I /I I"
+    "vi iii IV I viib iii7 vi /V V7b /I V I"
 );
 // BWV 2.6
 $.load(
     false,
     "/i V i #viib ib i Vb i V",
-    "bIIb /v #viio7 I #viio7b /i V7b i V i",
+    "bIIb /v #viio7 /i V /v #viio7b /i V7b i V i",
     "/v iv Vb i V ib i ivb V",
     "/III iii IV Ib V /i ii7c V ib iv V i",
     "i Vb i /iv ib V7b i /v iv V I"
@@ -113,7 +113,7 @@ $.load(
     true,
     "/I I I Ib IV vi /V V I V",
     "V Ib viib I V7c Ib ii7b Ic V I",
-    "/I V I /vi Vb i /I V7 /ii #viib i /I Ib V",
+    "/I V I /vi Vb i /ii #viib i /I Ib V",
     "/I vi Vb I V vi /V V7b /I V7 I"
 );
 // BWV 4.8
@@ -152,9 +152,29 @@ $.load(
     "/VI vi iib ii V I /i ii7b V I",
     "/iv i ib /VI ii7 V7 I /i iv V7 i",
     "V i /III viib IV Ib /iv Vb i V",
-    "/VI vi IV viib I /VI viib I"
+    "/VI vi IV viib I /iv IIb ivb V i",
+    "/VII V I /III Vc I /i iv V7 VI V I"
 );
+// BWV 8.6
+$.load(
+    true,
+    "/I I I IV I ii Vb I V",
+    "Vb I /V iib V7d Ib I V V I",
+    "/vi VII iv i ib ii7b ib iib V",
+    "/V iib V7d Ib V V I",
+    "/I V I /vi i V /iii #viio7 /vi V i",
+    "/IV iii V7b I Ib /I Ib V I viio7c V7d /V viio7 /I V I"
+);
+// BWV 9.7 Modulates from E major to D major
+// BWV 10.7
+$.load(
+    false,
+    "/III vi Vb I /i V7c i Vb VI /III V7b I vi ii7b V I",
+    "I Ib V Vb /i iv ivb ic V i",
+    "/III vi V I Ib /i V ic /III viib I Ib ii7b V I",
+    "I Ib V Vb /i IV #viic ib v iic /iv V7d ib V7c i ib /i iv I"
+)
 
 $.sort();
 
-fs.writeFile("./tests/data.json", JSON.stringify($.dict), e => console.log(e));
+fs.writeFile("./tests/data.json", JSON.stringify($.dict), () => null);
