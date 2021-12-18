@@ -91,7 +91,7 @@ export default class Chord implements Printable {
       case 'normal':
         return options;
       case 'cadence':
-        return options.filter(chord => ['I', 'i', 'V', 'Vb', 'VI', 'vi'].includes(chord.stringStem()));
+        return options.filter(chord => ['I', 'i', 'V', 'VI', 'vi'].includes(chord.stringStem()));
       case 'end':
         return options.filter(chord => ['I/I', 'I/i', 'V/I'].includes(chord.string()));
     }

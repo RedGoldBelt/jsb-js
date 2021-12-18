@@ -69,18 +69,22 @@ const $ = {
         }));
     },
 
+    process(data) {
+        return data.sort((l, r) => l.frequency - r.frequency).map(datum => datum.value)
+    },
+
     sort() {
-        this.dict.start.major = this.dict.start.major.sort((l, r) => r.frequency - l.frequency).map(datum => datum.value);
-        this.dict.start.minor = this.dict.start.minor.sort((l, r) => r.frequency - l.frequency).map(datum => datum.value);
+        this.dict.start.major = $.process(this.dict.start.major);
+        this.dict.start.minor = $.process(this.dict.start.minor);
         for (const array in this.dict.common.major) {
-            this.dict.common.major[array] = this.dict.common.major[array].sort((l, r) => r.frequency - l.frequency).map(datum => datum.value);
+            this.dict.common.major[array] = $.process(this.dict.common.major[array]);
         }
         for (const array in this.dict.common.minor) {
-            this.dict.common.minor[array] = this.dict.common.minor[array].sort((l, r) => r.frequency - l.frequency).map(datum => datum.value);
+            this.dict.common.minor[array] = $.process(this.dict.common.minor[array]);
         }
         for (const relativeKey in this.dict.specific) {
             for (const array in this.dict.specific[relativeKey]) {
-                this.dict.specific[relativeKey][array] = this.dict.specific[relativeKey][array].sort((l, r) => r.frequency - l.frequency).map(datum => datum.value);
+                this.dict.specific[relativeKey][array] = $.process(this.dict.specific[relativeKey][array]);
             }
         }
     }
@@ -93,7 +97,7 @@ $.load(
     true,
     "/I I Vb I vi Ib IV IVb I",
     "I IV viib Ib /V V7b I ii7b V I",
-    "/I I IV ii7b iiib IV7b V7b I V Ic V7 I",
+    "/I I IV ii7b iiib IV7b V7b I V V7 I",
     "Vb I",
     "V I",
     "I Ib I V Vb V I Ib I V Ib ii vi iib V I",
@@ -169,7 +173,7 @@ $.load(
 // BWV 10.7
 $.load(
     false,
-    "/III vi Vb I /i V7c i Vb VI /III V7b I vi ii7b V I",
+    "/III vi Vb I /i V7c i Vb VIb /III V7b I vi ii7b V I",
     "I Ib V Vb /i iv ivb ic V i",
     "/III vi V I Ib /i V ic /III viib I Ib ii7b V I",
     "I Ib V Vb /i IV #viic ib v iic /iv V7d ib V7c i ib /i iv I"

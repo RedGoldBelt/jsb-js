@@ -18,14 +18,14 @@ const CHORALE_3 = new Piece().setKey(Key.parse("Eb major")).parse("[G4_ G4 F4|Eb
 const PRIMARY_AB_TEST = new Piece().setKey(Key.parse("F# minor")).parse("[F#4 F#4 F#4 G#4|A4 G#4 F#4_|D4 F#4 F#4 E#4|F#4__]", "s").configure("dictionary", Dict.PRIMARY_AB);
 const CHOPIN = new Piece().setKey(Key.parse("Bb major")).parse("[Bb4 Bb4/. C5// D5 Bb4|G4 C5/ Bb4/ A4_]", "s");
 const BWV_1_6 = new Piece().setKey(Key.parse("F major")).parse("[F4|C5 A4 F4 C5|D5_ C5; C5|D5 E5 F5/ F5/ E5|D5 D5 C5; A4|D5 C5 Bb4 A4|G4_ F4_; C5_ A4_;|C5_ A4_;|A4 A4 G4 G4|A4 A4 G4; A4|Bb4 A4 G4 G4|F4_; F5 E5|D5 C5 Bb4 A4/ A4/|G4 G4 F4:]", "s");
-const BWV_X_6_SB = new Piece().setKey(Key.parse("A major")).parse("[A4|A4 A4 (F#4/,G#4/) A4|(B4/,A4/) G#4 F#4_;|G#4 A4 B4 E4/ F#4/|(G#4/,A4/) F#4 E4;]", "s").parse("[A3|A2 C#3 D3 F#3|D#3 E3 B2_;|G#2 F#2 E2 G#2/ A2/|B2 B2 E3;]", "b");
+const BWV_3_6 = new Piece().setKey(Key.parse("A major")).parse("[A4|A4 A4 (F#4/,G#4/) A4|(B4/,A4/) G#4 F#4_;|G#4 A4 B4 E4/ F#4/|(G#4/,A4/) F#4 E4;]", "s"); // .parse("[A3|A2 C#3 D3 F#3|D#3 E3 B2_;|G#2 F#2 E2 G#2/ A2/|B2 B2 E3;]", "b");
 
 console.timeEnd("Parsing");
 
 console.time("Harmonisation");
 
-GOD_SAVE_THE_QUEEN.harmonise();
-HARK_THE_HERALD_ANGELS_SING.harmonise();
+console.log(GOD_SAVE_THE_QUEEN.harmonise().string(), "\n");
+console.log(HARK_THE_HERALD_ANGELS_SING.harmonise().string(), "\n");
 EXERCISE_V1.harmonise();
 EXERCISE_V2.harmonise();
 KMSR_EXERCISE.harmonise();
@@ -36,6 +36,13 @@ CHORALE_3.harmonise();
 PRIMARY_AB_TEST.harmonise();
 CHOPIN.harmonise();
 BWV_1_6.harmonise();
-BWV_X_6_SB.harmonise();
+console.log(BWV_3_6.harmonise().string(), "\n");
 
 console.timeEnd("Harmonisation");
+/* Expand the event types options:
+! Ix ix
+? dominant Vx
+: perfect authentic / plagal V
+; half / deceptive
+@ tonic key
+*/
