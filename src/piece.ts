@@ -170,7 +170,7 @@ export default class Piece implements Printable {
               }
             }
 
-            const s = defined.s ? event.s.main().pitch : resolution.get(sInversion).near(target.s).filter(this.config.tessiture.s.includes)[0];
+            const s = defined.s ? event.s.main().pitch : resolution.get(sInversion).near(target.s).filter((tone) => this.config.tessiture.s.includes(tone))[0];
             const a = defined.a ? event.a.main().pitch : resolution.get(aInversion).near(target.a)[0];
             const t = defined.t ? event.t.main().pitch : resolution.get(tInversion).near(target.t)[0];
             const b = defined.b
