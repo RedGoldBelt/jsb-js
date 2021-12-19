@@ -17,7 +17,7 @@ import Tessitura from './tessitura.js';
 import Tone from './tone.js';
 import Util from './util.js';
 
-const Version = '1.9.7';
+const Version = '1.9.8';
 
 export {
   Chord,

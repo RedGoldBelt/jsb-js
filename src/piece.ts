@@ -170,7 +170,7 @@ export default class Piece implements Printable {
               }
             }
 
-            const s = defined.s ? event.s.main().pitch : resolution.get(sInversion).near(target.s)[0];
+            const s = defined.s ? event.s.main().pitch : resolution.get(sInversion).near(target.s).filter(this.config.tessiture.s.includes)[0];
             const a = defined.a ? event.a.main().pitch : resolution.get(aInversion).near(target.a)[0];
             const t = defined.t ? event.t.main().pitch : resolution.get(tInversion).near(target.t)[0];
             const b = defined.b
@@ -179,6 +179,9 @@ export default class Piece implements Printable {
                   .get(bInversion)
                   .near(target.b)
                   .filter(tone => this.config.tessiture.b.includes(tone) && tone.semitones() <= s.semitones() - 10)[0];
+            if (!b) {
+              continue;
+            }
             const permutation = new Permutation(s, a, t, b);
 
             if (permutation.score(this.config, target, !previousEvent) === Infinity) {
