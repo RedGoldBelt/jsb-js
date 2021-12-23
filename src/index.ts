@@ -1,6 +1,11 @@
 import Chord from './chord.js';
 import Config from './config.js';
-import Dict from './dictionary.js';
+import Dictionary from './dictionary.js';
+import DictionaryFull from './dictionary_full.js';
+import DictionaryBach from './dictionary_bach.js';
+import DictionaryPrimaryA from './dictionary_primary_a.js';
+import DictionaryPrimaryAB from './dictionary_primary_ab.js';
+import DictionaryPrimaryABC from './dictionary_primary_abc.js';
 import Event from './event.js';
 import Group from './group.js';
 import Inversions from './inversions.js';
@@ -17,12 +22,17 @@ import Tessitura from './tessitura.js';
 import Tone from './tone.js';
 import Util from './util.js';
 
-const Version = '1.9.10';
+const Version = '1.9.11';
 
 export {
   Chord,
   Config,
-  Dict,
+  Dictionary,
+  DictionaryBach,
+  DictionaryFull,
+  DictionaryPrimaryA,
+  DictionaryPrimaryAB,
+  DictionaryPrimaryABC,
   Event,
   Group,
   Inversions,

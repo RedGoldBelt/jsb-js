@@ -93,7 +93,7 @@ export default class Piece implements Printable {
     const previousEvent = this.previousEvent();
     const event = this.bars[this.time.barIndex][this.time.eventIndex];
     const previousChord = previousEvent?.chord ?? new Chord(undefined, '', 0, new Numeral(0, 0, this.key.tonality));
-    const chordOptions = previousChord.progression(this.config.dictionary, event.type);
+    const chordOptions = this.config.dictionary.progression(previousChord, event.type);
 
     while (event.map < chordOptions.length) {
       event.s = cacheEvent.s;

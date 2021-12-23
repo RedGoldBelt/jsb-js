@@ -1,9 +1,10 @@
-import Dict from './dictionary.js';
+import Dictionary from './dictionary.js';
+import DictionaryFull from './dictionary_full.js';
 import Parts from './parts.js';
 import Tessitura from './tessitura.js';
 
 export default class Config {
-  dictionary = Dict.FULL;
+  dictionary: Dictionary = new DictionaryFull();
   doubledMajorThird = false;
   doubledMinorThird = true;
   absentFifth = false;

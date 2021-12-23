@@ -72,33 +72,6 @@ export default class Chord implements Printable {
     );
   }
 
-  progression(dictionary: Util.Dictionary, type: Util.EventType) {
-    if (this.base === undefined) {
-      return dictionary.start[this.relativeKey.tonality ? 'major' : 'minor'].map(Chord.parse);
-    }
-    const specific = dictionary.specific?.[this.relativeKey.string()]?.[this.stringStem()] as string[];
-    const specificOptions = specific?.map(Chord.parse) ?? [];
-    const common = dictionary.common[this.relativeKey.tonality ? 'major' : 'minor'][this.stringStem()] as string[];
-    const commonOptions =
-      common?.map(string => {
-        const chord = Chord.parse(string);
-        chord.relativeKey = this.relativeKey;
-        return chord;
-      }) ?? [];
-
-    const options = specificOptions?.concat(commonOptions) ?? commonOptions;
-    switch (type) {
-      case 'normal':
-        return options;
-      case 'cadence':
-        return options.filter(chord => ['I', 'i', 'V', 'VI', 'vi'].includes(chord.stringStem()));
-      case 'end':
-        return options.filter(chord => ['I/I', 'I/i', 'V/I'].includes(chord.string()));
-      default:
-        throw `Invalid event type '${type}'.`;
-    }
-  }
-
   stringStem() {
     return this.base?.string() + this.modifier + (this.inversion ? Chord.INVERSIONS[this.inversion] : '');
   }
