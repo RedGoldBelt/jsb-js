@@ -2,7 +2,6 @@ import Chord from './chord.js';
 import Config from './config.js';
 import Event from './event.js';
 import Group from './group.js';
-import Key from './key.js';
 import Numeral from './numeral.js';
 import Parts from './parts.js';
 import Util from './util.js';
@@ -15,8 +14,11 @@ export default class Piece implements Printable {
   private bars: Util.Bar[] = [];
   private time: Util.Time = { barIndex: 0, eventIndex: 0 };
   private maxTime: Util.Time = { barIndex: 0, eventIndex: 0 };
-  private key = Key.parse('C major');
   private config = new Config();
+
+  constructor(config: Config) {
+    this.configure(config);
+  }
 
   parse(string: string, part: Util.Part) {
     const bars = string
@@ -92,7 +94,8 @@ export default class Piece implements Printable {
     const cacheEvent = this.cache[this.time.barIndex][this.time.eventIndex];
     const previousEvent = this.previousEvent();
     const event = this.bars[this.time.barIndex][this.time.eventIndex];
-    const previousChord = previousEvent?.chord ?? new Chord(undefined, '', 0, new Numeral(0, 0, this.key.tonality));
+    const previousChord =
+      previousEvent?.chord ?? new Chord(undefined, '', 0, new Numeral(0, 0, this.config.key.tonality));
     const chordOptions = this.config.dictionary.progression(previousChord, event.type);
 
     while (event.map < chordOptions.length) {
@@ -101,7 +104,7 @@ export default class Piece implements Printable {
       event.t = cacheEvent.t;
       event.b = cacheEvent.b;
       const chord = chordOptions[event.map++];
-      const resolution = chord.resolve(this.key);
+      const resolution = chord.resolve(this.config.key);
 
       const defined = new Parts<boolean>(
         event.s.main() !== undefined,
@@ -170,7 +173,12 @@ export default class Piece implements Printable {
               }
             }
 
-            const s = defined.s ? event.s.main().pitch : resolution.get(sInversion).near(target.s).filter((tone) => this.config.tessiture.s.includes(tone))[0];
+            const s = defined.s
+              ? event.s.main().pitch
+              : resolution
+                  .get(sInversion)
+                  .near(target.s)
+                  .filter(tone => this.config.tessiture.s.includes(tone))[0];
             const a = defined.a ? event.a.main().pitch : resolution.get(aInversion).near(target.a)[0];
             const t = defined.t ? event.t.main().pitch : resolution.get(tInversion).near(target.t)[0];
             const b = defined.b
@@ -245,13 +253,8 @@ export default class Piece implements Printable {
     return this;
   }
 
-  configure(property: keyof Config, value: any) {
-    this.config[property] = value;
-    return this;
-  }
-
-  setKey(key: Key) {
-    this.key = key;
+  configure(config: Config) {
+    Object.assign(this.config, config);
     return this;
   }
 

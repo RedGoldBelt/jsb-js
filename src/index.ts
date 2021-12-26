@@ -22,7 +22,7 @@ import Tessitura from './tessitura.js';
 import Tone from './tone.js';
 import Util from './util.js';
 
-const Version = '1.9.11';
+const Version = '1.9.12';
 
 export {
   Chord,
@@ -48,5 +48,5 @@ export {
   Tessitura,
   Tone,
   Util,
-  Version
+  Version,
 };

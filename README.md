@@ -20,37 +20,37 @@ Importantly, JSB.js employs a heuristic algorithm, which is not based on machine
 
 `npm install jsb-js`
 
-`import JSB from "jsb-js";`
+`import JSB from 'jsb-js';`
 
 ## Usage
 
 Example usage:
 
-`const gstq = new JSB.Piece().setKey(JSB.Key.parse("G major")).load("[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]", "s").harmonise();`
+`const gstq = new JSB.Piece({ key: JSB.Key.parse('G major') }).parse('[G4 G A|F#. G/ A|B@ B C|B. A/ G|A G F#|G_.@]', 's').harmonise();`
 
-The key is written in the format `"<A|B|C|D|E|F|G><|#|b> <major|minor>"`, which is CASE-SENSITIVE.
+The key is written in the format `'<A|B|C|D|E|F|G><|#|b> <major|minor>'`, which is CASE-SENSITIVE.
 
-The string for a part follows a syntax. Bars are delimited by the "|" character, and can be of any length.
+The string for a part follows a syntax. Bars are delimited by the '|' character, and can be of any length.
 The notes within a bar are delimited by spaces:
 
-`"...|G A B|..."`
+`'...|G A B|...'`
 
 The first note must have an octave number attached. Subsequent notes do not require one, as the closest note to the previous note is the determining factor. However, if the interval between two notes is greater than 6 semitones, you should specify an octave number:
 
-`"[C5 Ab Eb5|..."`
+`'[C5 Ab Eb5|...'`
 
-The duration of a note is appended after its pitch. Use a combination of the characters "\_", "/" or "." which multiply the default duration of one crotchet by 2, 0.5, and 1.5 respectively:
+The duration of a note is appended after its pitch. Use a combination of the characters '\_', '/' or '.' which multiply the default duration of one crotchet by 2, 0.5, and 1.5 respectively:
 
-`"[G#4. F#/ E|A_.|..."`
+`'[G#4. F#/ E|A_.|...'`
 
-Finally, you can annotate a note as being the final chord of a cadence (like a fermata) by appending the character "@" after the duration.
+Finally, you can annotate a note as being the final chord of a cadence (like a fermata) by appending the character '@' after the duration.
 
-`"[...|D5. C#/ B E|A4_.@ G#|A B C# C#|..."`
+`'[...|D5. C#/ B E|A4_.@ G#|A B C# C#|...'`
 
 To harmonise the piece, call the harmonise() method on it.
 
 You can change the dictionary that is used.
 
-`const myPiece = new JSB.Piece().setKey(...).load(...).configure("dictionary", JSB.Dict.PRIMARY_AB).harmonise();`
+`const myPiece = new JSB.Piece({ key: ..., dictionary: new JSB.DictionaryPrimaryAB() }).parse(...).harmonise();`
 
-Copyright Jeremy Chen
+Copyright Jeremy Chen.

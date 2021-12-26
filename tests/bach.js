@@ -1,17 +1,17 @@
-import fs from "fs";
+import fs from 'fs';
 
-fs.readFile("./tests/chorales.csv", "utf-8", (e, data) => $.analyse(data));
+fs.readFile('./tests/chorales.csv', 'utf-8', (e, data) => $.analyse(data));
 
 const $ = {
     analyse(data) {
         this.previous = [];
-        const lines = data.split("\n");
+        const lines = data.split('\n');
         for (const line of lines) {
-            const row = line.split(",");
-            if (line === "") {
+            const row = line.split(',');
+            if (line === '') {
                 return;
             }
-            if (row[1] === "1") {
+            if (row[1] === '1') {
                 this.previous = [];
             }
             if (row[16] !== this.previous[16]) {
@@ -31,4 +31,4 @@ const $ = {
     }
 }
 
-// fs.writeFile("./tests/data.json", "", () => null);
+// fs.writeFile('./tests/data.json', '', () => null);

@@ -1,14 +1,14 @@
-import * as JSB from "../dist/index.js";
+import * as JSB from '../dist/index.js';
 
-console.time("Parsing");
+console.time('Parsing');
 
 const DEBUG = new JSB.Piece();
 DEBUG.cache = [[JSB.Event.empty(), JSB.Event.empty()]];
 
-console.timeEnd("Parsing");
+console.timeEnd('Parsing');
 
-console.time("Harmonisation");
+console.time('Harmonisation');
 
 console.log(DEBUG.harmonise().string());
 
-console.timeEnd("Harmonisation");
+console.timeEnd('Harmonisation');
