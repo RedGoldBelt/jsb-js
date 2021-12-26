@@ -20,7 +20,7 @@ Importantly, JSB.js employs a heuristic algorithm, which is not based on machine
 
 `npm install jsb-js`
 
-`import JSB from 'jsb-js';`
+`import * as JSB from 'jsb-js';`
 
 ## Usage
 
