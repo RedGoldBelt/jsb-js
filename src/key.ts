@@ -46,7 +46,7 @@ export default class Key implements Printable {
       Math.floor((accidentals + 6) / 7),
       Math.floor((accidentals + 4) / 7),
       Math.floor((accidentals + 2) / 7),
-      Math.floor(accidentals / 7),
+      Math.floor(accidentals / 7)
     ];
   }
 

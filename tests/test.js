@@ -4,9 +4,6 @@ import {
   Piece
 } from '../dist/index.js';
 
-
-console.log(Dictionary.PrimaryA.common);
-
 console.time('Parsing');
 
 const GOD_SAVE_THE_QUEEN = new Piece({ key: Key.parse('G major') }).parse('[G4 G4 A4|F#4. G4/ A4;|B4 B4 C5|B4. A4/ G4|A4 G4 F#4|G4_.;]', 's');
