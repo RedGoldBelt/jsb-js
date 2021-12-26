@@ -1,26 +1,33 @@
 import Chord from './chord.js';
 import Config from './config.js';
-import Event from './event.js';
+import Event, { EventType } from './event.js';
 import Group from './group.js';
-import Numeral from './numeral.js';
-import Parts from './parts.js';
-import Util from './util.js';
-import Printable from './printable.js';
+import { Inversion } from './inversions.js';
+import Symbol from './symbol.js';
+import Parts, { Part } from './parts.js';
 import Permutation from './permutation.js';
 import Pitch from './pitch.js';
+import Printable from './printable.js';
+
+export type Bar = Event[];
+
+export interface Time {
+  barIndex: number;
+  eventIndex: number;
+}
 
 export default class Piece implements Printable {
-  private cache: Util.Bar[] = [];
-  private bars: Util.Bar[] = [];
-  private time: Util.Time = { barIndex: 0, eventIndex: 0 };
-  private maxTime: Util.Time = { barIndex: 0, eventIndex: 0 };
+  private cache: Bar[] = [];
+  private bars: Bar[] = [];
+  private time: Time = { barIndex: 0, eventIndex: 0 };
+  private maxTime: Time = { barIndex: 0, eventIndex: 0 };
   private config = new Config();
 
   constructor(config: Config) {
     this.configure(config);
   }
 
-  parse(string: string, part: Util.Part) {
+  parse(string: string, part: Part) {
     const bars = string
       .split(/[[|\]]/)
       .filter(bar => bar !== '')
@@ -30,7 +37,7 @@ export default class Piece implements Printable {
       this.cache[barIndex] ??= [];
       for (let eventIndex = 0; eventIndex < bar.length; ++eventIndex) {
         const event = bar[eventIndex];
-        let type: Util.EventType;
+        let type: EventType;
         switch (event.charAt(event.length - 1)) {
           case ';':
             type = 'cadence';
@@ -95,7 +102,7 @@ export default class Piece implements Printable {
     const previousEvent = this.previousEvent();
     const event = this.bars[this.time.barIndex][this.time.eventIndex];
     const previousChord =
-      previousEvent?.chord ?? new Chord(undefined, '', 0, new Numeral(0, 0, this.config.key.tonality));
+      previousEvent?.chord ?? new Chord(undefined, '', 0, new Symbol(0, 0, this.config.key.tonality));
     const chordOptions = this.config.dictionary.progression(previousChord, event.type);
 
     while (event.map < chordOptions.length) {
@@ -134,14 +141,14 @@ export default class Piece implements Printable {
           )
         : new Permutation(Pitch.parse('Gb4'), Pitch.parse('D4'), Pitch.parse('B3'), Pitch.parse('Eb3'));
 
-      const defaultInversions = [0, 1, 2, 3] as Util.Inversion[];
+      const defaultInversions = [0, 1, 2, 3] as Inversion[];
       const sInversions = defined.s ? [resolution.findInversion(event.s.main().pitch.tone)] : defaultInversions;
       const aInversions = defined.a ? [resolution.findInversion(event.a.main().pitch.tone)] : defaultInversions;
       const tInversions = defined.t ? [resolution.findInversion(event.t.main().pitch.tone)] : defaultInversions;
       const bInversion = resolution.inversion;
 
       const permutations: Permutation[] = [];
-      const tonality = (chord.base as Numeral).tonality;
+      const tonality = (chord.base as Symbol).tonality;
       const hasSeventh = resolution.seventh !== undefined;
 
       for (const sInversion of sInversions) {

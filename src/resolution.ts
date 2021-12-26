@@ -1,12 +1,11 @@
-import Inversions from './inversions.js';
+import Inversions, { Inversion } from './inversions.js';
 import Printable from './printable.js';
 import Tone from './tone.js';
-import Util from './util.js';
 
 export default class Resolution extends Inversions<Tone> implements Printable {
-  inversion: Util.Inversion;
+  inversion: Inversion;
 
-  constructor(root: Tone, third: Tone, fifth: Tone, seventh: Tone | undefined, inversion: Util.Inversion) {
+  constructor(root: Tone, third: Tone, fifth: Tone, seventh: Tone | undefined, inversion: Inversion) {
     super(root, third, fifth, seventh);
     this.inversion = inversion;
   }
@@ -16,7 +15,7 @@ export default class Resolution extends Inversions<Tone> implements Printable {
   }
 
   findInversion(tone: Tone) {
-    return [this.root, this.third, this.fifth, this.seventh].findIndex(test => tone.equals(test)) as Util.Inversion;
+    return [this.root, this.third, this.fifth, this.seventh].findIndex(test => tone.equals(test)) as Inversion;
   }
 
   string() {

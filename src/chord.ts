@@ -1,9 +1,11 @@
+import { Inversion } from './inversions.js';
 import Key from './key.js';
-import Numeral from './numeral.js';
+import Symbol from './symbol.js';
 import Printable from './printable.js';
 import Resolution from './resolution.js';
 import Tone from './tone.js';
-import Util from './util.js';
+
+export type Modifier = '' | '7' | 'o7';
 
 export default class Chord implements Printable {
   private static INVERSIONS = ['a', 'b', 'c', 'd'];
@@ -13,7 +15,7 @@ export default class Chord implements Printable {
   inversion;
   relativeKey;
 
-  constructor(base: Numeral | undefined, modifier: Util.Modifier, inversion: Util.Inversion, relativeKey: Numeral) {
+  constructor(base: Symbol | undefined, modifier: Modifier, inversion: Inversion, relativeKey: Symbol) {
     this.base = base;
     this.modifier = modifier;
     this.inversion = inversion;
@@ -28,10 +30,10 @@ export default class Chord implements Printable {
       throw `Could not parse chord '${string}'.`;
     }
     return new Chord(
-      Numeral.parse(result[1]),
-      result[4] as Util.Modifier,
-      (result[5] ? Chord.INVERSIONS.indexOf(result[5]) : 0) as Util.Inversion,
-      Numeral.parse(result[6] ? result[7] : 'I')
+      Symbol.parse(result[1]),
+      result[4] as Modifier,
+      (result[5] ? Chord.INVERSIONS.indexOf(result[5]) : 0) as Inversion,
+      Symbol.parse(result[6] ? result[7] : 'I')
     );
   }
 

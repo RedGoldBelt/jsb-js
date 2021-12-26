@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Chord, Numeral } from '../dist/index.js';
+import { Chord, Symbol } from '../dist/index.js';
 
 const $ = {
     init() {
@@ -58,7 +58,7 @@ const $ = {
     },
 
     load(tonality, ...arr) {
-        this.chord = new Chord(undefined, 0, 0, new Numeral(0, 0, tonality));
+        this.chord = new Chord(undefined, 0, 0, new Symbol(0, 0, tonality));
 
         arr.forEach(symbols => symbols.split(' ').forEach(symbol => {
             if (symbol.startsWith('/')) {

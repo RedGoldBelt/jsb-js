@@ -1,12 +1,11 @@
 import Dictionary from './dictionary.js';
-import DictionaryFull from './dictionary_full.js';
 import Key from './key.js';
 import Parts from './parts.js';
 import Tessitura from './tessitura.js';
 
 export default class Config {
   key = Key.parse('C major');
-  dictionary: Dictionary = new DictionaryFull();
+  dictionary: Dictionary = Dictionary.Full;
   doubledMajorThird = false;
   doubledMinorThird = true;
   absentFifth = false;

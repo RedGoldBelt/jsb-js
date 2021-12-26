@@ -1,7 +1,6 @@
 import Config from './config.js';
-import Parts from './parts.js';
+import Parts, { Part } from './parts.js';
 import Pitch from './pitch.js';
-import Util from './util.js';
 
 export default class Permutation extends Parts<Pitch> {
   cache = Infinity;
@@ -56,7 +55,7 @@ export default class Permutation extends Parts<Pitch> {
     return (this.cache = score);
   }
 
-  parallel(target: Permutation, upper: Util.Part, lower: Util.Part) {
+  parallel(target: Permutation, upper: Part, lower: Part) {
     const previousUpper = target.get(upper).semitones();
     const previousLower = target.get(lower).semitones();
     const currentUpper = this.get(upper).semitones();

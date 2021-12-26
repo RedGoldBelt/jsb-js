@@ -1,26 +1,27 @@
 import Chord from './chord.js';
 import Group from './group.js';
 import Resolution from './resolution.js';
-import Parts from './parts.js';
-import Util from './util.js';
+import Parts, { Part } from './parts.js';
 import Printable from './printable.js';
+
+export type EventType = 'normal' | 'cadence' | 'end';
 
 export default class Event extends Parts<Group> implements Printable {
   chord: Chord | undefined;
   type;
   map = 0;
 
-  constructor(s: Group, a: Group, t: Group, b: Group, type: Util.EventType) {
+  constructor(s: Group, a: Group, t: Group, b: Group, type: EventType) {
     super(s, a, t, b);
     this.type = type;
   }
 
-  static empty(type: Util.EventType = 'normal') {
+  static empty(type: EventType = 'normal') {
     return new Event(Group.empty(), Group.empty(), Group.empty(), Group.empty(), type);
   }
 
   validate() {
-    return (['s', 'a', 't', 'b'] as Util.Part[])
+    return (['s', 'a', 't', 'b'] as Part[])
       .filter(part => this.get(part).main())
       .map(part => this.get(part).duration())
       .every((duration, i, array) => duration === array[0]);

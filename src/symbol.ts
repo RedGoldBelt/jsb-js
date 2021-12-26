@@ -1,7 +1,7 @@
 import Printable from './printable.js';
 import Tone from './tone.js';
 
-export default class Numeral implements Printable {
+export default class Symbol implements Printable {
   static NUMERALS = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'];
 
   accidental;
@@ -17,18 +17,18 @@ export default class Numeral implements Printable {
   static parse(string: string) {
     const result = string.match(/^(b|#|)(III|iii|VII|vii|II|ii|IV|iv|VI|vi|I|i|V|v)$/);
     if (result === null) {
-      throw `Could not parse numeral '${string}'.`;
+      throw `Could not parse symbol '${string}'.`;
     }
-    return new Numeral(
+    return new Symbol(
       Tone.ACCIDENTALS.indexOf(result[1]),
-      Numeral.NUMERALS.indexOf(result[2].toLowerCase()),
+      Symbol.NUMERALS.indexOf(result[2].toLowerCase()),
       result[2] === result[2].toUpperCase()
     );
   }
 
   string() {
     return (
-      Tone.ACCIDENTALS[this.accidental] + Numeral.NUMERALS[this.degree][this.tonality ? 'toUpperCase' : 'toLowerCase']()
+      Tone.ACCIDENTALS[this.accidental] + Symbol.NUMERALS[this.degree][this.tonality ? 'toUpperCase' : 'toLowerCase']()
     );
   }
 }

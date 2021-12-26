@@ -1,4 +1,4 @@
-import Util from './util';
+export type Inversion = 0 | 1 | 2 | 3;
 
 export default class Inversions<T> {
   root;
@@ -13,7 +13,7 @@ export default class Inversions<T> {
     this.seventh = seventh;
   }
 
-  get(inversion: Util.Inversion) {
+  get(inversion: Inversion) {
     switch (inversion) {
       case 0:
         return this.root;
@@ -26,7 +26,7 @@ export default class Inversions<T> {
     }
   }
 
-  set(inversion: Util.Inversion, value: T) {
+  set(inversion: Inversion, value: T) {
     switch (inversion) {
       case 0:
         return (this.root = value);
