@@ -16,7 +16,7 @@ import Symbol from './symbol.js';
 import Tessitura from './tessitura.js';
 import Tone from './tone.js';
 
-const Version = '1.9.13';
+const Version = '1.9.15';
 
 export {
   Chord,
