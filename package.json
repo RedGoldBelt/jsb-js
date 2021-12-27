@@ -20,8 +20,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "npm run compile && npx webpack",
-    "compile": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.json",
     "test": "node tests/test.js"
   },
   "devDependencies": {
